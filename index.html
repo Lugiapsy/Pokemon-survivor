@@ -4233,6 +4233,7 @@ window.addEventListener("gamepadconnected", () => { pad.used = true; });
    ce qu'il y a autour de la caméra (Pokémon, attaques, bonbons…). */
 var NET = { role:null, peer:null, conn:null, conns:[], code:null, idx:0, picks:[], myLine:null, lobby:null, started:false, ask:null, sendT:0, inT:0, tArr:0, gap:50, lastIn:"", inRep:0, lastChest:null };
 const NET_PFX = "pokesurv-";
+const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" }] } };
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -4285,7 +4286,7 @@ function netHost() {
   netMsg("Création du salon…");
   netLib().then(() => {
     const tryOpen = n => {
-      const code = netCodeGen(), peer = new Peer(NET_PFX + code);
+      const code = netCodeGen(), peer = new Peer(NET_PFX + code, NET_OPTS);
       peer.on("open", () => { Object.assign(NET, { role:"host", peer, code, picks:[null] }); netLobby(); });
       peer.on("connection", conn => netAccept(conn));
       peer.on("error", e => { if (e && e.type === "unavailable-id" && n < 3) { try { peer.destroy(); } catch (er) {} tryOpen(n + 1); } else if (!NET.started) netFail(netErr(e)); });
@@ -4299,13 +4300,14 @@ function netAccept(conn) {
     if (NET.role !== "host" || NET.started || NET.conns.length >= 3) { try { conn.send(JSON.stringify({ t:NET.started ? "started" : "full" })); } catch (e) {} setTimeout(() => { try { conn.close(); } catch (e) {} }, 400); return; }
     let idx = 1; while (NET.conns.some(g => g.idx === idx)) idx++;
     const g = { conn, idx, line:null }; NET.conns.push(g);
-    conn.on("data", d => netHostData(g, d));
+    conn.on("data", d => netHostData(g, netStr(d)));
     conn.on("close", () => netGone(g));
     netTo(g, { t:"welcome", idx, code:NET.code });
     sfx("click"); netLobby();
   });
   conn.on("error", () => {});
 }
+const netStr = d => typeof d === "string" ? d : d instanceof ArrayBuffer ? new TextDecoder().decode(d) : String(d);
 function netGone(g) {
   if (!NET.conns.includes(g)) return;
   NET.conns = NET.conns.filter(x => x !== g);
@@ -4452,13 +4454,15 @@ function netJoin(code) {
   netClose();
   netMsg(`Connexion au salon ${code}…`);
   netLib().then(() => {
-    const peer = new Peer(); NET.peer = peer;
+    const peer = new Peer(NET_OPTS); NET.peer = peer;
     const timer = setTimeout(() => { if (NET.peer === peer && NET.role !== "guest") { netFail("Pas de réponse du salon. Vérifie le code, ou réessaie (certains réseaux d'entreprise ou d'école bloquent le jeu en ligne)."); try { peer.destroy(); } catch (e) {} NET.peer = null; } }, 15000);
     peer.on("open", () => {
-      const conn = peer.connect(NET_PFX + code, { serialization:"none", reliable:true });
+      let conn; // sérialisation par défaut de PeerJS : découpe aussi les gros messages
+      try { conn = peer.connect(NET_PFX + code, { reliable:true }); } catch (e) { clearTimeout(timer); netFail("Erreur de connexion : " + (e && e.message || e)); return; }
+      conn.on("error", e => { if (!NET.started) netFail("Erreur de connexion : " + (e && (e.type || e.message) || "inconnue")); });
       NET.conn = conn; NET.code = code;
       conn.on("open", () => { clearTimeout(timer); NET.role = "guest"; netLobby(); netSend({ t:"hi" }); });
-      conn.on("data", d => netGuestData(d));
+      conn.on("data", d => netGuestData(netStr(d)));
       conn.on("close", () => netHostGone());
     });
     peer.on("error", e => { clearTimeout(timer); if (!NET.started) { netFail(netErr(e)); NET.role = null; netButtons(); } });
