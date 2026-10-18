@@ -193,7 +193,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v107)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v108)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -4236,7 +4236,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v107";
+const NET_VER = "v108";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -4274,7 +4274,7 @@ function netLobby() {
   if (NET.role === "host") {
     const list = [{ idx:0, line:NET.picks[0] }].concat(NET.conns.slice().sort((a, b) => a.idx - b.idx).map(g => ({ idx:g.idx, line:g.line })));
     const rows = list.map(r => `<b>J${r.idx + 1}${r.idx ? "" : " (toi)"}</b> : ${netName(r.line) || (r.idx ? "choisit…" : "choisis ton starter ↓")}`).join(" · ");
-    netMsg(`Salon <span class="netCodeBig">${NET.code}</span><br>Donne ce code à tes amis, ou ce lien : <input id="netLinkOut" readonly value="${netEsc(netLink())}"><br>${rows}<br>Niveau : <b>${netEsc(LEVEL.name)}</b> (c'est toi qui le choisis en haut)`);
+    netMsg(`Salon <span class="netCodeBig">${NET.code}</span><br>Donne ce code à tes amis, ou ce lien : <input id="netLinkOut" readonly value="${netEsc(netLink())}"><br>${rows}<br>Niveau : <b>${netEsc(LEVEL.name)}</b> (c'est toi qui le choisis en haut)${NET.diag ? `<br><small style="opacity:.75">Réseau : ${netEsc(NET.diag)}</small>` : ""}`);
     $("netLinkOut").addEventListener("focus", e => e.target.select());
     const ready = !!NET.picks[0] && NET.conns.length > 0 && NET.conns.every(g => g.line);
     $("netGo").disabled = !ready; $("netGo").textContent = !NET.conns.length ? "En attente d'un autre joueur…" : ready ? "▶ Lancer la partie" : "En attente des starters…";
@@ -4291,14 +4291,19 @@ function netHost() {
     const tryOpen = n => {
       const code = netCodeGen(), peer = new Peer(NET_PFX + code, NET_OPTS);
       peer.on("open", () => { Object.assign(NET, { role:"host", peer, code, picks:[null] }); netLobby(); });
-      peer.on("connection", conn => netAccept(conn));
+      peer.on("connection", conn => { netDiag("un joueur frappe à la porte…"); netAccept(conn); });
       peer.on("error", e => { if (e && e.type === "unavailable-id" && n < 3) { try { peer.destroy(); } catch (er) {} tryOpen(n + 1); } else if (!NET.started) netFail(netErr(e)); });
-      peer.on("disconnected", () => { try { if (NET.peer === peer) peer.reconnect(); } catch (e) {} });
+      peer.on("disconnected", () => { netDiag("liaison au serveur des salons perdue, reconnexion…"); try { if (NET.peer === peer) peer.reconnect(); } catch (e) {} });
     };
     tryOpen(0);
   }, () => netFail("Impossible de charger le module en ligne (PeerJS). Vérifie ta connexion Internet."));
 }
+function netDiag(t) { NET.diag = t + " [" + NET_VER + "]"; console.log("[net]", t); if (NET.role === "host" && !NET.started) netLobby(); }
 function netAccept(conn) {
+  const watch = () => { const pc = conn.peerConnection; if (!pc) return setTimeout(watch, 200);
+    const st = () => netDiag(`joueur entrant : signal ${pc.signalingState}, liaison ${pc.iceConnectionState}`);
+    pc.addEventListener("iceconnectionstatechange", st); pc.addEventListener("signalingstatechange", st); st(); };
+  watch();
   conn.on("open", () => {
     if (NET.role !== "host" || NET.started || NET.conns.length >= 3) { try { conn.send(JSON.stringify({ t:NET.started ? "started" : "full" })); } catch (e) {} setTimeout(() => { try { conn.close(); } catch (e) {} }, 400); return; }
     let idx = 1; while (NET.conns.some(g => g.idx === idx)) idx++;
@@ -4308,7 +4313,7 @@ function netAccept(conn) {
     netTo(g, { t:"welcome", idx, code:NET.code });
     sfx("click"); netLobby();
   });
-  conn.on("error", () => {});
+  conn.on("error", e => netDiag("erreur du joueur entrant : " + (e && (e.type || e.message) || "?")));
 }
 const netStr = d => typeof d === "string" ? d : d instanceof ArrayBuffer ? new TextDecoder().decode(d) : String(d);
 function netGone(g) {
@@ -4471,6 +4476,7 @@ function netJoin(code) {
       stage = 1; netMsg(`Serveur joint, recherche du salon ${code}…`);
       NET.conn = conn; NET.code = code;
       const watchIce = () => { const pc = conn.peerConnection; if (!pc) return setTimeout(watchIce, 200);
+        pc.addEventListener("signalingstatechange", () => { if (pc.signalingState === "stable" && stage < 2 && NET.role !== "guest") { stage = 2; netMsg(`Le salon ${code} a répondu, liaison avec l'hôte…`); } });
         pc.addEventListener("iceconnectionstatechange", () => { ice = pc.iceConnectionState;
           if (stage < 2 && ice !== "new" && NET.role !== "guest") { stage = 2; netMsg(`Salon ${code} trouvé, liaison avec l'hôte…`); }
           if (ice === "failed" && NET.role !== "guest") { clearTimeout(timer); netFail(`Salon trouvé, mais la liaison entre vos deux ordinateurs a échoué (étape 3/3). [${NET_VER}]`); } }); };
