@@ -112,6 +112,8 @@ img.ico { width:16px; height:16px; image-rendering:pixelated; vertical-align:-3p
 .evoPrev { display:block; width:100%; height:auto; max-height:120px; image-rendering:pixelated; }
 .dmgTable { border-collapse:collapse; width:min(560px, 100%); font-size:14px; background:var(--panel); border-radius:12px; overflow:hidden; }
 .dmgTable th, .dmgTable td { padding:7px 10px; text-align:right; white-space:nowrap; } .dmgTable th:first-child, .dmgTable td:first-child { text-align:left; }
+.mvpBanner { font:700 18px "Pixelify Sans", sans-serif; margin:4px 0 8px; } .mvpTag { font-size:11px; background:#ffd84a; color:#2a2310; border-radius:6px; padding:1px 6px; margin-left:4px; }
+.teamTable { margin-bottom:12px; } .teamTable tr.mvpRow td { background:rgba(255,216,74,.12); } .dmgFor { font:600 13px Rubik, sans-serif; color:var(--ink-dim); margin:6px 0 4px; }
 .dmgTable th { color:var(--ink-dim); font-weight:600; font-size:12px; border-bottom:1px solid var(--panel-edge); } .dmgTable small { color:var(--ink-dim); }
 .dmgTable .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:7px; }
 .dmgTable .bar { display:inline-block; width:70px; height:7px; background:rgba(255,255,255,.08); border-radius:4px; margin-right:7px; vertical-align:middle; overflow:hidden; } .dmgTable .bar i { display:block; height:100%; }
@@ -193,7 +195,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v108)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v109)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -1130,28 +1132,29 @@ const EXTRA = () => IT("depipe"), CURSE = () => 1 + .1 * IT("miel");
 const MAX_ITEMS = 6, MAX_MOVES = () => 4 + (shop.slot || 0); // 4 capacités comme dans les jeux, +1 ou +2 achetées au Marchand
 function hurtP(v) {
   const P = S.P;
+  if (P.choosing) return false; // en ligne : intangible pendant son choix
   if (P.line === "draco") v *= .9; // Multiécaille : −10 % de dégâts reçus
   P.hp -= Math.max(1, v - IT("veste")); P.inv = .5; S.bossClean = false; sfx("hurt");
   try { (P.gp || pad.gp)?.vibrationActuator?.playEffect("dual-rumble", { duration:120, strongMagnitude:.35, weakMagnitude:.25 }); } catch (e) {}
   if (P.hp > 0) return false;
   if (P.revives > 0) {
-    P.revives--; P.hp = Math.round(P.maxHp * .5); P.inv = 2.5; P.evoFlash = 1;
+    P.revives--; P.deaths = (P.deaths || 0) + 1; P.revived = (P.revived || 0) + 1; P.hp = Math.round(P.maxHp * .5); P.inv = 2.5; P.evoFlash = 1;
     for (const f of S.foes) { if (f.d.boss) continue; const dx = f.x - P.x, dy = f.y - P.y, d = Math.hypot(dx, dy) || 1; if (d < 320) { f.kbx = dx / d * 700; f.kby = dy / d * 700; } }
     S.fxs.push({ x:P.x, y:P.y, r:0, max:320, life:.5, col:"rgba(255,230,140," });
     banner(`Rappel ! ${pName()} revient au combat !`);
     return false;
   }
   if (S.players.some(p => p !== P && !p.down)) { // multijoueur : K.O., un coéquipier peut le relever
-    P.hp = 0; P.down = true; P.revT = 0; P.inv = 1e9; P.kbx = P.kby = 0; P.dashT = 0;
+    P.deaths = (P.deaths || 0) + 1; P.hp = 0; P.down = true; P.revT = 0; P.inv = 1e9; P.kbx = P.kby = 0; P.dashT = 0;
     banner(`${pTag(P)}${pName()} est K.O. ! Reste 3 s à côté de lui pour le relever.`);
     return false;
   }
-  P.hp = 0; endGame(false); return true;
+  P.deaths = (P.deaths || 0) + 1; P.hp = 0; endGame(false); return true;
 }
 function nearP(x, y) { // joueur debout le plus proche (cible des ennemis)
   let best = null, bd = Infinity;
-  for (const p of S.players) { if (p.down) continue; const d = (p.x - x) ** 2 + (p.y - y) ** 2; if (d < bd) { bd = d; best = p; } }
-  return best || S.players[0];
+  for (const p of S.players) { if (p.down || p.choosing) continue; const d = (p.x - x) ** 2 + (p.y - y) ** 2; if (d < bd) { bd = d; best = p; } }
+  return best || S.players.find(p => !p.down) || S.players[0];
 }
 const padList = () => [...(navigator.getGamepads ? navigator.getGamepads() : [])].filter(g => g && g.connected);
 function padAxes(gp) {
@@ -1378,6 +1381,7 @@ function hitFoe(f, base, type, kx = 0, ky = 0, forceCrit = false) {
   f.hp -= dmg; f.hurt = .12; S.P.dealt += dmg; sfx("hit");
   if (S.parts.length < 450) emit(f.x, f.y - f.r * .2, 3, type, { sp:170, life:.3, jit:f.r * .6 });
   const src = HIT_SRC || "autre", real = Math.min(dmg, Math.max(0, f.hp + dmg)); (S.dmgBy ||= {})[src] = (S.dmgBy[src] || 0) + real;
+  const pb = (S.P.dmgBy ||= {}); pb[src] = (pb[src] || 0) + real; f.lastBy = S.P.idx; // récap par joueur
   if (!f.d.boss) { f.x += kx * 6; f.y += ky * 6; }
   S.texts.push({ x:f.x + (Math.random()-.5)*10, y:f.y - f.r, txt:Math.round(dmg), col: crit ? "#ff8a3d" : m > 1 ? "#ffd84a" : m < 1 ? "#a9b4a6" : "#fff", life:.6, big:m > 1 || crit });
   if (crit) maybeMsg(f, "Coup critique !", "#ff8a3d");
@@ -1498,7 +1502,7 @@ function updateMoves(dt) {
     } else if (id === "lancesoleil") {
       if (!P.aiming && !nearestFoes(1).length) { m.t = .3; continue; }
       m.t = (lv >= 4 ? 5 : 6.5) * P.cdMul;
-      S.suns.push({ t:lv >= 4 ? .6 : 1, max:lv >= 4 ? .6 : 1, lv });
+      S.suns.push({ t:lv >= 4 ? .6 : 1, max:lv >= 4 ? .6 : 1, lv, o:P });
     } else if (id === "dansedraco") {
       m.t = (lv >= 4 ? 10 : 12) * P.cdMul;
       P.dracoT = (lv >= 3 ? 6 : 5) * DUR(); P.dracoMul = lv >= 5 ? 1.2 : lv >= 4 ? 1.15 : lv >= 2 ? 1.1 : 1.05; P.dracoLv = lv;
@@ -1853,11 +1857,14 @@ function update(dt) {
     const help = S.players.some(q => !q.down && Math.hypot(q.x - P.x, q.y - P.y) < 60);
     P.revT = help ? P.revT + dt : Math.max(0, P.revT - dt * .5);
     if (P.revT >= 3) {
+      P.revived = (P.revived || 0) + 1;
+      for (const q of S.players) if (q !== P && !q.down && Math.hypot(q.x - P.x, q.y - P.y) < 60) q.saves = (q.saves || 0) + 1;
       P.down = false; P.hp = Math.round(P.maxHp * .4); P.inv = 2; P.evoFlash = 1; sfx("evo");
       banner(`${pTag(P)}${pName()} est relevé !`); S.fxs.push({ x:P.x, y:P.y, r:0, max:120, life:.45, col:"rgba(255,240,170," });
     }
     continue;
   }
+  if (P.choosing) { P.inv = Math.max(P.inv, 1); P.dashT = 0; continue; } // en ligne : immobile et intangible pendant son choix
   const C = ctrlFor(P); P.gp = C.gp;
   let mx = 0, my = 0;
   if (C.kb && keys.has("left")) mx -= 1; if (C.kb && keys.has("right")) mx += 1;
@@ -1934,9 +1941,10 @@ function update(dt) {
   const nb = LEVEL.bosses[S.bossIdx];
   if (nb && S.t >= nb.at) { S.bossIdx++; S.bossClean = true; S.boss = spawnFoe(nb.kind); sfx("boss"); banner(`Un ${foeName(FOES[nb.kind])} ${LEVEL.from} !`); }
 
-  const owned = [S.shots, S.waves, S.clouds, S.tornados, S.beams, S.tails, S.suns, S.sunbeams, S.slashes, S.patches, S.flames, S.claws, S.bites, S.chains, S.bolts];
-  for (const pl of S.players) if (!pl.down) { // chaque joueur lance ses capacités ; on retient qui a lancé quoi
+  for (const pl of S.players) if (!pl.down && !pl.choosing) { // chaque joueur lance ses capacités ; on retient qui a lancé quoi
     P = S.P = pl; updateMoves(dt);
+    // relu après chaque joueur : updateMoves remplace certains tableaux (filter), une liste gardée d'avant raterait ses nouveaux effets
+    const owned = [S.shots, S.waves, S.clouds, S.tornados, S.beams, S.tails, S.suns, S.sunbeams, S.slashes, S.patches, S.flames, S.claws, S.bites, S.chains, S.bolts];
     for (const a of owned) for (const e of a) e.o ||= pl;
   }
   for (const sb of S.sunbeams) sb.life -= dt; S.sunbeams = S.sunbeams.filter(sb => sb.life > 0);
@@ -2361,6 +2369,7 @@ function update(dt) {
     if (f.d.rare) { if (f.caught) rareCaught(f); continue; }
     if (f.d.mother) { motherCalm(f); continue; }
     S.kills++; dexCount(f); sfx("ko");
+    { const kp = S.players[f.lastBy]; if (kp) kp.kos = (kp.kos || 0) + 1; }
     if (f.d.healer && !S.nuz) { P.hp = Math.min(P.maxHp, P.hp + 20); S.texts.push({ x:P.x, y:P.y - 30, txt:"Leveinard +20 PV", col:"#7fe08a", life:1, label:true }); emit(P.x, P.y, 10, "fee", { sp:120, life:.5, r:2.6 }); }
     if (f.d.event) { // Ronflex se réveille
       banner("Ronflex se réveille, bâille… et s'en va en te laissant des cadeaux !"); S.shake = .3;
@@ -2387,7 +2396,7 @@ function update(dt) {
       for (let i = 0; i < 12; i++) S.gems.push({ x:f.x + (Math.random()-.5)*80, y:f.y + (Math.random()-.5)*80, v:f.d.xp/12 | 0 || 1, berry:i < 2 && !S.nuz });
     } else if (S.gems.length < 450) {
       S.gems.push({ x:f.x, y:f.y, v:f.d.xp, berry: !S.nuz && Math.random() < .012 });
-    } else gainXp(f.d.xp);
+    } else gainXp(f.d.xp, nearP(f.x, f.y));
     S.fxs.push({ x:f.x, y:f.y, r:0, max:f.r * 1.6, life:.2, col:"rgba(255,255,255," });
   }
   S.foes = alive;
@@ -2401,7 +2410,7 @@ function update(dt) {
     if (d < mag && !g.pull) g.pull = P;
     if (g.pull) { const sp = 420 * dt; g.x += dx / d * Math.min(sp, d); g.y += dy / d * Math.min(sp, d); }
     if (d < P.r + 6 && g.pick) { g.got = true; usePick(g.pick); continue; }
-    if (d < P.r + 6) { g.got = true; if (g.berry) { P.hp = Math.min(P.maxHp, P.hp + 25); S.texts.push({ x:P.x, y:P.y - 30, txt:"Baie Oran +25 PV", col:"#7fe08a", life:1, label:true }); } else { gainXp(g.v); sfx("xp"); } }
+    if (d < P.r + 6) { g.got = true; if (g.berry) { P.hp = Math.min(P.maxHp, P.hp + 25); S.texts.push({ x:P.x, y:P.y - 30, txt:"Baie Oran +25 PV", col:"#7fe08a", life:1, label:true }); } else { gainXp(g.v, P); sfx("xp"); } }
   }
   S.gems = S.gems.filter(g => !g.got);
 
@@ -2420,18 +2429,21 @@ function update(dt) {
   S.shake = Math.max(0, S.shake - dt);
 
   P = S.P = S.players[0];
-  const pe = S.players.find(p => p.pendingEvo && !p.down), pv = S.players.find(p => p.pendingLv > 0 && !p.down);
-  if (pe) { S.P = pe; pe.remote ? netAsk(pe, "evo") : openEvo(); }       // chaque joueur choisit à son tour (en ligne : sur son écran)
-  else if (pv) { S.P = pv; pv.remote ? netAsk(pv, "lv") : openLevelUp(); }
-  else if (S.chestQ.length) { if (S.chestQ[0].remote) netChest(); else openChest(); }
+  if (NET.role === "host" && NET.started) netChoices(); // en ligne : la partie continue pendant les choix
+  else {
+    const pe = S.players.find(p => p.pendingEvo && !p.down), pv = S.players.find(p => p.pendingLv > 0 && !p.down);
+    if (pe) { S.P = S.chooser = pe; openEvo(); }       // sur le même écran : chaque joueur choisit à son tour
+    else if (pv) { S.P = S.chooser = pv; openLevelUp(); }
+    else if (S.chestQ.length) openChest();
+  }
   if ((S.dexSaveT = (S.dexSaveT ?? 15) - dt) <= 0) { S.dexSaveT = 15; dexSave(); }
   if ((S.achT = (S.achT ?? 1) - dt) <= 0) { S.achT = 1; achCheck(); }
   playTrack(S.foes.some(f => f.d.boss) ? "boss" : LEVEL.track || (LEVEL.cave ? "cave" : "forest"));
 }
 
-function gainXp(v) { // XP partagée : chaque joueur debout la reçoit (un peu réduite à plusieurs, car il y a plus de Pokémon)
-  const me = S.P; v /= 1 + .5 * (S.players.length - 1);
-  for (const P of S.players) {
+function gainXp(v, who) { // XP individuelle : seul le joueur qui ramasse le bonbon la reçoit
+  const me = S.P;
+  for (const P of who ? [who] : S.players) {
     if (P.down) continue; S.P = P;
     P.xp += v * (1 + .08 * IT("multiexp")) * (P.line === "evoli" ? 1.1 : 1); // Adaptabilité d'Évoli
     while (P.xp >= P.need) { P.xp -= P.need; P.lvl++; P.need = Math.round(6 + P.lvl * 4.5 + P.lvl * P.lvl * .12); P.pendingLv++; checkEvo(); }
@@ -2486,13 +2498,30 @@ function evolveEevee(id) {
   sfx("evo"); banner(`Quoi ? ${from} évolue en ${E.name} !`);
   checkEvo(); // N.22 déjà atteint grâce à un coffre : se renforce aussitôt
 }
-function applyChoice(ch) {
+function applyChoice(ch, p) {
   if (NET.role === "guest") { netSend({ t:"pick", i:choices.indexOf(ch) }); $("levelup").hidden = true; state = "netplay"; return; }
-  if (ch.kind === "evo") { evolveEevee(ch.id); $("levelup").hidden = true; state = "play"; last = performance.now(); refreshHud(); return; }
-  grant(ch);
-  S.P.pendingLv--;
-  $("levelup").hidden = true; state = "play"; last = performance.now();
-  refreshHud();
+  p ||= S.chooser || S.P; S.P = p;
+  if (ch.kind === "evo") evolveEevee(ch.id); else { grant(ch); p.pendingLv--; }
+  doneChoosing(p);
+}
+function doneChoosing(p) { // fin d'un choix : en ligne, le joueur reste intangible 1 s
+  if (p.choosing) { p.choosing = false; p.inv = Math.max(p.inv, 1); }
+  if (p.remote) return; // choix fait sur l'écran d'un invité : rien à fermer ici
+  S.chooser = null; $("levelup").hidden = true; $("chest").hidden = true; state = "play"; last = performance.now(); refreshHud();
+}
+function netChoices() {
+  for (const p of S.players) {
+    if (p.down || p.left || p.choosing) continue;
+    const kind = p.pendingEvo ? "evo" : p.pendingLv > 0 ? "lv" : S.chestQ.includes(p) ? "chest" : null;
+    if (!kind) continue;
+    S.P = p;
+    if (p.remote) { if (kind === "chest") netChest(p); else netAsk(p, kind); continue; }
+    if (state !== "play") continue; // l'hôte a déjà un choix ouvert
+    p.choosing = true; S.chooser = p;
+    if (kind === "evo") openEvo(); else if (kind === "lv") openLevelUp(); else openChest(p);
+    if (state === "play") { p.choosing = false; S.chooser = null; } // Super Potion prise automatiquement
+  }
+  S.P = S.players[0];
 }
 function grant(ch) {
   const P = S.P;
@@ -2507,9 +2536,10 @@ function grant(ch) {
     if (ch.id === "rappel") P.revives = (P.revives || 0) + 1;
   } else P.hp = Math.min(P.maxHp, P.hp + 40);
 }
-function openChest() {
+function openChest(who, remote) {
   // Coffre de boss : améliore 1, 3 ou 5 capacités / objets déjà possédés (comme dans Vampire Survivors)
-  const P = S.P = S.chestQ.shift() || S.P; state = "chest"; sfx("chest");
+  if (who) S.chestQ.splice(S.chestQ.indexOf(who), 1);
+  const P = S.P = who || S.chestQ.shift() || S.P; if (!remote) { S.chooser = P; state = "chest"; sfx("chest"); }
   const r = Math.random(), n = r < .1 ? 5 : r < .4 ? 3 : 1, got = [];
   for (let i = 0; i < n; i++) {
     const pool = [...Object.entries(P.moves).filter(([id, m]) => m.lv < MOVES[id].max).map(([id, m]) => ({ kind:"move", id, lv:m.lv + 1 })),
@@ -2517,7 +2547,7 @@ function openChest() {
     const ch = pool.length ? pool[Math.random() * pool.length | 0] : { kind:"heal" };
     grant(ch); got.push(ch);
   }
-  showChest(n, got, P);
+  if (remote) NET.lastChest = { n, got }; else showChest(n, got, P);
 }
 function showChest(n, got, P) {
   NET.lastChest = { n, got };
@@ -2530,9 +2560,9 @@ function showChest(n, got, P) {
   }).join("");
   $("chest").hidden = false; $("chestBtn").focus({ preventScroll:true });
 }
-function closeChest() { if (NET.role === "guest") { $("chest").hidden = true; state = "netplay"; netSend({ t:"chestok" }); return; } $("chest").hidden = true; state = "play"; last = performance.now(); refreshHud(); }
+function closeChest() { if (NET.role === "guest") { $("chest").hidden = true; state = "netplay"; netSend({ t:"chestok" }); return; } doneChoosing(S.chooser || S.P); }
 let choices = [];
-function reroll() { if (state !== "levelup" || !(S.rerolls > 0)) return; if (NET.role === "guest") { netSend({ t:"reroll" }); return; } S.rerolls--; openLevelUp(); }
+function reroll() { if (state !== "levelup" || !(S.rerolls > 0)) return; if (NET.role === "guest") { netSend({ t:"reroll" }); return; } S.rerolls--; S.P = S.chooser || S.P; openLevelUp(); }
 function openEvo() {
   sfx("levelup"); state = "levelup"; $("autoPotRow").hidden = true;
   choices = Object.keys(EEVEE).map(id => ({ kind:"evo", id }));
@@ -2588,8 +2618,26 @@ function openLevelUp(given) {
 
 /* ---------- Fin ---------- */
 function fmt(t) { const s = Math.floor(t); return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; }
-function dmgTableHtml() {
-  const by = { ...(S.dmgBy || {}) }; for (const id in S.P.moves) by[id] ||= 0;
+function dmgTableHtml(who) {
+  const me = S.P; if (who) S.P = who; // à plusieurs : les dégâts du joueur indiqué
+  try { return dmgTableFor(S.players.length > 1 ? S.P.dmgBy : S.dmgBy); } finally { S.P = me; }
+}
+const dmgSum = p => Object.values(p.dmgBy || {}).reduce((a, v) => a + (+v || 0), 0);
+function mvpScore(p, tot) { return dmgSum(p) / (tot || 1) * 100 + 12 * (p.saves || 0) - 8 * (p.deaths || 0); }
+function teamHtml() { // récap de fin à plusieurs : une ligne par joueur, le MVP en avant
+  if (!S || !S.players || S.players.length < 2) return "";
+  const me = S.P, tot = S.players.reduce((a, p) => a + dmgSum(p), 0) || 1;
+  const mvp = S.players.slice().sort((a, b) => mvpScore(b, tot) - mvpScore(a, tot))[0];
+  const rows = S.players.map(p => {
+    S.P = p; const isM = p === mvp, pct = dmgSum(p) / tot * 100;
+    return `<tr${isM ? ' class="mvpRow"' : ""}><td><span class="dot" style="background:${PCOL[p.idx]}"></span><b style="color:${PCOL[p.idx]}">J${p.idx + 1}</b> ${netEsc(pName())}${isM ? ' <span class="mvpTag">👑 MVP</span>' : ""}</td>
+      <td>N.${p.lvl}</td><td>${Math.round(dmgSum(p)).toLocaleString("fr-FR")} <small>${pct.toFixed(0)} %</small></td><td>${p.kos || 0}</td><td>${p.deaths || 0}</td><td>${p.revived || 0}</td><td>${p.saves || 0}</td></tr>`;
+  }).join("");
+  S.P = mvp; const mvpLine = `<div class="mvpBanner">👑 MVP : <b style="color:${PCOL[mvp.idx]}">J${mvp.idx + 1} · ${netEsc(pName())}</b></div>`; S.P = me;
+  return mvpLine + `<table class="dmgTable teamTable"><thead><tr><th>Joueur</th><th>Niv.</th><th>Dégâts</th><th>K.O. infligés</th><th>Morts</th><th>Résurrections</th><th>Coéquipiers relevés</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+function dmgTableFor(dmgBy) {
+  const by = { ...(dmgBy || {}) }; for (const id in S.P.moves) by[id] ||= 0;
   const tot = Object.values(by).reduce((a, b) => a + b, 0) || 1;
   const rows = Object.entries(by).filter(([id, v]) => v >= 1 || S.P.moves[id]).sort((a, b) => b[1] - a[1]).map(([id, v]) => {
     const m = MOVES[id], name = m ? m.name : id === "brulure" ? "Brûlure" : "Autre", col = m ? TYPE_COLORS[m.type] : id === "brulure" ? TYPE_COLORS.feu : "#c8c8c8";
@@ -2609,14 +2657,14 @@ function endGame(win) {
   $("endTitle").textContent = win ? lv.title : S.quit ? "Partie abandonnée" : S.players.length > 1 ? "Toute l'équipe est K.O. !" : `${pName()} est K.O. !`;
   $("endSub").textContent = win ? `${pName()} ${lv.win}` : S.quit ? "Tu rentres au Centre Pokémon. Tes K.O. comptent quand même dans le Pokédex." : "Tu t'es précipité au Centre Pokémon le plus proche. Retente ta chance.";
   $("endStats").innerHTML = statsHtml() + (S.achMsgs?.length ? `<div class="achEnd">${S.achMsgs.join("<br>")}</div>` : "");
-  $("endDmg").innerHTML = dmgTableHtml();
-  $("end").hidden = false; $("boss").hidden = true; $("netWait").hidden = true;
-  if (NET.role === "host") netAll({ t:"end", win, title:$("endTitle").textContent, sub:$("endSub").textContent });
+  $("endDmg").innerHTML = teamHtml() + (S.players.length > 1 ? `<h3 class="dmgFor">Tes dégâts (${pTag(S.players[0])}${(S.P = S.players[0], pName())})</h3>` : "") + dmgTableHtml(S.players[0]);
+  $("end").hidden = false; $("boss").hidden = true; $("netWait").hidden = true; $("levelup").hidden = true; $("chest").hidden = true;
+  if (NET.role === "host") { netAll("S" + netSnap()); netAll({ t:"end", win, title:$("endTitle").textContent, sub:$("endSub").textContent }); }
   $("againBtn").focus({ preventScroll:true });
 }
 function togglePause() {
   if (AU.music) AU.music.gain.value = state === "play" ? .04 : .13;
-  if (state === "play") { state = "pause"; $("pauseStats").innerHTML = statsHtml(); $("pauseDmg").innerHTML = dmgTableHtml(); $("pause").hidden = false; $("resumeBtn").focus({ preventScroll:true }); }
+  if (state === "play") { state = "pause"; $("pauseStats").innerHTML = statsHtml(); $("pauseDmg").innerHTML = teamHtml() + dmgTableHtml(S.players[0]); $("pause").hidden = false; $("resumeBtn").focus({ preventScroll:true }); }
   else if (state === "pause") { state = "play"; $("pause").hidden = true; last = performance.now(); }
 }
 
@@ -3675,6 +3723,11 @@ function render(now) {
         cx.font = "bold 11px sans-serif"; cx.textAlign = "center"; cx.fillStyle = PCOL[P.idx]; cx.fillText(`J${P.idx + 1} K.O.`, P.x, P.y - P.r * 2.4 - 6);
         continue;
       }
+      if (P.choosing) { // en ligne : fantôme intangible pendant qu'il choisit une amélioration
+        cx.save(); cx.globalAlpha = .4 + .1 * Math.sin(t * 4); drawMon(cx, pKind(), P.x, P.y, P.r, P.flip, t, P.stage, dirOf(P.fx, P.fy), false); cx.restore();
+        cx.font = "bold 11px sans-serif"; cx.textAlign = "center"; cx.fillStyle = PCOL[P.idx]; cx.fillText(`J${P.idx + 1} choisit…`, P.x, P.y - P.r * 2.4 - 6);
+        continue;
+      }
       if (P.inv > 0 && Math.floor(t * 20) % 2) continue;
       if (P.evoFlash > 0) { cx.save(); cx.globalAlpha = Math.min(1, P.evoFlash); circ(cx, P.x, P.y, P.r * 2.4 * (1.3 - P.evoFlash * .25), "rgba(255,255,230,.55)"); cx.restore(); }
       const moving = !!P.moving;
@@ -4076,7 +4129,7 @@ let hudT = 0;
 function frame(now) {
   const dt = Math.max(0, Math.min(.05, (now - last) / 1000 || 0)); last = now; // jamais négatif (après un choix de niveau)
   pollPad(dt);
-  if (state === "play") { update(dt); hudT -= dt; if (hudT <= 0 && S) { refreshHud(); hudT = .08; } }
+  if (state === "play" || (NET.role === "host" && NET.started && S && (state === "levelup" || state === "chest"))) { update(dt); hudT -= dt; if (hudT <= 0 && S) { refreshHud(); hudT = .08; } }
   if (NET.role) netFrame(now, dt);
   render(now);
   requestAnimationFrame(frame);
@@ -4231,12 +4284,12 @@ window.addEventListener("gamepadconnected", () => { pad.used = true; });
 /* ---------- En ligne : salons avec code (PeerJS, connexion directe entre navigateurs) ----------
    L'hôte fait tourner la partie ; chaque invité envoie ses touches et reçoit 20 fois par seconde
    ce qu'il y a autour de la caméra (Pokémon, attaques, bonbons…). */
-var NET = { role:null, peer:null, conn:null, conns:[], code:null, idx:0, picks:[], myLine:null, lobby:null, started:false, ask:null, sendT:0, inT:0, tArr:0, gap:50, lastIn:"", inRep:0, lastChest:null };
+var NET = { role:null, peer:null, conn:null, conns:[], code:null, idx:0, picks:[], myLine:null, lobby:null, started:false, asks:new Map(), sendT:0, inT:0, tArr:0, gap:50, lastIn:"", inRep:0, lastChest:null };
 const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v108";
+const NET_VER = "v109";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -4324,7 +4377,8 @@ function netGone(g) {
     if (p) {
       p.remote = false; p.left = true; p.down = true; p.hp = 0; p.inv = 1e9; p.pendingLv = 0; p.pendingEvo = false;
       S.chestQ = S.chestQ.filter(q => q !== p); banner(`J${g.idx + 1} a quitté la partie.`);
-      if (NET.ask && NET.ask.p === p) netAskDone();
+      if (NET.asks.has(g)) netAskDone(g);
+      p.choosing = false;
       if (state !== "end" && !S.players.some(q => !q.down)) endGame(false);
     }
   } else netLobby();
@@ -4337,37 +4391,35 @@ function netHostData(g, raw) {
     if (p && p.remote) { const c = v => Math.max(-1, Math.min(1, +v || 0)); p.net = { x:c(m.x), y:c(m.y), ax:c(m.ax), ay:c(m.ay) }; }
   } else if (m.t === "starter") { if (!NET.started && starterOrder.includes(m.line)) { g.line = m.line; netLobby(); } }
   else if (m.t === "hi") netLobby();
-  else if (NET.ask && NET.ask.g === g) {
-    const a = NET.ask;
-    if (m.t === "pick" && a.kind !== "chest") { const ch = a.choices[m.i | 0]; if (!ch) return; netAskDone(); S.P = a.p; applyChoice(ch); }
-    else if (m.t === "reroll" && a.kind === "lv" && S.rerolls > 0) { S.rerolls--; netAskDone(); S.P = a.p; netAsk(a.p, "lv"); }
-    else if (m.t === "chestok" && a.kind === "chest") { netAskDone(); closeChest(); }
+  else if (NET.asks.has(g)) {
+    const a = NET.asks.get(g), keep = S.P;
+    if (m.t === "pick" && a.kind !== "chest") { const ch = a.choices[m.i | 0]; if (!ch) return; netAskDone(g); applyChoice(ch, a.p); }
+    else if (m.t === "reroll" && a.kind === "lv" && S.rerolls > 0) { S.rerolls--; netAskDone(g); S.P = a.p; netAsk(a.p, "lv"); }
+    else if (m.t === "chestok" && a.kind === "chest") { netAskDone(g); doneChoosing(a.p); }
+    S.P = keep;
   }
 }
-function netAsk(p, kind) { // montée de niveau d'un joueur en ligne : la partie attend son choix
+function netAsk(p, kind) { // montée de niveau d'un joueur en ligne : il choisit sur son écran, la partie continue (il est intangible)
   const g = NET.conns.find(x => x.idx === p.idx);
   if (!g) { p.pendingLv = 0; p.pendingEvo = false; return; }
   const choices = kind === "evo" ? Object.keys(EEVEE).map(id => ({ kind:"evo", id })) : buildChoices();
-  NET.ask = { p, g, kind, choices }; state = "remote"; sfx("levelup");
-  $("netWait").textContent = `J${p.idx + 1} choisit ${kind === "evo" ? "son évolution" : "une amélioration"}…`; $("netWait").hidden = false;
+  p.choosing = true; NET.asks.set(g, { p, g, kind, choices });
   netTo(g, { t:"ask", kind, choices });
 }
-function netChest() {
-  openChest(); // les améliorations sont accordées ici ; la Poké Ball s'ouvre sur l'écran du joueur
-  const P = S.P, g = NET.conns.find(x => x.idx === P.idx);
-  $("chest").hidden = true;
-  if (!g) { closeChest(); return; }
-  NET.ask = { p:P, g, kind:"chest" }; state = "remote";
-  $("netWait").textContent = `J${P.idx + 1} ouvre une Poké Ball…`; $("netWait").hidden = false;
+function netChest(p) {
+  const g = NET.conns.find(x => x.idx === p.idx);
+  openChest(p, true); // les améliorations sont accordées ici ; la Poké Ball s'ouvre sur l'écran du joueur
+  if (!g) return;
+  p.choosing = true; NET.asks.set(g, { p, g, kind:"chest" });
   netTo(g, { t:"chest", n:NET.lastChest.n, got:NET.lastChest.got });
 }
-function netAskDone() { NET.ask = null; $("netWait").hidden = true; if (state === "remote") { state = "play"; last = performance.now(); } }
+function netAskDone(g) { const a = NET.asks.get(g); NET.asks.delete(g); return a; }
 function netStart() {
   if (NET.role !== "host" || !NET.picks[0] || !NET.conns.length || !NET.conns.every(g => g.line)) return;
   const gs = NET.conns.slice().sort((a, b) => a.idx - b.idx); gs.forEach((g, i) => { g.idx = i + 1; });
   newGame([NET.picks[0], ...gs.map(g => g.line)]);
   for (const g of gs) { const p = S.players[g.idx]; p.remote = true; p.net = { x:0, y:0, ax:0, ay:0 }; }
-  NET.started = true; NET.sendT = 0;
+  NET.started = true; NET.sendT = 0; NET.asks.clear();
   for (const g of gs) netTo(g, { t:"start", level:LEVELS.indexOf(LEVEL), idx:g.idx });
   $("hudLevel").textContent += " · en ligne";
 }
@@ -4524,7 +4576,9 @@ function netGuestEnd(m) {
   NET.started = false; state = "end"; playTrack(null); sfx(m.win ? "win" : "lose");
   for (const id of ["levelup", "chest"]) $(id).hidden = true;
   $("endTitle").textContent = String(m.title || "Fin de la partie"); $("endSub").textContent = String(m.sub || "");
-  $("endStats").innerHTML = S && S.players ? statsHtml() : ""; $("endDmg").innerHTML = "";
+  $("endStats").innerHTML = S && S.players ? statsHtml() : "";
+  const me = S && S.players && S.players[NET.idx];
+  $("endDmg").innerHTML = me ? teamHtml() + `<h3 class="dmgFor">Tes dégâts (${pTag(me)}${(S.P = me, pName())})</h3>` + dmgTableHtml(me) : "";
   $("end").hidden = false; $("boss").hidden = true; $("againBtn").focus({ preventScroll:true });
 }
 function netHostGone() {
@@ -4536,7 +4590,7 @@ function netHostGone() {
   else netFail("L'hôte a fermé le salon.");
 }
 function netLobbyBack() { if (NET.role === "guest") { NET.started = false; setTimeout(netLobby, 0); } }
-function netAfterGame() { if (NET.role === "host") { NET.started = false; NET.ask = null; $("netWait").hidden = true; setTimeout(netLobby, 0); } }
+function netAfterGame() { if (NET.role === "host") { NET.started = false; NET.asks.clear(); $("netWait").hidden = true; setTimeout(netLobby, 0); } }
 $("netBtn").addEventListener("click", () => {
   const show = $("netBox").hidden; $("netBox").hidden = !show; $("netBtn").setAttribute("aria-pressed", String(show));
   if (show) { setPlayers(1); $("mpBtn").hidden = true; } else { netClose(); $("mpBtn").hidden = false; }
