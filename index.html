@@ -193,7 +193,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous.</div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v107)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -4233,7 +4233,10 @@ window.addEventListener("gamepadconnected", () => { pad.used = true; });
    ce qu'il y a autour de la caméra (Pokémon, attaques, bonbons…). */
 var NET = { role:null, peer:null, conn:null, conns:[], code:null, idx:0, picks:[], myLine:null, lobby:null, started:false, ask:null, sendT:0, inT:0, tArr:0, gap:50, lastIn:"", inRep:0, lastChest:null };
 const NET_PFX = "pokesurv-";
-const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" }] } };
+const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
+  // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
+  { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
+const NET_VER = "v107";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -4455,12 +4458,23 @@ function netJoin(code) {
   netMsg(`Connexion au salon ${code}…`);
   netLib().then(() => {
     const peer = new Peer(NET_OPTS); NET.peer = peer;
-    const timer = setTimeout(() => { if (NET.peer === peer && NET.role !== "guest") { netFail("Pas de réponse du salon. Vérifie le code, ou réessaie (certains réseaux d'entreprise ou d'école bloquent le jeu en ligne)."); try { peer.destroy(); } catch (e) {} NET.peer = null; } }, 15000);
+    let stage = 0, ice = ""; // 0 : serveur pas joint, 1 : serveur joint, 2 : hôte trouvé
+    const timer = setTimeout(() => { if (NET.peer === peer && NET.role !== "guest") {
+      netFail(stage === 0 ? `Le serveur des salons ne répond pas (étape 1/3). Ton réseau ou un antivirus bloque peut-être 0.peerjs.com. [${NET_VER}]`
+        : stage === 1 ? `Serveur joint, mais le salon ${code} ne répond pas (étape 2/3). Vérifie le code et que l'hôte a toujours la page ouverte. [${NET_VER}]`
+        : `Salon trouvé, mais la liaison directe entre vos deux ordinateurs est bloquée (étape 3/3, ${ice || "?"}). [${NET_VER}]`);
+      try { peer.destroy(); } catch (e) {} NET.peer = null; } }, 25000);
     peer.on("open", () => {
       let conn; // sérialisation par défaut de PeerJS : découpe aussi les gros messages
       try { conn = peer.connect(NET_PFX + code, { reliable:true }); } catch (e) { clearTimeout(timer); netFail("Erreur de connexion : " + (e && e.message || e)); return; }
       conn.on("error", e => { if (!NET.started) netFail("Erreur de connexion : " + (e && (e.type || e.message) || "inconnue")); });
+      stage = 1; netMsg(`Serveur joint, recherche du salon ${code}…`);
       NET.conn = conn; NET.code = code;
+      const watchIce = () => { const pc = conn.peerConnection; if (!pc) return setTimeout(watchIce, 200);
+        pc.addEventListener("iceconnectionstatechange", () => { ice = pc.iceConnectionState;
+          if (stage < 2 && ice !== "new" && NET.role !== "guest") { stage = 2; netMsg(`Salon ${code} trouvé, liaison avec l'hôte…`); }
+          if (ice === "failed" && NET.role !== "guest") { clearTimeout(timer); netFail(`Salon trouvé, mais la liaison entre vos deux ordinateurs a échoué (étape 3/3). [${NET_VER}]`); } }); };
+      watchIce();
       conn.on("open", () => { clearTimeout(timer); NET.role = "guest"; netLobby(); netSend({ t:"hi" }); });
       conn.on("data", d => netGuestData(netStr(d)));
       conn.on("close", () => netHostGone());
