@@ -78,6 +78,8 @@ body {
 .netInfo input { width: min(420px, 80vw); font: 13px var(--body); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--panel-edge); background: rgba(0,0,0,.25); color: var(--ink); }
 .netGo:disabled { opacity: .55; cursor: default; }
 .netGo { color: #1a1a1a; background: var(--accent); border-color: var(--accent); }
+.chooseTimer { position:fixed; top:calc(14px + env(safe-area-inset-top, 0px)); left:50%; transform:translateX(-50%); z-index:60; background:rgba(0,0,0,.8); color:#fff; font:700 20px "Press Start 2P", monospace; padding:10px 16px; border-radius:12px; border:2px solid #ffd84a; pointer-events:none; }
+.chooseTimer.hurry { color:#ff7a5c; border-color:#ff7a5c; } .chooseTimer[hidden] { display:none !important; }
 .netWait { position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%); z-index: 30; background: rgba(0,0,0,.75); color: #fff; font: 600 16px var(--body); padding: 14px 22px; border-radius: 12px; pointer-events: none; }
 .xpbar { position: fixed; left: 0; right: 0; bottom: 0; height: calc(8px + env(safe-area-inset-bottom, 0px)); background: rgba(0,0,0,.6); pointer-events: none; }
 .xpbar > i { display: block; height: 8px; width: 0; background: linear-gradient(90deg, #3b7fd0, var(--xp)); transition: width .1s; }
@@ -195,7 +197,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v112)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v113)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -2447,7 +2449,7 @@ function update(dt) {
   S.shake = Math.max(0, S.shake - dt);
 
   P = S.P = S.players[0];
-  if (NET.role === "host" && NET.started) netChoices(); // en ligne : la partie continue pendant les choix
+  if (NET.role === "host" && NET.started) netChoices(dt); // en ligne : la partie continue pendant les choix
   else {
     const pe = S.players.find(p => p.pendingEvo && !p.down), pv = S.players.find(p => p.pendingLv > 0 && !p.down);
     if (pe) { S.P = S.chooser = pe; openEvo(); }       // sur le même écran : chaque joueur choisit à son tour
@@ -2527,7 +2529,9 @@ function doneChoosing(p) { // fin d'un choix : en ligne, le joueur reste intangi
   if (p.remote) return; // choix fait sur l'écran d'un invité : rien à fermer ici
   S.chooser = null; $("levelup").hidden = true; $("chest").hidden = true; state = "play"; last = performance.now(); refreshHud();
 }
-function netChoices() {
+const CHOOSE_T = 10; // en ligne : temps max pour choisir (sinon choix au hasard), contre la triche à l'intangibilité
+function netChoices(dt) {
+  for (const p of S.players) if (p.choosing && (p.chooseT = (p.chooseT ?? CHOOSE_T) - dt) <= 0) netTimeout(p);
   for (const p of S.players) {
     if (p.down || p.left || p.choosing) continue;
     const kind = p.pendingEvo ? "evo" : p.pendingLv > 0 ? "lv" : S.chestQ.includes(p) ? "chest" : null;
@@ -2535,7 +2539,7 @@ function netChoices() {
     S.P = p;
     if (p.remote) { if (kind === "chest") netChest(p); else netAsk(p, kind); continue; }
     if (state !== "play") continue; // l'hôte a déjà un choix ouvert
-    p.choosing = true; S.chooser = p;
+    p.choosing = true; p.chooseT = CHOOSE_T; S.chooser = p;
     if (kind === "evo") openEvo(); else if (kind === "lv") openLevelUp(); else openChest(p);
     if (state === "play") { p.choosing = false; S.chooser = null; } // Super Potion prise automatiquement
   }
@@ -3743,7 +3747,7 @@ function render(now) {
       }
       if (P.choosing) { // en ligne : fantôme intangible pendant qu'il choisit une amélioration
         cx.save(); cx.globalAlpha = .4 + .1 * Math.sin(t * 4); drawMon(cx, pKind(), P.x, P.y, P.r, P.flip, t, P.stage, dirOf(P.fx, P.fy), false); cx.restore();
-        cx.font = "bold 11px sans-serif"; cx.textAlign = "center"; cx.fillStyle = PCOL[P.idx]; cx.fillText(`J${P.idx + 1} choisit…`, P.x, P.y - P.r * 2.4 - 6);
+        cx.font = "bold 11px sans-serif"; cx.textAlign = "center"; cx.fillStyle = PCOL[P.idx]; cx.fillText(`J${P.idx + 1} choisit… ${Math.max(0, Math.ceil(P.chooseT ?? 0))}`, P.x, P.y - P.r * 2.4 - 6);
         continue;
       }
       if (P.inv > 0 && Math.floor(t * 20) % 2) continue;
@@ -4307,7 +4311,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v112";
+const NET_VER = "v113";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -4421,6 +4425,7 @@ function netAsk(p, kind) { // montée de niveau d'un joueur en ligne : il choisi
   const g = NET.conns.find(x => x.idx === p.idx);
   if (!g) { p.pendingLv = 0; p.pendingEvo = false; return; }
   const choices = kind === "evo" ? Object.keys(EEVEE).map(id => ({ kind:"evo", id })) : buildChoices();
+  if (!p.choosing) p.chooseT = CHOOSE_T; // une relance ne redonne pas de temps
   p.choosing = true; NET.asks.set(g, { p, g, kind, choices });
   netTo(g, { t:"ask", kind, choices });
 }
@@ -4428,7 +4433,7 @@ function netChest(p) {
   const g = NET.conns.find(x => x.idx === p.idx);
   openChest(p, true); // les améliorations sont accordées ici ; la Poké Ball s'ouvre sur l'écran du joueur
   if (!g) return;
-  p.choosing = true; NET.asks.set(g, { p, g, kind:"chest" });
+  p.choosing = true; p.chooseT = CHOOSE_T; NET.asks.set(g, { p, g, kind:"chest" });
   netTo(g, { t:"chest", n:NET.lastChest.n, got:NET.lastChest.got });
 }
 function netDexFlush() { if (NET.dexQ && Object.keys(NET.dexQ).length) { netAll({ t:"dex", k:NET.dexQ }); NET.dexQ = {}; } }
@@ -4442,6 +4447,22 @@ function netGuestDex(k) { // l'invité compte dans son Pokédex les K.O. de tout
     }
   }
   dexDirty = true; dexSave();
+}
+function netTimeout(p) { // temps écoulé : une amélioration au hasard est prise pour lui
+  const pick = cs => cs[Math.random() * cs.length | 0];
+  if (p.remote) {
+    const g = NET.conns.find(x => x.idx === p.idx), a = g && NET.asks.get(g);
+    if (g) netTo(g, { t:"timeout" });
+    if (!a) return doneChoosing(p);
+    netAskDone(g); if (a.kind === "chest") doneChoosing(p); else applyChoice(pick(a.choices), p);
+  } else if (state === "levelup" && choices.length) applyChoice(pick(choices), p);
+  else doneChoosing(p);
+}
+function chooseTimer() { // compte à rebours affiché sur l'écran de celui qui choisit
+  let el = $("chooseTimer");
+  if (!el) { el = document.createElement("div"); el.id = "chooseTimer"; el.className = "chooseTimer"; document.body.appendChild(el); }
+  const left = NET.role === "host" && S?.chooser?.choosing ? S.chooser.chooseT : NET.role === "guest" && NET.askEnd && (state === "levelup" || state === "chest") ? (NET.askEnd - performance.now()) / 1000 : null;
+  el.hidden = left === null || !NET.started; if (!el.hidden) { el.textContent = `⏱ ${Math.max(0, Math.ceil(left))} s`; el.classList.toggle("hurry", left < 4); }
 }
 function netAskDone(g) { const a = NET.asks.get(g); NET.asks.delete(g); return a; }
 function netStart() {
@@ -4526,6 +4547,7 @@ function netInput() {
   if (msg !== NET.lastIn || ++NET.inRep % 10 === 0) { NET.lastIn = msg; netSend(msg); }
 }
 function netFrame(now, dt) {
+  chooseTimer();
   if (NET.role === "host" && NET.started && S && NET.conns.length) {
     NET.sendT -= dt; if (NET.sendT <= 0) { NET.sendT = 1 / 15; netAll("S" + netSnap()); } // 15 fois par seconde
     if ((NET.dexT = (NET.dexT || 0) - dt) <= 0) { NET.dexT = 2; netDexFlush(); }
@@ -4598,11 +4620,14 @@ function netGuestData(raw) {
     const ok = (Array.isArray(m.choices) ? m.choices : []).filter(netValid).map(c => ({ kind:c.kind, id:c.id, lv:c.lv | 0 }));
     if (!ok.length) return;
     if (m.kind !== "evo" && autoPotion && ok.every(c => c.kind === "heal")) { netSend({ t:"pick", i:0 }); sfx("heal"); return; } // Super Potion prise directement (réglage de l'invité)
-    $("chest").hidden = true;
+    $("chest").hidden = true; NET.askEnd = performance.now() + CHOOSE_T * 1000;
     if (m.kind === "evo") openEvo(); else openLevelUp(ok);
   } else if (m.t === "chest" && S && S.players && NET.started) {
     const got = (Array.isArray(m.got) ? m.got : []).filter(netValid).map(c => ({ kind:c.kind, id:c.id, lv:c.lv | 0 }));
-    state = "chest"; sfx("chest"); showChest([1, 3, 5].includes(m.n) ? m.n : 1, got, S.P);
+    NET.askEnd = performance.now() + CHOOSE_T * 1000; state = "chest"; sfx("chest"); showChest([1, 3, 5].includes(m.n) ? m.n : 1, got, S.P);
+  } else if (m.t === "timeout" && NET.started) { // trop lent : l'hôte a choisi au hasard
+    $("levelup").hidden = true; $("chest").hidden = true; if (state === "levelup" || state === "chest") state = "netplay"; NET.askEnd = 0;
+    $("netWait").textContent = "⏱ Temps écoulé : amélioration choisie au hasard"; $("netWait").hidden = false; setTimeout(() => { $("netWait").hidden = true; }, 1800);
   } else if (m.t === "dex" && NET.started) netGuestDex(m.k);
   else if (m.t === "ach" && NET.started && ACHS.some(a => a.id === m.id)) achGet(m.id);
   else if (m.t === "end") netGuestEnd(m);
