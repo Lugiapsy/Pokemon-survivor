@@ -154,6 +154,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
 .tag { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .08em; }
 .credits { margin: 0; font-size: 11px; color: var(--ink-dim); max-width: 70ch; line-height: 1.5; order: 9; }
 .credits a { color: var(--ink); }
+.verTag { display:inline-block; margin-top:4px; font:10px "Press Start 2P", monospace; color:var(--ink-dim); opacity:.8; }
 .help { font-size: 12px; color: var(--ink-dim); display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
 .help kbd { font-family: var(--display); border: 1px solid var(--panel-edge); border-radius: 4px; padding: 0 5px; color: var(--ink); }
 .levels { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
@@ -197,12 +198,12 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v114)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v115)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
     <div class="cards" id="starterCards"></div>
-    <p class="credits">Sprites : <a href="https://sprites.pmdcollab.org/" target="_blank" rel="noopener">PMD Sprite Repository</a> (SpriteCollab, CC BY-NC 4.0), originaux de Spike Chunsoft pour Pokémon Donjon Mystère, avec retouches de la communauté. Pokémon © Nintendo, Creatures, Game Freak. Jeu de fan non commercial.</p>
+    <p class="credits">Sprites : <a href="https://sprites.pmdcollab.org/" target="_blank" rel="noopener">PMD Sprite Repository</a> (SpriteCollab, CC BY-NC 4.0), originaux de Spike Chunsoft pour Pokémon Donjon Mystère, avec retouches de la communauté. Pokémon © Nintendo, Creatures, Game Freak. Jeu de fan non commercial.<br><span class="verTag" id="verTag"></span></p>
     <div class="help"><span><kbd>ZQSD</kbd> / <kbd>WASD</kbd> / flèches : se déplacer</span><span>Mobile : glisse le doigt</span><span><kbd>Échap</kbd> : pause</span><span><kbd>M</kbd> : couper le son</span><span>Manette : stick gauche ou croix, <kbd>A</kbd> valider, <kbd>LB</kbd>/<kbd>RB</kbd> niveau, <kbd>Start</kbd> pause</span><span>Visée : souris ou stick droit</span></div>
   </div>
 </div>
@@ -4311,7 +4312,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v114";
+const NET_VER = "v115";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -4673,6 +4674,7 @@ function netUpdateCheck() {
     location.replace(location.pathname + "?v=" + encodeURIComponent(v) + location.hash); return true;
   }).catch(() => false);
 }
+$("verTag").textContent = "Version " + NET_VER.slice(1); // affichée en bas de l'écran d'accueil
 netUpdateCheck().then(moved => { if (!moved) netAutoJoin(); });
 function netAutoJoin() { // lien d'invitation : …/#CODE rejoint directement le salon
   const h = (location.hash || "").replace("#", "").toUpperCase();
