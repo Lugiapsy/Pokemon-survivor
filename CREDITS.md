@@ -27,7 +27,7 @@ Les sprites originaux sont de Spike Chunsoft (Pokémon Donjon Mystère). Retouch
 | 0028 | Sablaireau | CHUNSOFT + 1 contributeur SpriteCollab |
 | 0075 | Gravalanch | CHUNSOFT + 1 contributeur SpriteCollab |
 | 0076 | Grolem | CHUNSOFT + 1 contributeur SpriteCollab |
-| 0019, 0020, 0024, 0088, 0089, 0092, 0093, 0105, 0109, 0110, 0111 | Rattata, Rattatac, Arbok, Tadmorv, Grotadmorv, Fantominus, Spectrum, Ossatueur, Smogo, Smogogo, Rhinocorne | CHUNSOFT |
+| 0019, 0020, 0024, 0088, 0089, 0092, 0093, 0105, 0109, 0110, 0111, 0112, 0464 | Rattata, Rattatac, Arbok, Tadmorv, Grotadmorv, Fantominus, Spectrum, Ossatueur, Smogo, Smogogo, Rhinocorne, Rhinoféros, Rhinastoc | CHUNSOFT |
 | 0023 | Abo | CHUNSOFT + 1 contributeur SpriteCollab |
 | 0094 | Ectoplasma | CHUNSOFT + 1 contributeur SpriteCollab |
 | 0104 | Osselait | CHUNSOFT + 2 contributeurs SpriteCollab |
