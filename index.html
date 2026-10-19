@@ -253,7 +253,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v131)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v132)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -1806,7 +1806,19 @@ function nextRoom() {
   if (NET.role === "host") netAll({ t:"room", k });
   if (state === "inter") { state = "play"; last = performance.now(); }
 }
-function drawLeagueOver(camX, camY, vw, vh, t) { // bourrasques de la salle de Peter
+function drawLeagueOver(camX, camY, vw, vh, t) {
+  if ((ARENA_PAL[LEVEL.theme] || {}).scary) { // Agatha : brume, flammes qui vacillent, yeux qui s'ouvrent dans l'ombre
+    cx.save(); cx.globalCompositeOperation = "lighter";
+    for (const o of arenaDecor()) glow(o.x, o.y - 20, 70 + 10 * Math.sin(t * 9 + o.y), "200,120,255", .22 + .1 * Math.sin(t * 13 + o.x));
+    cx.restore();
+    for (let k = 0; k < 7; k++) { const fx = camX + ((k * 397 + t * (18 + k * 4)) % (vw + 600)) - 300, fy = camY + vh * (.15 + .12 * k) + Math.sin(t * .5 + k) * 30;
+      const gr = cx.createRadialGradient(fx, fy, 10, fx, fy, 260); gr.addColorStop(0, "rgba(40,20,60,.32)"); gr.addColorStop(1, "rgba(40,20,60,0)"); cx.fillStyle = gr; cx.fillRect(fx - 260, fy - 260, 520, 520); }
+    const A = arena();
+    for (let k = 0; k < 9; k++) { const ph = (t * .35 + k * .37) % 3; if (ph > 1) continue; const op = Math.sin(ph * Math.PI);
+      const side = k % 3, ex = side === 0 ? A.x0 - 60 : side === 1 ? A.x1 + 60 : -800 + k * 190, ey = side === 2 ? A.y0 - 120 : A.y0 + 80 + ((k * 211) % (A.y1 - A.y0 - 160));
+      cx.save(); cx.globalAlpha = op; cx.globalCompositeOperation = "lighter"; glow(ex, ey, 26, "255,60,90", .5); cx.restore();
+      cx.save(); cx.globalAlpha = op; cx.fillStyle = "#ff4060"; for (const dx of [-9, 9]) { cx.beginPath(); cx.ellipse(ex + dx, ey, 5, 2.5 + op * 1.5, dx * .03, 0, Math.PI * 2); cx.fill(); } cx.restore(); }
+  } // bourrasques de la salle de Peter
   const w = S.wind; if (!w || !(w.on > 0)) return;
   const a = Math.min(1, w.on * 2, (2.6 - w.on) * 3), ex = Math.cos(w.a), ey = Math.sin(w.a);
   cx.save(); cx.strokeStyle = `rgba(220,230,255,${.35 * a})`; cx.lineWidth = 2; cx.lineCap = "round";
@@ -1848,7 +1860,17 @@ function spawnFoe(kind, x, y) {
   if (x === undefined) {
     const a = Math.random() * Math.PI * 2, dist = Math.hypot(W, H) / ZOOM / 2 + 60;
     const c = S.cam || S.P; x = c.x + Math.cos(a) * dist; y = c.y + Math.sin(a) * dist;
+    if (LEVEL.league) { // salle fermée : on entre par les bords de la salle, loin des joueurs
+      const A = arena();
+      for (let k = 0; k < 10; k++) {
+        const side = Math.random() * 4 | 0, u = Math.random();
+        x = side < 2 ? A.x0 + 40 + u * (A.x1 - A.x0 - 80) : side === 2 ? A.x0 + 40 : A.x1 - 40;
+        y = side === 0 ? A.y0 + 40 : side === 1 ? A.y1 - 40 : A.y0 + 40 + u * (A.y1 - A.y0 - 80);
+        if (S.players.every(p => Math.hypot(p.x - x, p.y - y) > 420)) break;
+      }
+    }
   }
+  if (LEVEL.league) arenaClamp({ get x() { return x; }, set x(v) { x = v; }, get y() { return y; }, set y(v) { y = v; } }, 40);
   if (!d.boss && LEVEL.foeHp) scale *= 1 + (LEVEL.foeHp - 1) * Math.min(1, tS / 360); // Caverne Azurée : sauvages plus coriaces au fil du temps
   const f = { kind, d, x, y, vx:0, vy:0, hp:d.hp * scale, maxHp:d.hp * scale, r:d.r, hurt:0, leafT:0, ph:Math.random()*10, flip:false, trail:[] };
   f.id = S.fid = (S.fid || 0) + 1;
@@ -2599,6 +2621,7 @@ function update(dt) {
   for (const sl of S.sludge) { if ((P.x - sl.x) ** 2 + ((P.y - sl.y) * 1.6) ** 2 < sl.r * sl.r) P.inSludge = !flying; }
   if (P.inSludge) { P.slT = (P.slT || 0) - dt; if (P.slT <= 0) { P.slT = .6; if (P.inv <= 0 && hurtP(3 * (1 + S.t / 900))) return; } }
   if (!flying) collide(P, P.r, ptype() === "eau");
+  arenaClamp(P, P.r);
   P.swim = ptype() === "eau" && inWater(P.x, P.y);
   P.inv -= dt; P.evoFlash -= dt; P.slowT = (P.slowT || 0) - dt; P.parT = (P.parT || 0) - dt;
   if (P.regen) P.hp = Math.min(P.maxHp, P.hp + P.regen * dt);
@@ -2614,6 +2637,9 @@ function update(dt) {
     const up = S.players.filter(p => !p.down), list = up.length ? up : S.players;
     let cx0 = 0, cy0 = 0; for (const p of list) { cx0 += p.x; cy0 += p.y; } cx0 /= list.length; cy0 /= list.length;
     if (S.players.length > 1) { const hx = W / ZOOM / 2 - 40, hy = H / ZOOM / 2 - 50; for (const p of S.players) { p.x = Math.max(cx0 - hx, Math.min(cx0 + hx, p.x)); p.y = Math.max(cy0 - hy, Math.min(cy0 + hy, p.y)); } }
+    if (LEVEL.league) { const A = arena(), hx = W / ZOOM / 2, hy = H / ZOOM / 2, mx = ARENA_WALL + 20;
+      cx0 = hx * 2 >= A.x1 - A.x0 + mx * 2 ? 0 : Math.max(A.x0 - mx + hx, Math.min(A.x1 + mx - hx, cx0));
+      cy0 = hy * 2 >= A.y1 - A.y0 + mx * 2.6 ? START_Y : Math.max(A.y0 - mx * 1.6 + hy, Math.min(A.y1 + mx - hy, cy0)); }
     S.cam = { x:cx0, y:cy0 };
   }
   P = S.P = nearP(S.cam.x, S.cam.y);
@@ -2622,7 +2648,8 @@ function update(dt) {
   const mw = ((S.mewtwo && S.mewtwo.hp > 0) || (S.bird && S.bird.hp > 0) ? .3 : 1) * (LEVEL.league ? (S.lgPh === "boss" ? .45 : S.lgPh === "wild" ? 1 : 0) : 1); // Mewtwo et les oiseaux légendaires font fuir les autres Pokémon
   const np = 1 + .5 * (S.players.length - 1); // plus de joueurs, plus de Pokémon sauvages
   const tS = LEVEL.league ? Math.min(S.t, 600) : S.t; // Ligue Indigo : la difficulté arrête de monter après 10 min
-  const rate = (1.1 + tS / 22) * CURSE() * mw * np, cap = (260 + tS / 3) * CURSE() * mw * np;
+  const ar = LEVEL.league ? .5 : 1; // salle fermée : moins de place pour fuir, donc moins de monde
+  const rate = (1.1 + tS / 22) * CURSE() * mw * np * ar, cap = Math.min((260 + tS / 3) * CURSE() * mw * np, LEVEL.league ? (S.lgPh === "boss" ? 60 : 100) * np * CURSE() : 1e9);
   S.spawnAcc += rate * dt;
   while (S.spawnAcc >= 1) { S.spawnAcc--; if (S.foes.length < cap) spawnFoe(foeTable(S.t)); }
   if (S.t >= S.nextRing && (!LEVEL.league || S.lgPh === "wild")) {
@@ -2765,7 +2792,8 @@ function update(dt) {
     if (!flies && !f.d.boss && tallGrassAt(f.x, f.y)) sp *= .85; // les boss ignorent le décor
     f.x += ax * sp * dt; f.y += ay * sp * dt;
     if (f.kbx || f.kby) { f.x += f.kbx * dt; f.y += f.kby * dt; const k = Math.pow(.02, dt); f.kbx *= k; f.kby *= k; if (Math.abs(f.kbx) + Math.abs(f.kby) < 8) f.kbx = f.kby = 0; }
-    if (!flies && !f.d.boss && !f.under && !f.d.ghost) collide(f, f.r, !!f.d.swim); f.dir = dirOf(ax, ay); f.flip = (f.d.ranged && l < 190) ? ax > 0 : ax < 0;
+    if (!flies && !f.d.boss && !f.under && !f.d.ghost) collide(f, f.r, !!f.d.swim);
+    arenaClamp(f, Math.min(f.r, 30)); f.dir = dirOf(ax, ay); f.flip = (f.d.ranged && l < 190) ? ax > 0 : ax < 0;
     f.hurt -= dt; f.hold = (f.hold || 0) - dt; f.slowT = (f.slowT || 0) - dt; f.sleepT = (f.sleepT || 0) - dt; f.stunT = (f.stunT || 0) - dt; f.leerT = (f.leerT || 0) - dt;
     if (f.burnT > 0 || f.seedT > 0 || f.poisonT > 0) {
       f.dotT = (f.dotT || 0) - dt;
@@ -3592,11 +3620,171 @@ function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) | 0
 const START_Y = pathY(0);
 
 const chunkData = new Map();
+
+/* Ligue Indigo : salles fermées façon Rouge Feu / Vert Feuille (cadre en bois, sol carrelé, terrain et cercle Poké Ball) */
+const ARENA_W = 950, ARENA_H = 650, ARENA_WALL = 120;
+const arena = () => LEVEL.league ? { x0:-ARENA_W, x1:ARENA_W, y0:START_Y - ARENA_H, y1:START_Y + ARENA_H } : null;
+function arenaClamp(e, r = 12) {
+  if (!LEVEL.league) return;
+  const A = arena(); e.x = Math.max(A.x0 + r, Math.min(A.x1 - r, e.x)); e.y = Math.max(A.y0 + r, Math.min(A.y1 - r, e.y));
+  if ((ARENA_PAL[LEVEL.theme] || {}).octa) { // coins coupés de l'octogone
+    let ux = Math.abs(e.x), uy = Math.abs(e.y - START_Y); const lim = ARENA_W + ARENA_H - 2 * r - OCT * 1.0, ex = ux + uy - lim;
+    if (ex > 0) { ux -= ex / 2; uy -= ex / 2; e.x = Math.sign(e.x) * ux; e.y = START_Y + Math.sign(e.y - START_Y) * uy; }
+  }
+}
+const ARENA_PAL = {
+  olga:   { floor:"#94c8ea", floor2:"#88bfe4", grid:"rgba(70,120,170,.38)", line:"rgba(255,255,255,.85)", wall:"#c8703a", wallDk:"#7a3c1c", wallHi:"#eea060", win:"#24305a", winLit:"#a8dcff", ball:["#9a7ad8", "#86dccc"], out:"#2a160c", deco:"ice" },
+  aldo:   { floor:"#e2c872", floor2:"#d8bd66", grid:"rgba(150,120,40,.4)", line:"rgba(255,255,255,.9)", wall:"#c8703a", wallDk:"#7a3c1c", wallHi:"#eea060", win:"#24305a", winLit:"#ffd890", ball:["#5cc070", "#e8e8e8"], out:"#2a160c", deco:"stone", ring:true },
+  agatha: { floor:"#4a3a62", floor2:"#42335a", grid:"rgba(16,6,30,.5)", line:"rgba(210,190,255,.55)", wall:"#3a2450", wallDk:"#160c22", wallHi:"#5e4280", win:"#0a0612", winLit:"#7a3ab0", ball:["#9a2a4a", "#8a9a3a"], out:"#06030a", deco:"candle", scary:true },
+  peter:  { floor:"#5aa6a4", floor2:"#529c9a", grid:"rgba(20,70,70,.45)", line:"rgba(255,255,255,.85)", wall:"#c8703a", wallDk:"#7a3c1c", wallHi:"#eea060", win:"#24305a", winLit:"#ffd890", ball:["#8a4aa8", "#e08080"], out:"#2a160c", deco:"fang" },
+  champ:  { octa:true, floor:"#b8d4d0", floor2:"#b0ccc8", grid:"rgba(110,150,146,.45)", line:"rgba(255,255,255,.6)", wall:"#7a3a9a", wallDk:"#3a1a4a", wallHi:"#b868d4", win:"#2a1a3a", winLit:"#fff2c0", ball:["#e8c838", "#ffffff"], out:"#16101e", deco:"lamp" },
+};
+function arenaDecor() { // obstacles : deux rangées de quatre le long des murs, comme dans les jeux
+  const A = arena(), cy = START_Y, out = [];
+  if ((ARENA_PAL[LEVEL.theme] || {}).octa) { for (const sx of [-1, 1]) for (const sy of [-1, 1]) out.push({ x:sx * (ARENA_W - 300), y:cy + sy * (ARENA_H - 250), r:30 }); return out; }
+  for (const sx of [-1, 1]) for (const dy of [-420, -140, 140, 420]) out.push({ x:sx * (ARENA_W - 170), y:cy + dy, r:34 });
+  return out;
+}
+function arenaChunk(ci, cj) {
+  const x0 = ci * CH, y0 = cj * CH, inC = o => o.x >= x0 && o.x < x0 + CH && o.y >= y0 && o.y < y0 + CH;
+  const deco = arenaDecor().filter(inC);
+  return { ponds:[], trees:[], rocks:[], logs:[], walls:[], spikes:[], crystals:[], shrooms:[], lava:[], gates:[], deco, solids:deco.map(o => ({ x:o.x, y:o.y, r:o.r })), canvas:null, used:0 };
+}
+function drawArenaDeco(g, o, kind) {
+  const { x, y } = o;
+  g.fillStyle = "rgba(0,0,0,.28)"; g.beginPath(); g.ellipse(x + 6, y + 30, 40, 14, 0, 0, Math.PI * 2); g.fill();
+  if (kind === "ice") { // bloc de glace
+    g.fillStyle = "#4e8fc0"; g.fillRect(x - 34, y - 30, 68, 64);
+    const gr = g.createLinearGradient(x - 30, 0, x + 30, 0); gr.addColorStop(0, "#bfe8ff"); gr.addColorStop(.5, "#8ccaf0"); gr.addColorStop(1, "#6aaedc");
+    g.fillStyle = gr; g.fillRect(x - 30, y - 18, 60, 48);
+    g.fillStyle = "#e8f8ff"; g.fillRect(x - 30, y - 40, 60, 24); g.fillStyle = "#c8ecff"; g.fillRect(x - 30, y - 18, 60, 4);
+    g.strokeStyle = "rgba(255,255,255,.85)"; g.lineWidth = 3; g.beginPath(); g.moveTo(x - 20, y - 6); g.lineTo(x - 20, y + 20); g.moveTo(x - 10, y - 8); g.lineTo(x - 10, y + 2); g.stroke();
+    g.strokeStyle = "#3a78a8"; g.lineWidth = 2; g.strokeRect(x - 30, y - 40, 60, 70);
+  } else if (kind === "stone") { // pile de pierres (salle d'Aldo)
+    for (let k = 0; k < 3; k++) { const yy = y + 18 - k * 22, w = 34 - k * 3;
+      g.fillStyle = "#5a5e66"; g.beginPath(); g.ellipse(x, yy + 4, w, 14, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#a8acb4"; g.beginPath(); g.ellipse(x, yy, w, 13, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#d4d8de"; g.beginPath(); g.ellipse(x - w * .25, yy - 4, w * .5, 5, 0, 0, Math.PI * 2); g.fill(); }
+  } else if (kind === "tomb") { // stèle et bougie (Agatha)
+    g.fillStyle = "#2a2036"; g.fillRect(x - 30, y + 10, 60, 18);
+    g.fillStyle = "#6a6080"; g.beginPath(); g.moveTo(x - 24, y + 14); g.lineTo(x - 24, y - 20); g.arc(x, y - 20, 24, Math.PI, 0); g.lineTo(x + 24, y + 14); g.fill();
+    g.fillStyle = "#8a80a4"; g.fillRect(x - 24, y - 20, 8, 34);
+    g.strokeStyle = "#3a3050"; g.lineWidth = 4; g.beginPath(); g.moveTo(x, y - 30); g.lineTo(x, y + 2); g.moveTo(x - 10, y - 20); g.lineTo(x + 10, y - 20); g.stroke();
+    g.fillStyle = "#e8e0c8"; g.fillRect(x + 26, y + 2, 7, 16); g.fillStyle = "#b080ff"; g.beginPath(); g.ellipse(x + 29.5, y - 3, 4, 7, 0, 0, Math.PI * 2); g.fill();
+  } else if (kind === "candle") { // colonne violette et sa flamme (Agatha)
+    g.fillStyle = "#1e1230"; g.fillRect(x - 24, y + 14, 48, 16);
+    g.fillStyle = "#5a3a8a"; g.beginPath(); g.moveTo(x - 18, y + 16); g.lineTo(x - 18, y - 42); g.arc(x, y - 42, 18, Math.PI, 0); g.lineTo(x + 18, y + 16); g.fill();
+    g.fillStyle = "#2a1640"; g.beginPath(); g.moveTo(x - 9, y + 8); g.lineTo(x - 9, y - 40); g.arc(x, y - 40, 9, Math.PI, 0); g.lineTo(x + 9, y + 8); g.fill();
+    const fl = g.createLinearGradient(0, y - 40, 0, y + 6); fl.addColorStop(0, "#fff0a0"); fl.addColorStop(.5, "#e0a030"); fl.addColorStop(1, "#7a3a10");
+    g.fillStyle = fl; g.fillRect(x - 5, y - 36, 10, 40); g.fillStyle = "#8a6ab8"; g.fillRect(x - 18, y - 6, 36, 5);
+  } else if (kind === "fang") { // corne de dragon en ivoire sur socle (Peter)
+    g.fillStyle = "#4a4a52"; g.beginPath(); g.ellipse(x, y + 18, 30, 13, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "#8a8a94"; g.beginPath(); g.ellipse(x, y + 13, 28, 11, 0, 0, Math.PI * 2); g.fill();
+    const sx = x < 0 ? 1 : -1; // la corne se recourbe vers le centre de la salle
+    g.fillStyle = "#b8b0a0"; g.beginPath(); g.moveTo(x - 16, y + 12); g.quadraticCurveTo(x - 20, y - 30, x + sx * 26, y - 62); g.quadraticCurveTo(x + 4, y - 26, x + 16, y + 12); g.fill();
+    g.fillStyle = "#f4efe2"; g.beginPath(); g.moveTo(x - 10, y + 10); g.quadraticCurveTo(x - 14, y - 26, x + sx * 26, y - 62); g.quadraticCurveTo(x - 2, y - 22, x + 6, y + 10); g.fill();
+  } else if (kind === "lamp") { // lampadaire (salle du Champion)
+    g.fillStyle = "#5a6a70"; g.fillRect(x - 26, y + 6, 52, 22); g.fillStyle = "#8a9aa0"; g.fillRect(x - 22, y - 40, 44, 50);
+    g.fillStyle = "#c8d4d8"; g.fillRect(x - 16, y - 36, 10, 42);
+    g.fillStyle = "#3a4448"; g.fillRect(x - 26, y - 50, 52, 12);
+    const gl = g.createRadialGradient(x, y - 62, 2, x, y - 62, 30); gl.addColorStop(0, "#fffbe0"); gl.addColorStop(.5, "#f0e070"); gl.addColorStop(1, "rgba(240,224,112,0)");
+    g.fillStyle = gl; g.beginPath(); g.arc(x, y - 62, 30, 0, Math.PI * 2); g.fill(); g.fillStyle = "#f8e868"; g.beginPath(); g.arc(x, y - 62, 13, 0, Math.PI * 2); g.fill();
+  } else if (kind === "dragon") { // statue de dragon sur socle (Peter)
+    g.fillStyle = "#3a3448"; g.fillRect(x - 32, y + 2, 64, 28); g.fillStyle = "#5a5470"; g.fillRect(x - 32, y - 2, 64, 8);
+    g.fillStyle = "#7a6a9a"; g.beginPath(); g.moveTo(x - 18, y); g.lineTo(x - 10, y - 46); g.lineTo(x + 2, y - 60); g.lineTo(x + 24, y - 52); g.lineTo(x + 12, y - 40); g.lineTo(x + 16, y); g.fill();
+    g.fillStyle = "#9a8ac0"; g.beginPath(); g.moveTo(x - 10, y - 46); g.lineTo(x - 18, y - 66); g.lineTo(x - 2, y - 56); g.fill();
+    g.fillStyle = "#ffb050"; g.beginPath(); g.arc(x + 12, y - 52, 3.5, 0, Math.PI * 2); g.fill();
+  } else { // colonne de marbre (Champion)
+    g.fillStyle = "#b8a878"; g.fillRect(x - 30, y + 14, 60, 16);
+    const gr = g.createLinearGradient(x - 24, 0, x + 24, 0); gr.addColorStop(0, "#d8d0c0"); gr.addColorStop(.4, "#ffffff"); gr.addColorStop(1, "#b8b0a0");
+    g.fillStyle = gr; g.fillRect(x - 22, y - 50, 44, 66);
+    g.strokeStyle = "rgba(150,140,120,.6)"; g.lineWidth = 2; for (const dx of [-11, 0, 11]) { g.beginPath(); g.moveTo(x + dx, y - 46); g.lineTo(x + dx, y + 12); g.stroke(); }
+    g.fillStyle = "#e0c060"; g.fillRect(x - 28, y - 58, 56, 10); g.fillRect(x - 26, y + 10, 52, 6);
+  }
+}
+function drawArena(g, pal) { // tout le décor de la salle (dessiné une fois par morceau de carte)
+  const A = arena(), Wl = ARENA_WALL, cy = START_Y;
+  g.fillStyle = pal.out; g.fillRect(A.x0 - 1200, A.y0 - 1200, A.x1 - A.x0 + 2400, A.y1 - A.y0 + 2400);
+  // cadre en bois avec fenêtres
+  g.fillStyle = pal.wallDk; g.fillRect(A.x0 - Wl, A.y0 - Wl * 1.6, A.x1 - A.x0 + Wl * 2, A.y1 - A.y0 + Wl * 2.6);
+  g.fillStyle = pal.wall; g.fillRect(A.x0 - Wl + 10, A.y0 - Wl * 1.6 + 10, A.x1 - A.x0 + Wl * 2 - 20, A.y1 - A.y0 + Wl * 2.6 - 20);
+  g.fillStyle = pal.wallHi; for (const yy of [A.y0 - Wl * 1.6 + 10, A.y1 + Wl - 24]) g.fillRect(A.x0 - Wl + 10, yy, A.x1 - A.x0 + Wl * 2 - 20, 12);
+  g.strokeStyle = pal.wallDk; g.lineWidth = 3; for (let x = A.x0 - Wl + 40; x < A.x1 + Wl; x += 64) { g.beginPath(); g.moveTo(x, A.y0 - Wl * 1.6 + 22); g.lineTo(x, A.y0 - 6); g.moveTo(x, A.y1 + 6); g.lineTo(x, A.y1 + Wl - 24); g.stroke(); }
+  const win = (x, y, lit) => { g.fillStyle = pal.wallDk; g.fillRect(x - 17, y - 17, 34, 34); g.fillStyle = pal.win; g.fillRect(x - 13, y - 13, 26, 26); g.fillStyle = lit; g.fillRect(x - 9, y - 9, 8, 8); };
+  for (let y = A.y0 + 60; y < A.y1 - 30; y += 130) { win(A.x0 - Wl / 2, y, pal.winLit); win(A.x1 + Wl / 2, y, pal.winLit); }
+  for (let x = A.x0 + 40; x < A.x1; x += 150) if (Math.abs(x) > 140) { win(x, A.y0 - Wl * .8, pal.winLit); win(x, A.y1 + Wl / 2, pal.winLit); }
+  // porte en haut (vers la salle suivante) et entrée en bas
+  g.fillStyle = pal.wallDk; g.fillRect(-70, A.y0 - Wl * 1.6 + 6, 140, Wl * 1.6); g.fillStyle = "#1a1210"; g.fillRect(-52, A.y0 - Wl * 1.3, 104, Wl * 1.3);
+  g.fillStyle = "#e8c860"; g.beginPath(); g.arc(0, A.y0 - Wl * 1.05, 22, 0, Math.PI * 2); g.fill(); g.fillStyle = "#c83a3a"; g.beginPath(); g.arc(0, A.y0 - Wl * 1.05, 22, Math.PI, 0); g.fill();
+  g.strokeStyle = "#1a1210"; g.lineWidth = 4; g.beginPath(); g.moveTo(-22, A.y0 - Wl * 1.05); g.lineTo(22, A.y0 - Wl * 1.05); g.stroke(); g.fillStyle = "#fff"; g.beginPath(); g.arc(0, A.y0 - Wl * 1.05, 7, 0, Math.PI * 2); g.fill();
+  g.fillStyle = pal.floor2; g.fillRect(-60, A.y1, 120, Wl); g.strokeStyle = pal.grid; g.lineWidth = 2; for (let y = A.y1 + 16; y < A.y1 + Wl; y += 18) { g.beginPath(); g.moveTo(-60, y); g.lineTo(60, y); g.stroke(); }
+  // sol carrelé
+  if (pal.octa) return drawChampArena(g, pal);
+  g.save(); g.beginPath(); g.rect(A.x0, A.y0, A.x1 - A.x0, A.y1 - A.y0); g.clip();
+  const T = 64; g.fillStyle = pal.floor; g.fillRect(A.x0, A.y0, A.x1 - A.x0, A.y1 - A.y0);
+  g.fillStyle = pal.floor2; for (let y = A.y0, j = 0; y < A.y1; y += T, j++) for (let x = A.x0, i = 0; x < A.x1; x += T, i++) if ((i + j) % 2) g.fillRect(x, y, T, T);
+  g.strokeStyle = pal.grid; g.lineWidth = 2; g.beginPath();
+  for (let x = A.x0; x <= A.x1; x += T) { g.moveTo(x, A.y0); g.lineTo(x, A.y1); } for (let y = A.y0; y <= A.y1; y += T) { g.moveTo(A.x0, y); g.lineTo(A.x1, y); } g.stroke();
+  g.fillStyle = "rgba(0,0,0,.22)"; g.fillRect(A.x0, A.y0, A.x1 - A.x0, 26); g.fillRect(A.x0, A.y0, 18, A.y1 - A.y0);
+  // terrain : grand carré, ligne médiane et cercle Poké Ball
+  const hw = 520, hh = 420, R0 = 190;
+  g.save(); g.beginPath(); g.arc(0, cy, R0, Math.PI, 0); g.fillStyle = pal.ball[0]; g.globalAlpha = .75; g.fill(); g.beginPath(); g.arc(0, cy, R0, 0, Math.PI); g.fillStyle = pal.ball[1]; g.fill(); g.restore();
+  g.strokeStyle = pal.line; g.lineWidth = 7; g.strokeRect(-hw, cy - hh, hw * 2, hh * 2);
+  g.beginPath(); g.moveTo(-hw, cy); g.lineTo(hw, cy); g.stroke(); g.beginPath(); g.arc(0, cy, R0, 0, Math.PI * 2); g.stroke();
+  g.fillStyle = pal.line; g.beginPath(); g.arc(0, cy, 46, 0, Math.PI * 2); g.fill(); g.fillStyle = pal.ball[1]; g.beginPath(); g.arc(0, cy, 30, 0, Math.PI * 2); g.fill();
+  if (pal.ring) { // salle de boxe : ring avec cordes rouges et poteaux
+    const rw = hw - 40, rh = hh - 40;
+    g.fillStyle = "rgba(255,255,255,.12)"; g.fillRect(-rw, cy - rh, rw * 2, rh * 2);
+    for (const [k, col] of [[0, "#c02a2a"], [14, "#ffffff"], [28, "#2a5ac0"]]) { g.strokeStyle = col; g.lineWidth = 6; g.strokeRect(-rw - k, cy - rh - k, (rw + k) * 2, (rh + k) * 2); }
+    for (const [px, py, col] of [[-rw - 28, cy - rh - 28, "#c02a2a"], [rw + 28, cy - rh - 28, "#2a5ac0"], [-rw - 28, cy + rh + 28, "#2a5ac0"], [rw + 28, cy + rh + 28, "#c02a2a"]]) {
+      g.fillStyle = "#2a2a2a"; g.beginPath(); g.arc(px + 3, py + 4, 16, 0, Math.PI * 2); g.fill(); g.fillStyle = col; g.beginPath(); g.arc(px, py, 14, 0, Math.PI * 2); g.fill(); g.fillStyle = "rgba(255,255,255,.6)"; g.beginPath(); g.arc(px - 4, py - 4, 5, 0, Math.PI * 2); g.fill();
+    }
+  }
+  g.restore();
+  for (const o of arenaDecor()) drawArenaDeco(g, o, pal.deco);
+}
+const OCT = 330; // salle du Champion : octogone (coins coupés)
+function drawChampArena(g, pal) { // d'après la salle du Champion de Rouge Feu : octogone clair, gradins bleus, lampadaires, escalier et pont
+  const A = arena(), cy = START_Y, Wl = ARENA_WALL;
+  const oct = (m) => { const x0 = A.x0 - m, x1 = A.x1 + m, y0 = A.y0 - m, y1 = A.y1 + m, c = OCT + m * .41;
+    g.beginPath(); g.moveTo(x0 + c, y0); g.lineTo(x1 - c, y0); g.lineTo(x1, y0 + c); g.lineTo(x1, y1 - c); g.lineTo(x1 - c, y1); g.lineTo(x0 + c, y1); g.lineTo(x0, y1 - c); g.lineTo(x0, y0 + c); g.closePath(); };
+  // grand mur violet en haut
+  for (const [k, col] of [[0, "#5a2a7a"], [1, "#7a3a9a"], [2, "#9a4ab8"], [3, "#b868d4"]]) { g.fillStyle = col; g.fillRect(A.x0 - Wl, A.y0 - Wl * 2.2 + k * Wl * .4, A.x1 - A.x0 + Wl * 2, Wl * .4 + 2); }
+  oct(Wl * .8); g.fillStyle = "#3a4a52"; g.fill();
+  oct(Wl * .55); g.fillStyle = "#e6f0ee"; g.fill();
+  oct(Wl * .3); g.fillStyle = "#8aa8a4"; g.fill();
+  // gradins bleus le long des murs
+  g.fillStyle = "#2a50b0"; for (const sx of [-1, 1]) for (let y = A.y0 + OCT; y < A.y1 - OCT; y += 26) g.fillRect(sx < 0 ? A.x0 - Wl * .5 : A.x1 + Wl * .5 - 40, y, 40, 16);
+  for (const sy of [-1, 1]) for (const sx of [-1, 1]) for (let k = 0; k < 3; k++) { g.fillStyle = k % 2 ? "#3a64c8" : "#2a50b0"; g.fillRect(sx < 0 ? -A.x1 * .62 : A.x1 * .22, sy < 0 ? A.y0 - Wl * .5 + k * 16 : A.y1 + Wl * .5 - 44 + k * 16, A.x1 * .4, 12); }
+  oct(0); g.fillStyle = pal.floor; g.fill();
+  g.save(); oct(0); g.clip(); g.strokeStyle = pal.grid; g.lineWidth = 2; g.beginPath();
+  for (let x = A.x0; x <= A.x1; x += 80) { g.moveTo(x, A.y0); g.lineTo(x, A.y1); } for (let y = A.y0; y <= A.y1; y += 80) { g.moveTo(A.x0, y); g.lineTo(A.x1, y); } g.stroke(); g.restore();
+  oct(-40); g.strokeStyle = "rgba(255,255,255,.55)"; g.lineWidth = 6; g.stroke();
+  // escalier et porte en haut, pont en bas
+  g.fillStyle = "#e8e8f0"; g.fillRect(-90, A.y0 - Wl * 1.7, 180, Wl * 1.7); g.fillStyle = "#b8b8c8"; for (let y = A.y0 - Wl * 1.6; y < A.y0; y += 22) g.fillRect(-90, y, 180, 5);
+  g.fillStyle = "#c8703a"; g.fillRect(-70, A.y0 - Wl * 2.4, 140, Wl * .9); g.fillStyle = "#e8a060"; g.fillRect(-56, A.y0 - Wl * 2.3, 112, Wl * .75); g.fillStyle = "#1a1210"; g.fillRect(-40, A.y0 - Wl * 2.15, 80, Wl * .6);
+  g.fillStyle = "#c8b060"; g.fillRect(-80, A.y1 + Wl * .5, 160, 900); g.fillStyle = "#a89040"; for (let y = A.y1 + Wl * .5; y < A.y1 + 900; y += 36) g.fillRect(-80, y, 160, 6);
+  for (let y = A.y1 + Wl; y < A.y1 + 900; y += 150) for (const sx of [-1, 1]) { g.fillStyle = "#e8e8f0"; g.beginPath(); g.arc(sx * 125, y, 14, 0, Math.PI * 2); g.fill(); g.fillStyle = "#3a3a4a"; g.beginPath(); g.arc(sx * 125, y, 6, 0, Math.PI * 2); g.fill(); }
+  // cercle central et flèches jaunes
+  g.fillStyle = "rgba(255,255,255,.5)"; g.beginPath(); g.arc(0, cy, 120, 0, Math.PI * 2); g.fill(); g.strokeStyle = "#6a8a86"; g.lineWidth = 5; g.stroke();
+  g.fillStyle = "#e8c838"; for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2 + Math.PI / 4, px = Math.cos(a) * 165, py = cy + Math.sin(a) * 165;
+    g.save(); g.translate(px, py); g.rotate(a + Math.PI); g.beginPath(); g.moveTo(22, 0); g.lineTo(-14, -16); g.lineTo(-14, 16); g.closePath(); g.fill(); g.restore(); }
+  for (const o of arenaDecor()) drawArenaDeco(g, o, pal.deco);
+}
+function renderArenaChunk(ci, cj) {
+  const c = getChunk(ci, cj), x0 = ci * CH, y0 = cj * CH, A = arena();
+  const cv2 = document.createElement("canvas"); cv2.width = cv2.height = CH * CH_SCALE;
+  const g = cv2.getContext("2d"); g.scale(CH_SCALE, CH_SCALE); g.translate(-x0, -y0);
+  g.beginPath(); g.rect(x0, y0, CH, CH); g.clip();
+  drawArena(g, ARENA_PAL[LEVEL.theme] || ARENA_PAL.olga);
+  c.canvas = cv2;
+}
 function getChunk(ci, cj) {
   const key = ci + "," + cj; let c = chunkData.get(key); if (c) return c;
   if (LEVEL.tower) { c = towerChunk(ci, cj); chunkData.set(key, c); return c; }
   if (LEVEL.manor) { c = manorChunk(ci, cj); chunkData.set(key, c); return c; }
   if (LEVEL.rocket) { c = rocketChunk(ci, cj); chunkData.set(key, c); return c; }
+  if (LEVEL.league) { c = arenaChunk(ci, cj); chunkData.set(key, c); return c; }
   if (LEVEL.cave) { c = caveChunk(ci, cj); chunkData.set(key, c); return c; }
   const R = rng(Math.floor(hash(ci + 1000, cj - 1000) * 4294967295));
   const x0 = ci * CH, y0 = cj * CH, ponds = [], trees = [], rocks = [], logs = [], mounds = [], solids = [];
@@ -4221,6 +4409,7 @@ function renderChunk(ci, cj) {
   if (LEVEL.tower) return renderTowerChunk(ci, cj);
   if (LEVEL.manor) return renderManorChunk(ci, cj);
   if (LEVEL.rocket) return renderRocketChunk(ci, cj);
+  if (LEVEL.league) return renderArenaChunk(ci, cj);
   if (LEVEL.cave) return renderCaveChunk(ci, cj);
   const c = getChunk(ci, cj), x0 = ci * CH, y0 = cj * CH;
   const cv2 = document.createElement("canvas"); cv2.width = cv2.height = CH * CH_SCALE;
@@ -4613,6 +4802,7 @@ function drawMinimap(P) {
   g.save(); g.beginPath(); g.arc(R2, R2, R2 - 1, 0, Math.PI * 2); g.clip();
   g.fillStyle = LEVEL.ice ? "rgba(60,96,128,.82)" : LEVEL.plant ? "rgba(28,32,40,.85)" : LEVEL.lava ? "rgba(34,14,10,.85)" : LEVEL.cave ? "rgba(22,16,32,.82)" : LEVEL.safari ? "rgba(70,52,22,.8)" : "rgba(14,30,18,.78)"; g.fillRect(0, 0, sz, sz);
   g.translate(R2, R2); g.scale(sc, sc); g.translate(-P.x, -P.y);
+  if (LEVEL.league) { const A = arena(); g.fillStyle = "rgba(0,0,0,.55)"; g.fillRect(P.x - 1300, P.y - 1300, 2600, 2600); g.fillStyle = "rgba(170,190,220,.35)"; g.fillRect(A.x0, A.y0, A.x1 - A.x0, A.y1 - A.y0); }
   g.strokeStyle = LEVEL.rocket ? "rgba(232,192,50,.7)" : LEVEL.tower ? "rgba(150,50,90,.8)" : LEVEL.manor ? "rgba(140,40,30,.85)" : LEVEL.cave ? "rgba(150,132,112,.7)" : LEVEL.safari ? "rgba(200,120,70,.85)" : "rgba(196,170,120,.85)"; g.lineWidth = 70; g.beginPath();
   for (let x = P.x - 1200; x <= P.x + 1200; x += 60) x === P.x - 1200 ? g.moveTo(x, pathY(x)) : g.lineTo(x, pathY(x)); g.stroke();
   around(P.x, P.y, c => {
@@ -4628,6 +4818,7 @@ function drawMinimap(P) {
     if (c.crates) for (const q of c.crates) { g.fillStyle = "rgba(170,120,70,.9)"; g.fillRect(q.x - 18, q.y - 18, 36, 36); }
     if (c.graves) for (const gr of c.graves) { g.fillStyle = "rgba(160,150,180,.75)"; g.fillRect(gr.x - 14, gr.y - 18, 28, 30); }
     if (c.pillars) for (const q of c.pillars) { g.fillStyle = "rgba(190,180,210,.9)"; g.beginPath(); g.arc(q.x, q.y, q.r * 1.4, 0, Math.PI * 2); g.fill(); }
+    if (c.deco) for (const o of c.deco) { g.fillStyle = "rgba(220,220,240,.9)"; g.beginPath(); g.arc(o.x, o.y, 55, 0, Math.PI * 2); g.fill(); }
     if (c.crystals) for (const cr of c.crystals) { g.fillStyle = cr.col ? "#8fd0ff" : "#f2a8e8"; g.beginPath(); g.arc(cr.x, cr.y, 40, 0, Math.PI * 2); g.fill(); }
   }, 3);
   g.fillStyle = "#e2513f"; for (const f of S.foes) if (!f.d.boss && !f.prop && !f.d.rare) g.fillRect(f.x - 14, f.y - 14, 28, 28);
@@ -5354,7 +5545,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v131";
+const NET_VER = "v132";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
