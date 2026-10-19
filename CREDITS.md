@@ -68,6 +68,8 @@ Les sprites originaux sont de Spike Chunsoft (Pokémon Donjon Mystère). Retouch
 | 0136 | Pyroli (joueur) | CHUNSOFT + 2 contributeurs SpriteCollab |
 | 0470 | Phyllali (joueur) | CHUNSOFT + 1 contributeur SpriteCollab |
 | versions shiny (0133-0136, 0470) | Évoli et ses évolutions chromatiques | auteurs indiqués dans les credits.txt SpriteCollab de chaque dossier 0000/0001 |
+| 0064, 0132 | Kadabra, Métamorph (Caverne Azurée, niveau 9) | CHUNSOFT |
+| 0151 | Mew (joueur) | CHUNSOFT ; version chromatique (0151/0000/0001) : contributeurs SpriteCollab indiqués dans son credits.txt |
 
 Les contributeurs sont identifiés par leur ID Discord dans `sprite/<n°>/credits.txt` du dépôt.
 
