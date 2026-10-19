@@ -253,7 +253,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v132)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v133)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -1845,7 +1845,7 @@ function padAxes(gp) {
 // contrôles : seul, clavier + 1re manette ; à plusieurs, J1 au clavier (et à la souris) et une manette par coéquipier,
 // ou une manette chacun s'il y en a assez (J1 garde aussi le clavier)
 function ctrlFor(P) {
-  if (P.remote) { const n = P.net || {}; return { kb:false, x:n.x || 0, y:n.y || 0, ax:n.ax || 0, ay:n.ay || 0, gp:null }; } // joueur en ligne : ses touches arrivent par le réseau
+  if (P.remote) { const n = P.net || {}; return { kb:false, x:n.x || 0, y:n.y || 0, ax:n.ax || 0, ay:n.ay || 0, gp:null, tc:!!n.tc }; } // joueur en ligne : ses touches arrivent par le réseau
   const loc = S.players.filter(p => !p.remote);
   if (loc.length === 1) return { kb:true, x:pad.x, y:pad.y, ax:pad.ax, ay:pad.ay, gp:pad.gp };
   const li = loc.indexOf(P), gps = padList(), gp = gps[li - (gps.length >= loc.length ? 0 : 1)] || null;
@@ -2290,7 +2290,8 @@ function updateMoves(dt) {
       S.shake = .12;
     } else if (id === "pistolet") {
       m.t = (lv >= 5 ? .6 : .8) * P.cdMul;
-      const n = (lv >= 5 ? 3 : lv >= 4 ? 2 : 1) + EXTRA(), dmg = (11 + 2*lv) * (lv >= 3 ? 1.4 : 1), base = Math.atan2(P.fy, P.fx); // même base que Flammèche et Tonnerre
+      const n = (lv >= 5 ? 3 : lv >= 4 ? 2 : 1) + EXTRA(), dmg = (11 + 2*lv) * (lv >= 3 ? 1.4 : 1), tg = P.tc ? nearestFoes(1)[0] : null;
+      const base = tg ? Math.atan2(tg.y - P.y, tg.x - P.x) : Math.atan2(P.fy, P.fx); // sur téléphone : vers l'ennemi le plus proche, comme Flammèche
       for (let i = 0; i < n; i++) {
         const a = base + (i - (n-1)/2) * (n === 2 ? .1 : .22); // à 2 jets, éventail serré pour ne pas rater la cible droit devant
         S.shots.push({ kind:"water", x:P.x, y:P.y, vx:Math.cos(a)*500, vy:Math.sin(a)*500, r:6 + P.stage, dmg, life:.85, pierce:3 + (lv >= 2 ? 2 : 0), type:"eau", hit:new Set() });
@@ -2612,6 +2613,7 @@ function update(dt) {
   if (C.ax || C.ay) { ax = C.ax; ay = C.ay; }
   else if (C.kb && mouse.on) { ax = mouse.x - W / 2 - (P.x - S.cam.x) * ZOOM; ay = mouse.y - H / 2 - (P.y - S.cam.y) * ZOOM; if (Math.hypot(ax, ay) < 6) ax = ay = 0; }
   P.aiming = !!(ax || ay);
+  P.tc = !P.aiming && (C.kb ? TOUCH : !!C.tc); // joueur sur téléphone (sans stick de visée) : Pistolet à O vise tout seul
   if (P.aiming) { const l = Math.hypot(ax, ay); P.fx = ax / l; P.fy = ay / l; P.aimA = Math.atan2(ay, ax); P.flip = ax < 0; }
   const flying = (P.line === "feu" || P.line === "draco") && P.stage === 2; // Dracaufeu et Dracolosse volent
   if (P.dashT > 0) { P.dashT -= dt; P.x += P.dvx * dt; P.y += P.dvy * dt; S.ghosts.push({ x:P.x, y:P.y, life:.22, dir:dirOf(P.dvx, P.dvy), o:P }); }
@@ -5545,7 +5547,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v132";
+const NET_VER = "v133";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -5644,7 +5646,7 @@ function netHostData(g, raw) {
   if (!m || typeof m !== "object") return;
   if (m.t === "in") {
     const p = S && NET.started ? S.players[g.idx] : null;
-    if (p && p.remote) { const c = v => Math.max(-1, Math.min(1, +v || 0)); p.net = { x:c(m.x), y:c(m.y), ax:c(m.ax), ay:c(m.ay) }; }
+    if (p && p.remote) { const c = v => Math.max(-1, Math.min(1, +v || 0)); p.net = { x:c(m.x), y:c(m.y), ax:c(m.ax), ay:c(m.ay), tc:!!m.tc }; }
   } else if (m.t === "starter") { if (!NET.started && starterOrder.includes(m.line)) { g.line = m.line; netLobby(); } }
   else if (m.t === "hi") netLobby();
   else if (NET.asks.has(g)) {
@@ -5777,7 +5779,7 @@ function netInput() {
   let ax = pad.ax, ay = pad.ay;
   if (!ax && !ay && mouse.on && P && S.cam) { ax = mouse.x - W / 2 - (P.x - S.cam.x) * ZOOM; ay = mouse.y - H / 2 - (P.y - S.cam.y) * ZOOM; const l = Math.hypot(ax, ay); if (l < 6) ax = ay = 0; else { ax /= l; ay /= l; } }
   if (state !== "netplay") mx = my = ax = ay = 0;
-  const msg = JSON.stringify({ t:"in", x:+mx.toFixed(2), y:+my.toFixed(2), ax:+ax.toFixed(2), ay:+ay.toFixed(2) });
+  const msg = JSON.stringify({ t:"in", x:+mx.toFixed(2), y:+my.toFixed(2), ax:+ax.toFixed(2), ay:+ay.toFixed(2), tc:TOUCH ? 1 : 0 });
   if (msg !== NET.lastIn || ++NET.inRep % 10 === 0) { NET.lastIn = msg; netSend(msg); }
 }
 function netFrame(now, dt) {
