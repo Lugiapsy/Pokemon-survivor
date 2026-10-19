@@ -198,7 +198,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v120)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v121)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -698,9 +698,9 @@ const FOES = {
   bossOnix:   { name:"Onix géant", sprite:"onix", types:["roche","sol"], hp:4000, speed:76, dmg:26, r:46, xp:95, boss:true, snake:true, burrow:true },
   bossRhino:  { name:"Rhinoféros géant", sprite:"rhinoferos", types:["sol","roche"], hp:8200, speed:64, dmg:28, r:48, xp:130, boss:true, dash:true, bigDash:true, armor:.6, heavy:true, rockThrow:true },
   // oiseaux légendaires (niveau 7, à 5:00) : PV calculés comme Mewtwo à leur arrivée ; armor ≈ sa Barrière
-  artikodin: { name:"Artikodin", types:["glace","vol"],    hp:7000, speed:92, dmg:24, r:46, xp:200, boss:true, bird:"ice",  armor:.7, sprR:24 },
-  electhor:  { name:"Électhor",  types:["electrik","vol"], hp:7000, speed:92, dmg:24, r:46, xp:200, boss:true, bird:"elec", armor:.7, sprR:30, sprDy:25 },
-  sulfura:   { name:"Sulfura",   types:["feu","vol"],      hp:7000, speed:92, dmg:24, r:46, xp:200, boss:true, bird:"fire", armor:.7, sprR:26, sprDy:14 },
+  artikodin: { name:"Artikodin", types:["glace","vol"],    hp:7000, speed:92, dmg:31, r:46, xp:200, boss:true, bird:"ice",  armor:.54, sprR:24 },
+  electhor:  { name:"Électhor",  types:["electrik","vol"], hp:7000, speed:92, dmg:31, r:46, xp:200, boss:true, bird:"elec", armor:.54, sprR:30, sprDy:25 },
+  sulfura:   { name:"Sulfura",   types:["feu","vol"],      hp:7000, speed:92, dmg:31, r:46, xp:200, boss:true, bird:"fire", armor:.54, sprR:26, sprDy:14 },
 };
 const LEVELS = [
   { name:"Forêt de Jade", num:1, title:"Tu as traversé la Forêt de Jade !", cave:false, where:"en forêt", from:"surgit des arbres",
@@ -1416,20 +1416,20 @@ function updateMap7(dt) {
       if (f.flame > 0) { // Lance-Flammes de Sulfura : peut brûler
         f.flame -= dt; f.hold = .1; f.flA += Math.sign(((a0 - f.flA + Math.PI * 3) % (Math.PI * 2)) - Math.PI) * (rage ? 1.3 : .9) * dt;
         f.fsT = (f.fsT || 0) - dt;
-        if (f.fsT <= 0) { f.fsT = .045; for (const o of rage ? [-.5, 0, .5] : [0]) { const a = f.flA + o + (Math.random() - .5) * .35, v = 320 + Math.random() * 90; S.eshots.push({ x:f.x + Math.cos(a) * 34, y:f.y + Math.sin(a) * 34, vx:Math.cos(a) * v, vy:Math.sin(a) * v, dmg:10, life:1.2, type:"feu", r:10, burn:3 }); } }
+        if (f.fsT <= 0) { f.fsT = .045; for (const o of rage ? [-.5, 0, .5] : [0]) { const a = f.flA + o + (Math.random() - .5) * .35, v = 320 + Math.random() * 90; S.eshots.push({ x:f.x + Math.cos(a) * 34, y:f.y + Math.sin(a) * 34, vx:Math.cos(a) * v, vy:Math.sin(a) * v, dmg:13, life:1.2, type:"feu", r:10, burn:3 }); } }
       }
       if (f.mb > 0) { f.hold = .1; f.mb -= dt; if (f.mb <= 0) { // Décharge d'Électhor : explosion électrique qui paralyse
         const R = f.mbR; S.shake = .6; sfx("break");
         S.fxs.push({ x:f.x, y:f.y, r:0, max:R, life:.5, col:"rgba(255,235,120," }); S.fxs.push({ x:f.x, y:f.y, r:0, max:R * .6, life:.3, col:"rgba(255,255,230," });
         emit(f.x, f.y, 50, "electrik", { sp:R * 3, life:.6, r:4.5 });
         for (const q of S.players) if (!q.down && !q.choosing && q.inv <= 0 && Math.hypot(q.x - f.x, q.y - f.y) < R + q.r * .6) { S.P = q; paralyze(q, 1); }
-        if (boomHit(f.x, f.y, R, 22)) return true;
-        const off = Math.random(); for (let i = 0; i < 8; i++) { const a = (i + off) / 8 * Math.PI * 2; S.eshots.push({ x:f.x, y:f.y, vx:Math.cos(a) * 190, vy:Math.sin(a) * 190, dmg:11, life:3.5, type:"electrik", r:11, cage:true, para:1 }); }
+        if (boomHit(f.x, f.y, R, 28.6)) return true;
+        const off = Math.random(); for (let i = 0; i < 8; i++) { const a = (i + off) / 8 * Math.PI * 2; S.eshots.push({ x:f.x, y:f.y, vx:Math.cos(a) * 190, vy:Math.sin(a) * 190, dmg:14.3, life:3.5, type:"electrik", r:11, cage:true, para:1 }); }
         for (const g of S.foes) if (g !== f && !g.d.boss && !g.prop && !g.d.rare && Math.hypot(g.x - f.x, g.y - f.y) < R) { g.hp -= 150; g.hurt = .12; }
       } }
       if (f.dashMode === "go") { // la charge laisse une traînée de glace, d'étincelles ou de flammes
         f.emT = (f.emT || 0) - dt;
-        if (f.emT <= 0) { f.emT = .09; for (const sgn of [-1, 1]) S.eshots.push({ x:f.x, y:f.y, vx:-f.dy * sgn * 90 + (Math.random() - .5) * 40, vy:f.dx * sgn * 90 + (Math.random() - .5) * 40, dmg:5, life:2.2, type:el, r:8, slow:d.bird === "ice" ? 1.5 : 0, para:d.bird === "elec" ? .6 : 0, burn:d.bird === "fire" ? 2 : 0 }); }
+        if (f.emT <= 0) { f.emT = .09; for (const sgn of [-1, 1]) S.eshots.push({ x:f.x, y:f.y, vx:-f.dy * sgn * 90 + (Math.random() - .5) * 40, vy:f.dx * sgn * 90 + (Math.random() - .5) * 40, dmg:6.5, life:2.2, type:el, r:8, slow:d.bird === "ice" ? 1.5 : 0, para:d.bird === "elec" ? .6 : 0, burn:d.bird === "fire" ? 2 : 0 }); }
       }
       const busy = f.lz || f.flame > 0 || f.mb > 0 || f.dashMode;
       if (!busy) f.atkT -= dt;
@@ -1438,11 +1438,11 @@ function updateMap7(dt) {
         if (atk === "sig" && d.bird !== "ice" && l > 420) atk = "dash"; // Décharge et Lance-Flammes : il fonce d'abord sur toi s'il est trop loin
         f.atkT = rage ? 1.3 : 2.1;
         if (atk === "sig") {
-          if (d.bird === "ice") { f.lz = { ph:"aim", t:rage ? .75 : 1, a:a0, dmg:8, w:24, turn:rage ? .6 : .45, slow:3.5, dur:rage ? 2 : 1.6 }; if (!f.saidS) { f.saidS = true; banner("Artikodin utilise Laser Glace ! Il ralentit : sors de sa ligne de mire !"); } }
+          if (d.bird === "ice") { f.lz = { ph:"aim", t:rage ? .75 : 1, a:a0, dmg:10.4, w:24, turn:rage ? .6 : .45, slow:3.5, dur:rage ? 2 : 1.6 }; if (!f.saidS) { f.saidS = true; banner("Artikodin utilise Laser Glace ! Il ralentit : sors de sa ligne de mire !"); } }
           else if (d.bird === "elec") { f.mb = f.mbMax = rage ? 1.1 : 1.5; f.mbR = rage ? 320 : 270; sfx("boss"); if (!f.saidS) { f.saidS = true; banner("Électhor se charge… Décharge ! Éloigne-toi ou tu seras paralysé !"); } }
           else { f.flame = rage ? 2 : 1.6; f.flA = a0; if (!f.saidS) { f.saidS = true; banner("Sulfura utilise Lance-Flammes ! Il peut te brûler !"); } }
         } else if (atk === "tornade") {
-          for (const o of rage ? [-.7, -.35, 0, .35, .7] : [-.35, 0, .35]) S.gusts.push({ x:f.x, y:f.y, vx:Math.cos(a0 + o) * 160, vy:Math.sin(a0 + o) * 160, r:38, life:5, ph:Math.random() * 6, hitT:0, dmg:12, col:BIRD_COL[d.bird] });
+          for (const o of rage ? [-.7, -.35, 0, .35, .7] : [-.35, 0, .35]) S.gusts.push({ x:f.x, y:f.y, vx:Math.cos(a0 + o) * 160, vy:Math.sin(a0 + o) * 160, r:38, life:5, ph:Math.random() * 6, hitT:0, dmg:15.6, col:BIRD_COL[d.bird] });
           if (!f.saidT) { f.saidT = true; banner(`${nm} utilise Tornade !`); }
         } else { f.dashMode = "aim"; f.dashT = rage ? .55 : .8; if (!f.saidD) { f.saidD = true; banner(`${nm} fonce sur toi !`); } }
       }
@@ -4874,7 +4874,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v120";
+const NET_VER = "v121";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
