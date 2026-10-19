@@ -114,6 +114,19 @@ img.ico { width:16px; height:16px; image-rendering:pixelated; vertical-align:-3p
 .hof canvas { width:96px; height:96px; flex:none; }
 .hof .hofT { display:block; font-family:var(--num); font-size:13px; color:var(--accent); }
 .hof small { display:block; margin-top:4px; }
+.carList { display:flex; flex-direction:column; gap:12px; width:min(760px, 100%); }
+.carRow { display:flex; gap:12px; align-items:flex-start; background:var(--panel); border:2px solid var(--panel-edge); border-radius:12px; padding:10px 12px; text-align:left; }
+.carRow canvas { width:72px; height:72px; flex:none; }
+.carRow > div { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+.carRow small { color:var(--ink-dim); }
+.carTbl { overflow-x:auto; }
+.carTbl table { border-collapse:collapse; font-size:12px; width:100%; }
+.carTbl th, .carTbl td { padding:2px 6px; text-align:right; white-space:nowrap; }
+.carTbl th:first-child, .carTbl td:first-child { text-align:left; color:var(--ink-dim); }
+.carTbl thead th { color:var(--accent); font-family:var(--num); font-size:11px; }
+.carTbl td.off { opacity:.35; }
+.carTbl .tot { font-weight:700; border-left:1px solid var(--panel-edge); }
+.carHof { width:min(760px, 100%); text-align:left; font-size:13px; } .carHof ol { margin:4px 0 0; padding-left:22px; }
 .achEnd { grid-column:1 / -1; flex-basis:100%; color:var(--accent); font-weight:700; }
 .evoPrev { display:block; width:100%; height:auto; max-height:120px; image-rendering:pixelated; }
 .dmgTable { border-collapse:collapse; width:min(560px, 100%); font-size:14px; background:var(--panel); border-radius:12px; overflow:hidden; }
@@ -236,11 +249,11 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
   <div class="sheet">
     <h1 id="gameTitle">Pokémon<br>Survivor</h1><div id="shinyHint" hidden>✦ Code secret : ton starter sera chromatique ✦</div>
     <div class="levels" id="levelPick" role="group" aria-label="Choix du niveau"></div>
-    <div class="levels"><button class="lvbtn dexbtn" id="dexBtn" type="button">📖 Pokédex</button><button class="lvbtn dexbtn" id="shopBtn" type="button">🏪 Marchand</button><button class="lvbtn dexbtn" id="achBtn" type="button">🏆 Succès</button><button class="lvbtn nuzbtn" id="nuzBtn" type="button" aria-pressed="false" title="Pas de Rappel, pas de soin au sol (Baies, Potions). Même gain de Pokédollars.">💀 Nuzlocke</button><button class="lvbtn dexbtn" id="netBtn" type="button" aria-pressed="false" title="Jouer à plusieurs sur des ordinateurs différents, avec un code de salon">🌐 En ligne</button><button class="lvbtn dexbtn" id="mpBtn" type="button" aria-pressed="false" title="Multijoueur local : J1 au clavier, les autres à la manette">👥 1 joueur</button><button class="lvbtn dexbtn fsBtn" id="fsBtn" type="button" hidden title="Plein écran">⛶ Plein écran</button><button class="lvbtn dexbtn" id="cloudBtn" type="button" hidden title="Se connecter avec Google pour retrouver ta progression sur tous tes ordinateurs">☁️ Sauvegarde</button><button class="lvbtn dexbtn" id="muteBtn2" type="button" aria-label="Couper ou remettre le son">🔊</button></div>
+    <div class="levels"><button class="lvbtn dexbtn" id="dexBtn" type="button">📖 Pokédex</button><button class="lvbtn dexbtn" id="shopBtn" type="button">🏪 Marchand</button><button class="lvbtn dexbtn" id="achBtn" type="button">🏆 Succès</button><button class="lvbtn dexbtn" id="carBtn" type="button">🏛 Panthéon</button><button class="lvbtn nuzbtn" id="nuzBtn" type="button" aria-pressed="false" title="Pas de Rappel, pas de soin au sol (Baies, Potions). Même gain de Pokédollars.">💀 Nuzlocke</button><button class="lvbtn dexbtn" id="netBtn" type="button" aria-pressed="false" title="Jouer à plusieurs sur des ordinateurs différents, avec un code de salon">🌐 En ligne</button><button class="lvbtn dexbtn" id="mpBtn" type="button" aria-pressed="false" title="Multijoueur local : J1 au clavier, les autres à la manette">👥 1 joueur</button><button class="lvbtn dexbtn fsBtn" id="fsBtn" type="button" hidden title="Plein écran">⛶ Plein écran</button><button class="lvbtn dexbtn" id="cloudBtn" type="button" hidden title="Se connecter avec Google pour retrouver ta progression sur tous tes ordinateurs">☁️ Sauvegarde</button><button class="lvbtn dexbtn" id="muteBtn2" type="button" aria-label="Couper ou remettre le son">🔊</button></div>
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v127)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v128)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -286,6 +299,16 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <p class="lede" id="achSub"></p>
     <div class="shopList" id="achList"></div>
     <button class="btn" id="achClose" type="button">Retour</button>
+  </div>
+</div>
+
+<div class="overlay" id="career" hidden>
+  <div class="sheet">
+    <h2>Panthéon</h2>
+    <p class="lede" id="carSub"></p>
+    <div class="carList" id="carList"></div>
+    <div class="carHof" id="carHof"></div>
+    <button class="btn" id="carClose" type="button">Retour</button>
   </div>
 </div>
 
@@ -431,6 +454,49 @@ function openAch() {
   state = "ach"; $("start").hidden = true; $("ach").hidden = false; $("achClose").focus({ preventScroll:true });
 }
 function closeAch() { $("ach").hidden = true; $("start").hidden = false; state = "menu"; }
+/* Panthéon : temps de jeu, dégâts et K.O. de chaque starter, niveau par niveau (depuis la v128) */
+let career = {}; try { career = JSON.parse(localStorage.getItem("pokesurv-career") || "{}") || {}; } catch (e) {}
+const CAR_F = ["t", "dmg", "ko", "runs", "wins"];
+function careerRecord(ps, win) {
+  if (!S || S.t < 5 || !LEVEL || !LEVEL.num) return;
+  const n = String(LEVEL.num);
+  for (const p of ps) {
+    if (!p || !LINES[p.line]) continue;
+    const c = career[p.line] = career[p.line] || { lv:{} }; c.lv = c.lv || {};
+    const l = c.lv[n] = c.lv[n] || {};
+    l.t = (l.t || 0) + Math.round(S.t); l.dmg = (l.dmg || 0) + Math.round(dmgSum(p)); l.ko = (l.ko || 0) + (p.kos || 0);
+    l.runs = (l.runs || 0) + 1; if (win) l.wins = (l.wins || 0) + 1;
+    if ((p.stage || 0) >= (c.st || 0)) { c.st = p.stage || 0; if (p.eform) c.ef = p.eform; }
+    c.at = Date.now();
+  }
+  try { localStorage.setItem("pokesurv-career", JSON.stringify(career)); } catch (e) {}
+  cloudSoon();
+}
+function careerTot(c) { const o = {}; for (const f of CAR_F) o[f] = 0; for (const k in c.lv || {}) for (const f of CAR_F) o[f] += +c.lv[k][f] || 0; return o; }
+const carName = (line, c) => c.ef && EEVEE[c.ef] ? EEVEE[c.ef].name : LINES[line].names[Math.min(c.st || 0, LINES[line].names.length - 1)];
+const fmtH = t => t >= 3600 ? `${Math.floor(t / 3600)} h ${String(Math.floor(t % 3600 / 60)).padStart(2, "0")}` : fmt(t);
+const nFr = v => Math.round(v).toLocaleString("fr-FR");
+function openCareer() {
+  const lines = Object.keys(career).filter(k => LINES[k] && career[k].lv).map(k => [k, career[k], careerTot(career[k])]).filter(r => r[2].runs).sort((a, b) => b[2].t - a[2].t);
+  const all = { t:0, ko:0, runs:0 }; for (const r of lines) { all.t += r[2].t; all.ko += r[2].ko; all.runs += r[2].runs; }
+  $("carSub").textContent = lines.length ? `${lines.length} Pokémon utilisé${lines.length > 1 ? "s" : ""} · ${fmtH(all.t)} de jeu · ${nFr(all.ko)} K.O. · ${all.runs} partie${all.runs > 1 ? "s" : ""}`
+    : "Aucune partie enregistrée pour l'instant : joue un niveau et ton Pokémon apparaîtra ici.";
+  const nums = LEVELS.map(l => l.num);
+  $("carList").innerHTML = lines.map(([k, c, T], i) => {
+    const cell = (n, f, fm) => { const l = c.lv[n]; return l && l.runs ? `<td>${fm(+l[f] || 0)}</td>` : `<td class="off">—</td>`; };
+    const row = (lab, f, fm) => `<tr><td>${lab}</td>${nums.map(n => cell(String(n), f, fm)).join("")}<td class="tot">${fm(T[f])}</td></tr>`;
+    return `<div class="carRow"><canvas id="carCv${i}" width="144" height="144"></canvas><div><b>${carName(k, c)}</b>`
+      + `<small>${fmtH(T.t)} de jeu · ${nFr(T.dmg)} dégâts · ${nFr(T.ko)} K.O. · ${T.wins} victoire${T.wins > 1 ? "s" : ""} sur ${T.runs} partie${T.runs > 1 ? "s" : ""}</small>`
+      + `<div class="carTbl"><table><thead><tr><th></th>${nums.map(n => `<th>N${n}</th>`).join("")}<th class="tot">Total</th></tr></thead><tbody>`
+      + row("Temps", "t", fmtH) + row("Dégâts", "dmg", nFr) + row("K.O.", "ko", nFr) + row("Victoires", "wins", v => `${v}`)
+      + `</tbody></table></div></div></div>`;
+  }).join("");
+  let hof = []; try { hof = JSON.parse(localStorage.getItem("pokesurv-hof") || "[]"); } catch (e) {}
+  $("carHof").innerHTML = Array.isArray(hof) && hof.length ? `<b>🏆 Records de la Ligue Indigo</b><ol>${hof.map(h => `<li>${netEsc(h.n)} · N.${h.lvl} · ${fmt(h.t)}</li>`).join("")}</ol>` : "";
+  lines.forEach(([k, c], i) => { const g = $("carCv" + i).getContext("2d"); g.fillStyle = "rgba(246,200,69,.12)"; g.beginPath(); g.arc(72, 72, 66, 0, Math.PI * 2); g.fill(); drawMon(g, c.ef || k, 72, 70, 24, false, 0, c.st || 0, 0, false); });
+  state = "career"; $("start").hidden = true; $("career").hidden = false; $("carClose").focus({ preventScroll:true });
+}
+function closeCareer() { $("career").hidden = true; $("start").hidden = false; state = "menu"; }
 const money = () => moneyEarned() + achMoney() - (shop.spent || 0);
 function openShop() {
   $("shopMoney").textContent = `${money().toLocaleString("fr-FR")} ₽`;
@@ -3247,6 +3313,7 @@ function statsHtml() {
 }
 function endGame(win) {
   achCheck(win); state = "end"; dexSave(); playTrack(null); sfx(win ? "win" : "lose");
+  careerRecord(NET.role === "host" ? [S.players[0]] : S.players, win);
   const lv = LEVEL;
   if (win && LEVELS[lv.num]) setLevel(lv.num);
   $("endTitle").textContent = win ? lv.title : S.quit ? "Partie abandonnée" : S.players.length > 1 ? "Toute l'équipe est K.O. !" : `${pName()} est K.O. !`;
@@ -3265,7 +3332,8 @@ function hallOfFame() { // Ligue Indigo gagnée : le Pokémon entre au Panthéon
   hof.push(ent); hof.sort((a, b) => a.t - b.t); hof = hof.slice(0, 10);
   try { localStorage.setItem("pokesurv-hof", JSON.stringify(hof)); } catch (e) {}
   const best = hof[0], html = `<div class="hof"><canvas id="hofCv" width="160" height="160"></canvas><div><b class="hofT">🏆 Panthéon</b>${ent.n} · N.${ent.lvl} · ${fmt(ent.t)}`
-    + `<small>${ent.mv.join(" · ")}</small><small>${best === ent ? "Nouveau record de la Ligue !" : `Record : ${best.n}, ${fmt(best.t)}`}</small></div></div>`;
+    + `<small>${ent.mv.join(" · ")}</small><small>${best === ent ? "Nouveau record de la Ligue !" : `Record : ${best.n}, ${fmt(best.t)}`}</small>`
+    + (career[P.line] ? (T => `<small>Avec ${LINES[P.line].names[0]}, niveaux 1 à 8 : ${fmtH(T.t)} de jeu · ${nFr(T.dmg)} dégâts · ${nFr(T.ko)} K.O.</small>`)(careerTot(career[P.line])) : "") + `</div></div>`;
   $("endStats").insertAdjacentHTML("afterbegin", html);
   const g = $("hofCv").getContext("2d"); g.fillStyle = "rgba(246,200,69,.14)"; g.beginPath(); g.arc(80, 80, 74, 0, Math.PI * 2); g.fill();
   drawMon(g, ent.k, 80, 78, 26, false, 0, ent.st, 0, false);
@@ -5123,7 +5191,7 @@ cv.addEventListener("pointerup", endTouch); cv.addEventListener("pointercancel",
 $("pauseBtn").addEventListener("click", togglePause);
 $("dexBtn").addEventListener("click", openDex); $("shopBtn").addEventListener("click", openShop); $("shopClose").addEventListener("click", closeShop);
 $("rerollBtn").addEventListener("click", reroll);
-$("achBtn").addEventListener("click", openAch);
+$("achBtn").addEventListener("click", openAch); $("carBtn").addEventListener("click", openCareer); $("carClose").addEventListener("click", closeCareer);
 for (const id of ["muteBtn", "muteBtn2"]) $(id).addEventListener("click", e => { e.stopPropagation(); auInit(); setMute(!AU.muted); });
 $("nuzBtn").addEventListener("click", () => setNuz(!NUZ)); setNuz(NUZ);
 setMute(AU.muted);
@@ -5142,7 +5210,7 @@ cv.addEventListener("pointermove", e => { if (e.pointerType === "mouse") { mouse
 cv.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") mouse.on = false; });
 const pad = { x:0, y:0, ax:0, ay:0, prev:{}, rep:0, held:false, used:false, gp:null };
 function overlayButtons() {
-  const ov = ["levelup", "chest", "shop", "ach", "dex", "end", "pause", "lgInter", "start"].map($).find(el => !el.hidden);
+  const ov = ["levelup", "chest", "shop", "ach", "career", "dex", "end", "pause", "lgInter", "start"].map($).find(el => !el.hidden);
   return ov ? [...ov.querySelectorAll("button")] : [];
 }
 function padFocus(btns, i) {
@@ -5171,6 +5239,7 @@ function pollPad(dt) {
   if (state === "dex" && hit(1)) { closeDex(); return; }
   if (state === "shop" && hit(1)) { closeShop(); return; }
   if (state === "ach" && hit(1)) { closeAch(); return; }
+  if (state === "career" && hit(1)) { closeCareer(); return; }
   if (state === "levelup" && hit(3)) { reroll(); return; }
   if (state === "menu" && (hit(4) || hit(5))) { let k = LEVELS.indexOf(LEVEL); do k = (k + (hit(5) ? 1 : -1) + LEVELS.length) % LEVELS.length; while (!levelOpen(k)); setLevel(k); }
   const btns = overlayButtons(); if (!btns.length || !pad.used) return;
@@ -5192,7 +5261,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v127";
+const NET_VER = "v128";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -5516,7 +5585,7 @@ function netGuestData(raw) {
   else if (m.t === "end") netGuestEnd(m);
 }
 function netGuestEnd(m) {
-  achCheck(!!m.win); dexSave(); // sa progression : succès, niveau suivant débloqué, Pokédex
+  achCheck(!!m.win); dexSave(); if (S && S.players) careerRecord([S.players[NET.idx]], !!m.win); // sa progression : succès, niveau suivant débloqué, Pokédex
   if (m.win && LEVELS[LEVEL.num]) setLevel(LEVEL.num);
   NET.started = false; state = "end"; playTrack(null); sfx(m.win ? "win" : "lose");
   for (const id of ["levelup", "chest"]) $(id).hidden = true;
@@ -5570,16 +5639,23 @@ function mergeSave(a, b) { // a, b : { dex, shop, ach }
   const ach = { ...a.ach }; for (const k in b.ach) if (b.ach[k]) ach[k] = true;
   const sh = { ...b.shop, ...a.shop }; for (const u of SHOP) sh[u.id] = Math.max(a.shop[u.id] || 0, b.shop[u.id] || 0);
   sh.spent = Math.max(a.shop.spent || 0, b.shop.spent || 0, shopSpentFor(sh)); // jamais de Pokédollars gagnés en double
-  return { dex, shop:sh, ach };
+  const career = JSON.parse(JSON.stringify(a.career || {})), bc = b.career || {};
+  for (const k in bc) {
+    const x = career[k] = career[k] || { lv:{} }, y = bc[k] || {}; x.lv = x.lv || {};
+    for (const n in y.lv || {}) { const l = x.lv[n] = x.lv[n] || {}; for (const f of CAR_F) l[f] = Math.max(+l[f] || 0, +y.lv[n][f] || 0); }
+    if ((y.st || 0) > (x.st || 0) || ((y.st || 0) === (x.st || 0) && (y.at || 0) > (x.at || 0))) { x.st = y.st || 0; if (y.ef) x.ef = y.ef; }
+    x.at = Math.max(x.at || 0, y.at || 0);
+  }
+  return { dex, shop:sh, ach, career };
 }
 function cloudApply(m) {
-  dexKills = m.dex; shop = m.shop; achs = m.ach; dexDirty = false;
-  try { localStorage.setItem("pokesurv-dex", JSON.stringify(dexKills)); localStorage.setItem("pokesurv-shop", JSON.stringify(shop)); localStorage.setItem("pokesurv-ach", JSON.stringify(achs)); } catch (e) {}
+  dexKills = m.dex; shop = m.shop; achs = m.ach; career = m.career || career; dexDirty = false;
+  try { localStorage.setItem("pokesurv-dex", JSON.stringify(dexKills)); localStorage.setItem("pokesurv-shop", JSON.stringify(shop)); localStorage.setItem("pokesurv-ach", JSON.stringify(achs)); localStorage.setItem("pokesurv-career", JSON.stringify(career)); } catch (e) {}
   refreshMoneyTag(); refreshLocks(); if (state === "menu") setLevel(Math.max(0, LEVELS.indexOf(LEVEL)));
 }
 async function cloudPush() {
   const f = CLOUD.fb; if (!f || !CLOUD.user || CLOUD.busy) return; CLOUD.busy = true;
-  try { await f.setDoc(f.doc(f.db, "saves", CLOUD.user.uid), { dex:JSON.stringify(dexKills), shop:JSON.stringify(shop), ach:JSON.stringify(achs), at:Date.now(), ver:NET_VER }); cloudLabel(); }
+  try { await f.setDoc(f.doc(f.db, "saves", CLOUD.user.uid), { dex:JSON.stringify(dexKills), shop:JSON.stringify(shop), ach:JSON.stringify(achs), career:JSON.stringify(career), at:Date.now(), ver:NET_VER }); cloudLabel(); }
   catch (e) { console.warn("sauvegarde en ligne", e); cloudLabel("⚠️ Sauvegarde : échec, nouvel essai plus tard"); }
   CLOUD.busy = false;
 }
@@ -5588,8 +5664,8 @@ async function cloudPull() {
   try {
     const snap = await f.getDoc(f.doc(f.db, "saves", CLOUD.user.uid)), d = snap.exists() ? snap.data() : null;
     const J = v => { try { return JSON.parse(v || "{}") || {}; } catch (e) { return {}; } };
-    const here = { dex:dexKills, shop, ach:achs };
-    cloudApply(d ? mergeSave(here, { dex:J(d.dex), shop:J(d.shop), ach:J(d.ach) }) : here);
+    const here = { dex:dexKills, shop, ach:achs, career };
+    cloudApply(d ? mergeSave(here, { dex:J(d.dex), shop:J(d.shop), ach:J(d.ach), career:J(d.career) }) : here);
     CLOUD.ready = true; await cloudPush();
   } catch (e) { console.warn("sauvegarde en ligne", e); cloudLabel("⚠️ Sauvegarde : impossible de lire la progression en ligne"); }
 }
