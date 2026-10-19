@@ -43,6 +43,11 @@ Les sprites originaux sont de Spike Chunsoft (Pokémon Donjon Mystère). Retouch
 | 0113 | Leveinard (Parc Safari) | CHUNSOFT |
 | 0115 | Kangourex (boss) | CHUNSOFT |
 | 0123 | Insécateur | CHUNSOFT |
+| 0055, 0079, 0080, 0086, 0087 | Akwakwak, Ramoloss, Flagadoss, Otaria, Lamantine (Île Écume) | CHUNSOFT |
+| 0081, 0082, 0101 | Magnéti, Magnéton, Électrode (Centrale électrique) | CHUNSOFT |
+| 0100 | Voltorbe | CHUNSOFT + 1 contributeur SpriteCollab |
+| 0095, 0067, 0068 | Onix, Machopeur, Mackogneur (Route Victoire) | CHUNSOFT |
+| 0066 | Machoc | CHUNSOFT + 1 contributeur SpriteCollab |
 | 0127 | Scarabrute (Parc Safari) | CHUNSOFT |
 | 0128 | Tauros | CHUNSOFT |
 | 0147 | Minidraco (événement, starter, + chromatique) | CHUNSOFT + 1 contributeur SpriteCollab |
