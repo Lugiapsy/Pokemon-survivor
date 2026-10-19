@@ -53,7 +53,7 @@ body {
 .move { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,.45); border-left: 3px solid var(--c, #888); white-space: nowrap; }
 @media (max-width: 640px) { .move.item { display: none; } }
 .timer { font-family: var(--num); font-size: 21px; line-height: 1.4; font-variant-numeric: tabular-nums; text-shadow: 0 3px 0 rgba(0,0,0,.5); text-align: center; }
-.timer small { display: block; font-family: var(--body); font-size: 11px; color: var(--ink-dim); text-shadow: none; letter-spacing: .08em; text-transform: uppercase; }
+.timer small { display: block; font-family: var(--body); font-size: 11px; color: var(--ink-dim); text-shadow: 0 1px 2px rgba(0,0,0,.85), 0 0 6px rgba(0,0,0,.5); letter-spacing: .08em; text-transform: uppercase; }
 .score { justify-self: end; text-align: right; font-size: 13px; color: var(--ink-dim); display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
 .score b { font-family: var(--num); font-size: 14px; color: var(--ink); font-variant-numeric: tabular-nums; }
 #minimap { width: 110px; height: 110px; display: block; }
@@ -198,7 +198,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v117)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v118)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -3464,7 +3464,7 @@ const CAVE_PAL = {
   ice:   { base:"#a8c8dc", g:[150, 40, -14, 184, 34, -12, 208, 28, -8], path:[222, 18, 234, 14, 244, 10], dark:"rgba(8,28,52,.58)", gravel:["#8fb2ca", "#bcd6e8", "#eef8ff"], pebble:["#b4d0e2", "#94b8d0"],
            crack:"rgba(255,255,255,.55)", foot:"rgba(170,200,224,.6)", rim:"#d4ebf7", rimStones:["#e8f6fd", "#bcd8ea"], wall:["#f2fbff", "#a6cfe8", "#4e86b0"], wallTop:"rgba(255,255,255,.5)", wallLine:"rgba(40,90,130,.7)",
            spike:["#4e80a8", "#86b8d6", "#bfe2f4", "#f0fbff"], spikeHi:"#ffffff", crystal:1 },
-  plant: { base:"#4a5058", g:[72, 0, 0, 78, 0, 0, 88, 0, 0], path:[72, 0, 78, 0, 88, 0], dark:"rgba(6,10,18,.45)", gravel:["#30363e", "#545c66", "#7c848e"], pebble:["#646c76", "#4a5058"],
+  plant: { base:"#dfe4e8", g:[224, 0, 0, 229, 0, 0, 232, 0, 0], path:[224, 0, 229, 0, 232, 0], dark:"rgba(10,16,26,.22)", gravel:["#30363e", "#545c66", "#7c848e"], pebble:["#646c76", "#4a5058"],
            crack:"rgba(0,0,0,0)", foot:"rgba(0,0,0,0)", rim:"#3a4048", rimStones:["#5a626c", "#454c55"], wall:["#aab4c0", "#66707c", "#353b44"], wallTop:"rgba(220,230,240,.3)", wallLine:"rgba(16,20,26,.85)",
            spike:["#2a2f36", "#454d57", "#d8ae2e", "#f2d257"], spikeHi:"#fff5c0", crystal:3 },
   lava:  { base:"#2a1e1c", g:[50, 22, -14, 40, 18, -12, 40, 16, -10], path:[94, 16, 80, 14, 72, 12], dark:"rgba(14,4,2,.74)", gravel:["#1a1214", "#3a2a26", "#5a4038"], pebble:["#4a3632", "#2e2220"],
@@ -3477,21 +3477,21 @@ function themeFloor(g, x0, y0, R, th) { // détails du sol propres à chaque car
     const T = 64;
     for (let ty = Math.floor(y0 / T) * T; ty < y0 + CH; ty += T) for (let tx = Math.floor(x0 / T) * T; tx < x0 + CH; tx += T) {
       const v = (hash(tx / T + 9, ty / T - 2) - .5) * 10, kind = hash(tx / T - 4, ty / T + 13);
-      const pg = g.createLinearGradient(tx, ty, tx + T, ty + T); pg.addColorStop(0, `rgb(${84 + v},${92 + v},${96 + v})`); pg.addColorStop(1, `rgb(${66 + v},${73 + v},${78 + v})`);
+      const pg = g.createLinearGradient(tx, ty, tx + T, ty + T); pg.addColorStop(0, `rgb(${236 + v},${240 + v},${242 + v})`); pg.addColorStop(1, `rgb(${212 + v},${218 + v},${222 + v})`); // carrelage blanc de laboratoire
       g.fillStyle = pg; g.fillRect(tx, ty, T, T);
       if (kind < .1) { // caillebotis
-        g.fillStyle = "#1c2024"; g.fillRect(tx + 6, ty + 6, T - 12, T - 12); g.strokeStyle = "#5c646c"; g.lineWidth = 2;
+        g.fillStyle = "#5a636c"; g.fillRect(tx + 6, ty + 6, T - 12, T - 12); g.strokeStyle = "#b8c0c8"; g.lineWidth = 2;
         for (let k = 0; k <= 6; k++) { g.beginPath(); g.moveTo(tx + 6 + k * (T - 12) / 6, ty + 6); g.lineTo(tx + 6 + k * (T - 12) / 6, ty + T - 6); g.stroke(); }
         g.beginPath(); g.moveTo(tx + 6, ty + T / 2); g.lineTo(tx + T - 6, ty + T / 2); g.stroke();
       } else if (kind < .16) { // trappe d'accès
-        g.strokeStyle = "rgba(18,22,26,.7)"; g.lineWidth = 2; g.strokeRect(tx + 12, ty + 12, T - 24, T - 24);
+        g.strokeStyle = "rgba(90,100,110,.6)"; g.lineWidth = 2; g.strokeRect(tx + 12, ty + 12, T - 24, T - 24);
         g.fillStyle = "#c8a030"; g.fillRect(tx + T / 2 - 6, ty + T / 2 - 2, 12, 4);
       }
-      g.strokeStyle = "rgba(16,20,26,.65)"; g.lineWidth = 2; g.strokeRect(tx + 1, ty + 1, T - 2, T - 2);
-      g.strokeStyle = "rgba(255,255,255,.09)"; g.lineWidth = 1; g.beginPath(); g.moveTo(tx + 3, ty + T - 3); g.lineTo(tx + 3, ty + 3); g.lineTo(tx + T - 3, ty + 3); g.stroke();
-      for (const [rx, ry] of [[7, 7], [T - 7, 7], [7, T - 7], [T - 7, T - 7]]) { circ(g, tx + rx, ty + ry, 2.2, "#40464e"); circ(g, tx + rx - .6, ty + ry - .6, 1, "#c0c8d0"); }
+      g.strokeStyle = "rgba(120,132,142,.55)"; g.lineWidth = 1.5; g.strokeRect(tx + 1, ty + 1, T - 2, T - 2);
+      g.strokeStyle = "rgba(255,255,255,.7)"; g.lineWidth = 1; g.beginPath(); g.moveTo(tx + 3, ty + T - 3); g.lineTo(tx + 3, ty + 3); g.lineTo(tx + T - 3, ty + 3); g.stroke();
+      for (const [rx, ry] of [[7, 7], [T - 7, 7], [7, T - 7], [T - 7, T - 7]]) circ(g, tx + rx, ty + ry, 1.6, "#a8b2bc");
     }
-    for (let i = 0; i < 9; i++) ell(g, x0 + R() * CH, y0 + R() * CH, 6 + R() * 14, 3 + R() * 7, "rgba(16,18,22,.22)", R() * 3); // taches d'huile
+    for (let i = 0; i < 6; i++) ell(g, x0 + R() * CH, y0 + R() * CH, 6 + R() * 14, 3 + R() * 7, "rgba(60,70,80,.12)", R() * 3); // traces
     for (let k = 0; k < 2; k++) { // câbles posés au sol
       let x = x0 + R() * CH, y = y0 + R() * CH, an = Math.round(R() * 4) * Math.PI / 2; const pts = [[x, y]];
       for (let q = 0; q < 5; q++) { if (R() < .4) an += (R() < .5 ? 1 : -1) * Math.PI / 2; x += Math.cos(an) * 64; y += Math.sin(an) * 64; pts.push([x, y]); }
@@ -3499,9 +3499,9 @@ function themeFloor(g, x0, y0, R, th) { // détails du sol propres à chaque car
     }
     // allée en tôle striée, bordée de bandes jaunes et noires
     const band = (w, col, dash) => { g.strokeStyle = col; g.lineWidth = w; g.setLineDash(dash || []); g.beginPath(); for (let x = x0 - 40; x <= x0 + CH + 40; x += 16) x === x0 - 40 ? g.moveTo(x, pathY(x)) : g.lineTo(x, pathY(x)); g.stroke(); g.setLineDash([]); };
-    band(124, "#e8c032"); band(124, "#22242a", [14, 14]); band(106, "#4c545c"); band(102, "#5a626a");
+    band(124, "#e8c032"); band(124, "#22242a", [14, 14]); band(106, "#9aa4ae"); band(102, "#c4ccd4");
     g.save(); g.beginPath(); for (let x = x0 - 40; x <= x0 + CH + 40; x += 16) x === x0 - 40 ? g.moveTo(x, pathY(x) - 50) : g.lineTo(x, pathY(x) - 50); for (let x = x0 + CH + 40; x >= x0 - 40; x -= 16) g.lineTo(x, pathY(x) + 50); g.closePath(); g.clip();
-    g.strokeStyle = "rgba(150,160,170,.35)"; g.lineWidth = 2.2; // motif de tôle striée
+    g.strokeStyle = "rgba(255,255,255,.55)"; g.lineWidth = 2.2; // motif de tôle striée
     for (let y = Math.floor((y0 - 200) / 18) * 18; y < y0 + CH + 200; y += 18) for (let x = Math.floor((x0 - 40) / 18) * 18; x < x0 + CH + 40; x += 18) {
       const o = ((x / 18 + y / 18) & 1) ? 1 : -1; g.beginPath(); g.moveTo(x + 4, y + 9 - o * 4); g.lineTo(x + 13, y + 9 + o * 4); g.stroke();
     }
@@ -4002,11 +4002,13 @@ function drawMap7Light(camX, camY, vw, vh, t) {
       const L = Math.hypot(g.x2 - g.x1, g.y2 - g.y1) || 1, nx = -(g.y2 - g.y1) / L, ny = (g.x2 - g.x1) / L;
       if (on) {
         glow((g.x1 + g.x2) / 2, (g.y1 + g.y2) / 2, L * .55, "255,220,90", .18);
+        cx.save(); cx.globalCompositeOperation = "source-over"; // sol blanc : arc dessiné en couleurs franches, sinon il disparaît
         for (let pass = 0; pass < 3; pass++) {
-          cx.strokeStyle = pass === 2 ? "rgba(255,255,235,.95)" : pass ? "rgba(255,225,90,.6)" : "rgba(255,200,60,.25)"; cx.lineWidth = [12, 5, 2][pass]; cx.beginPath();
+          cx.strokeStyle = pass === 2 ? "#fffbe0" : pass ? "#ffc800" : "rgba(255,140,0,.45)"; cx.lineWidth = [12, 5, 2][pass]; cx.beginPath();
           const n = 12; for (let k = 0; k <= n; k++) { const u = k / n, jit = k === 0 || k === n ? 0 : (hash(k * 7 + Math.floor(t * 18), g.ph * 100 + pass) - .5) * 16, x = g.x1 + (g.x2 - g.x1) * u + nx * jit, y = g.y1 - 28 + (g.y2 - g.y1) * u + ny * jit; k ? cx.lineTo(x, y) : cx.moveTo(x, y); }
           cx.stroke();
         }
+        cx.restore();
       } else if (warn) { cx.save(); cx.setLineDash([6, 8]); cx.strokeStyle = "rgba(255,90,60,.7)"; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(g.x1, g.y1 - 28); cx.lineTo(g.x2, g.y2 - 28); cx.stroke(); cx.restore(); }
     }
   });
@@ -4382,7 +4384,8 @@ function render(now) {
     if (s.star) { cx.save(); cx.translate(s.x, s.y); cx.rotate(t * 5); circ(cx, 0, 0, s.r * 1.9, "rgba(255,190,230,.3)"); const pts = []; for (let k = 0; k < 10; k++) { const rr = k % 2 ? s.r * .45 : s.r * 1.1, a = k / 10 * Math.PI * 2 - Math.PI / 2; pts.push(Math.cos(a) * rr, Math.sin(a) * rr); } poly(cx, pts, "#ffe27a"); circ(cx, 0, 0, s.r * .3, "#fff"); cx.restore(); continue; }
     if (s.cage) { // Cage-Éclair : anneau électrique
       cx.save(); cx.globalCompositeOperation = "lighter"; glow(s.x, s.y, s.r * 2.6, "250,220,80", .7); cx.restore();
-      cx.strokeStyle = "#fff3a0"; cx.lineWidth = 2.5; cx.beginPath(); cx.arc(s.x, s.y, s.r, 0, Math.PI * 2); cx.stroke();
+      cx.strokeStyle = "rgba(110,80,0,.75)"; cx.lineWidth = 4.5; cx.beginPath(); cx.arc(s.x, s.y, s.r, 0, Math.PI * 2); cx.stroke();
+      cx.strokeStyle = "#ffe14a"; cx.lineWidth = 2.5; cx.beginPath(); cx.arc(s.x, s.y, s.r, 0, Math.PI * 2); cx.stroke();
       cx.strokeStyle = "rgba(255,230,90,.9)"; cx.lineWidth = 1.6; cx.beginPath(); for (let k = 0; k <= 8; k++) { const a = k / 8 * Math.PI * 2 + t * 6, rr = s.r * (k % 2 ? .45 : .85); k ? cx.lineTo(s.x + Math.cos(a) * rr, s.y + Math.sin(a) * rr) : cx.moveTo(s.x + Math.cos(a) * rr, s.y + Math.sin(a) * rr); } cx.stroke();
       continue;
     }
@@ -4419,7 +4422,7 @@ function render(now) {
     }
     if (s.type === "eau") { const a = Math.atan2(s.vy, s.vx); ell(cx, s.x, s.y, s.r * 2, s.r * .9, "rgba(90,158,240,.85)", a); ell(cx, s.x + Math.cos(a) * 2, s.y + Math.sin(a) * 2, s.r, s.r * .45, "#e8f4ff", a); continue; }
     circ(cx, s.x, s.y, s.r * 1.8, "rgba(246,209,58,.3)");
-    cx.strokeStyle = "#fff6b0"; cx.lineWidth = 2.5; cx.beginPath(); cx.moveTo(s.x - 6, s.y - 6); cx.lineTo(s.x + 2, s.y - 1); cx.lineTo(s.x - 2, s.y + 1); cx.lineTo(s.x + 6, s.y + 6); cx.stroke();
+    for (const [col, w] of [["rgba(110,80,0,.75)", 4.5], ["#fff6b0", 2.5]]) { cx.strokeStyle = col; cx.lineWidth = w; cx.beginPath(); cx.moveTo(s.x - 6, s.y - 6); cx.lineTo(s.x + 2, s.y - 1); cx.lineTo(s.x - 2, s.y + 1); cx.lineTo(s.x + 6, s.y + 6); cx.stroke(); } // contour sombre : visible aussi sur le sol blanc
   }
   cx.save(); cx.globalCompositeOperation = "lighter";
   for (const fl of S.flames) { const k = fl.life / fl.max, r = 6 + (1 - k) * 18; glow(fl.x, fl.y, r * 1.5, k > .7 ? "255,190,80" : k > .4 ? "245,100,30" : "190,45,25", .42 * Math.min(1, k * 1.8)); if (k > .75) glow(fl.x, fl.y, r * .5, "255,240,190", (k - .75) * 1.6); }
@@ -4801,7 +4804,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v117";
+const NET_VER = "v118";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
