@@ -61,6 +61,7 @@ Les sprites originaux sont de Spike Chunsoft (Pokémon Donjon Mystère). Retouch
 | 0078 | Galopa | CHUNSOFT |
 | 0126 | Magmar (boss) | CHUNSOFT |
 | 0150 | Mewtwo (boss secret) | CHUNSOFT + 1 contributeur SpriteCollab |
+| 0144, 0145, 0146 | Artikodin, Électhor, Sulfura (oiseaux légendaires du niveau 7) | CHUNSOFT |
 | 0133, 0134 | Évoli, Aquali (joueur) | CHUNSOFT |
 | 0135 | Voltali (joueur) | CHUNSOFT + 1 contributeur SpriteCollab |
 | 0136 | Pyroli (joueur) | CHUNSOFT + 2 contributeurs SpriteCollab |
