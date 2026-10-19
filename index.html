@@ -194,11 +194,11 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
   <div class="sheet">
     <h1 id="gameTitle">Pokémon<br>Survivor</h1><div id="shinyHint" hidden>✦ Code secret : ton starter sera chromatique ✦</div>
     <div class="levels" id="levelPick" role="group" aria-label="Choix du niveau"></div>
-    <div class="levels"><button class="lvbtn dexbtn" id="dexBtn" type="button">📖 Pokédex</button><button class="lvbtn dexbtn" id="shopBtn" type="button">🏪 Marchand</button><button class="lvbtn dexbtn" id="achBtn" type="button">🏆 Succès</button><button class="lvbtn nuzbtn" id="nuzBtn" type="button" aria-pressed="false" title="Pas de Rappel, pas de soin au sol (Baies, Potions). Même gain de Pokédollars.">💀 Nuzlocke</button><button class="lvbtn dexbtn" id="netBtn" type="button" aria-pressed="false" title="Jouer à plusieurs sur des ordinateurs différents, avec un code de salon">🌐 En ligne</button><button class="lvbtn dexbtn" id="mpBtn" type="button" aria-pressed="false" title="Multijoueur local : J1 au clavier, les autres à la manette">👥 1 joueur</button><button class="lvbtn dexbtn" id="muteBtn2" type="button" aria-label="Couper ou remettre le son">🔊</button></div>
+    <div class="levels"><button class="lvbtn dexbtn" id="dexBtn" type="button">📖 Pokédex</button><button class="lvbtn dexbtn" id="shopBtn" type="button">🏪 Marchand</button><button class="lvbtn dexbtn" id="achBtn" type="button">🏆 Succès</button><button class="lvbtn nuzbtn" id="nuzBtn" type="button" aria-pressed="false" title="Pas de Rappel, pas de soin au sol (Baies, Potions). Même gain de Pokédollars.">💀 Nuzlocke</button><button class="lvbtn dexbtn" id="netBtn" type="button" aria-pressed="false" title="Jouer à plusieurs sur des ordinateurs différents, avec un code de salon">🌐 En ligne</button><button class="lvbtn dexbtn" id="mpBtn" type="button" aria-pressed="false" title="Multijoueur local : J1 au clavier, les autres à la manette">👥 1 joueur</button><button class="lvbtn dexbtn" id="cloudBtn" type="button" hidden title="Se connecter avec Google pour retrouver ta progression sur tous tes ordinateurs">☁️ Sauvegarde</button><button class="lvbtn dexbtn" id="muteBtn2" type="button" aria-label="Couper ou remettre le son">🔊</button></div>
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v124)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v125)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -296,7 +296,7 @@ const DEX_TIERS = [10, 100, 1000, 10000], DEX_TIERS_BOSS = [1, 5, 25, 100];
 const DEX_MONEY = [50, 100, 500, 1000], DEX_MONEY_BOSS = [50, 200, 500, 1000]; // Pokédollars par palier
 let dexKills = {}, dexDirty = false;
 try { dexKills = JSON.parse(localStorage.getItem("pokesurv-dex") || "{}") || {}; } catch (e) { dexKills = {}; }
-function dexSave() { if (!dexDirty) return; dexDirty = false; try { localStorage.setItem("pokesurv-dex", JSON.stringify(dexKills)); } catch (e) {} }
+function dexSave() { if (!dexDirty) return; dexDirty = false; try { localStorage.setItem("pokesurv-dex", JSON.stringify(dexKills)); } catch (e) {} cloudSoon(); }
 const dexTiers = kind => FOES[kind]?.boss ? DEX_TIERS_BOSS : DEX_TIERS;
 const dexLevel = kind => dexTiers(kind).filter(n => (dexKills[kind] || 0) >= n).length;
 // Marchand : améliorations permanentes achetées avec les Pokédollars gagnés aux paliers du Pokédex
@@ -311,7 +311,7 @@ const SHOP = [
 let shop = {};
 try { shop = JSON.parse(localStorage.getItem("pokesurv-shop") || "{}") || {}; } catch (e) { shop = {}; }
 const scopeOn = () => !!shop.scope && !shop.scopeOff; // Scope Sylphe acheté et activé
-const shopSave = () => { try { localStorage.setItem("pokesurv-shop", JSON.stringify(shop)); } catch (e) {} };
+const shopSave = () => { try { localStorage.setItem("pokesurv-shop", JSON.stringify(shop)); } catch (e) {} cloudSoon(); };
 const shopCost = u => u.cost(shop[u.id] || 0);
 function moneyEarned() {
   let m = 0;
@@ -349,7 +349,7 @@ const achMoney = () => ACHS.reduce((m, a) => m + (achs[a.id] ? a.reward : 0), 0)
 const isUnlocked = line => !ACHS.some(a => a.unlock === line && !achs[a.id]);
 function achGet(id) {
   if (achs[id]) return; const a = ACHS.find(x => x.id === id); if (!a) return;
-  achs[id] = true; sfx("ach"); try { localStorage.setItem("pokesurv-ach", JSON.stringify(achs)); } catch (e) {}
+  achs[id] = true; sfx("ach"); try { localStorage.setItem("pokesurv-ach", JSON.stringify(achs)); } catch (e) {} cloudSoon();
   const msg = `🏆 Succès « ${a.name} » ! +${a.reward} ₽` + (a.unlock ? ` · ${LINES[a.unlock].names[0]} débloqué !` : "");
   if (typeof NET !== "undefined" && NET.role === "guest" && NET.started) { NET.earned += a.reward; NET.achMsgs.push(msg); } // invité : sa propre progression
   if (S && state !== "menu") { S.earned = (S.earned || 0) + a.reward; S.achMsgs = [...(S.achMsgs || []), msg]; S.texts.push({ x:S.P.x, y:S.P.y - 70, txt:msg, col:"#ffd84a", life:3, label:true }); }
@@ -4874,7 +4874,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v124";
+const NET_VER = "v125";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -5238,6 +5238,62 @@ function netUpdateCheck() {
   }).catch(() => false);
 }
 $("verTag").textContent = "Version " + NET_VER.slice(1); // affichée en bas de l'écran d'accueil
+// Sauvegarde en ligne (GitHub Pages seulement) : connexion Google + Firestore (projet Firebase de Raphaël, formule gratuite).
+// Document saves/{uid} = { dex, shop, ach } en JSON. À la connexion, on fusionne la progression locale et celle du nuage
+// en gardant le plus avancé : K.O. du Pokédex au maximum, succès réunis, rangs du Marchand au maximum.
+const FIREBASE_CFG = { apiKey:"AIzaSyB4YIUasyNSXSgx7pipdRwipAyAtlPMudM", authDomain:"pokemon-survivor-neo.firebaseapp.com", projectId:"pokemon-survivor-neo",
+  storageBucket:"pokemon-survivor-neo.firebasestorage.app", messagingSenderId:"1004214351055", appId:"1:1004214351055:web:525503bb4e34d6d4e633ba" };
+var CLOUD = { fb:null, user:null, ready:false, timer:0, busy:false };
+function cloudSoon() { if (!CLOUD.user || !CLOUD.ready) return; clearTimeout(CLOUD.timer); CLOUD.timer = setTimeout(cloudPush, 2500); }
+function shopSpentFor(sh) { let m = 0; for (const u of SHOP) for (let lv = 0; lv < (sh[u.id] || 0); lv++) m += u.cost(lv); return m; }
+function mergeSave(a, b) { // a, b : { dex, shop, ach }
+  const dex = { ...a.dex }; for (const k in b.dex) dex[k] = Math.max(dex[k] || 0, b.dex[k] || 0);
+  const ach = { ...a.ach }; for (const k in b.ach) if (b.ach[k]) ach[k] = true;
+  const sh = { ...b.shop, ...a.shop }; for (const u of SHOP) sh[u.id] = Math.max(a.shop[u.id] || 0, b.shop[u.id] || 0);
+  sh.spent = Math.max(a.shop.spent || 0, b.shop.spent || 0, shopSpentFor(sh)); // jamais de Pokédollars gagnés en double
+  return { dex, shop:sh, ach };
+}
+function cloudApply(m) {
+  dexKills = m.dex; shop = m.shop; achs = m.ach; dexDirty = false;
+  try { localStorage.setItem("pokesurv-dex", JSON.stringify(dexKills)); localStorage.setItem("pokesurv-shop", JSON.stringify(shop)); localStorage.setItem("pokesurv-ach", JSON.stringify(achs)); } catch (e) {}
+  refreshMoneyTag(); refreshLocks(); if (state === "menu") setLevel(Math.max(0, LEVELS.indexOf(LEVEL)));
+}
+async function cloudPush() {
+  const f = CLOUD.fb; if (!f || !CLOUD.user || CLOUD.busy) return; CLOUD.busy = true;
+  try { await f.setDoc(f.doc(f.db, "saves", CLOUD.user.uid), { dex:JSON.stringify(dexKills), shop:JSON.stringify(shop), ach:JSON.stringify(achs), at:Date.now(), ver:NET_VER }); cloudLabel(); }
+  catch (e) { console.warn("sauvegarde en ligne", e); cloudLabel("⚠️ Sauvegarde : échec, nouvel essai plus tard"); }
+  CLOUD.busy = false;
+}
+async function cloudPull() {
+  const f = CLOUD.fb; CLOUD.ready = false;
+  try {
+    const snap = await f.getDoc(f.doc(f.db, "saves", CLOUD.user.uid)), d = snap.exists() ? snap.data() : null;
+    const J = v => { try { return JSON.parse(v || "{}") || {}; } catch (e) { return {}; } };
+    const here = { dex:dexKills, shop, ach:achs };
+    cloudApply(d ? mergeSave(here, { dex:J(d.dex), shop:J(d.shop), ach:J(d.ach) }) : here);
+    CLOUD.ready = true; await cloudPush();
+  } catch (e) { console.warn("sauvegarde en ligne", e); cloudLabel("⚠️ Sauvegarde : impossible de lire la progression en ligne"); }
+}
+function cloudLabel(err) {
+  const b = $("cloudBtn"), u = CLOUD.user;
+  b.textContent = err || (u ? `☁️ ${(u.displayName || "Connecté").split(" ")[0]} · synchronisé` : "☁️ Sauvegarde");
+  b.title = u ? "Progression synchronisée avec ton compte Google. Clique pour te déconnecter." : "Se connecter avec Google pour retrouver ta progression sur tous tes ordinateurs";
+  b.setAttribute("aria-pressed", String(!!u));
+}
+if (/github\.io$/.test(location.hostname) || location.hostname === "localhost") {
+  const V = "https://www.gstatic.com/firebasejs/10.12.2/";
+  Promise.all(["firebase-app.js", "firebase-auth.js", "firebase-firestore.js"].map(n => import(V + n))).then(([A, Au, F]) => {
+    const app = A.initializeApp(FIREBASE_CFG), auth = Au.getAuth(app);
+    CLOUD.fb = { auth, Au, db:F.getFirestore(app), doc:F.doc, getDoc:F.getDoc, setDoc:F.setDoc };
+    $("cloudBtn").hidden = false; cloudLabel();
+    Au.onAuthStateChanged(auth, u => { CLOUD.user = u; CLOUD.ready = false; cloudLabel(); if (u) cloudPull(); });
+  }).catch(e => console.warn("Firebase indisponible", e));
+  $("cloudBtn").addEventListener("click", () => {
+    const f = CLOUD.fb; if (!f) return;
+    if (CLOUD.user) { f.Au.signOut(f.auth); return; } // la progression reste aussi dans ce navigateur
+    f.Au.signInWithPopup(f.auth, new f.Au.GoogleAuthProvider()).catch(e => { if (e.code !== "auth/popup-closed-by-user") cloudLabel("⚠️ Connexion impossible : " + (e.code || "erreur")); });
+  });
+}
 netUpdateCheck().then(moved => { if (!moved) netAutoJoin(); });
 function netAutoJoin() { // lien d'invitation : …/#CODE rejoint directement le salon
   const h = (location.hash || "").replace("#", "").toUpperCase();
