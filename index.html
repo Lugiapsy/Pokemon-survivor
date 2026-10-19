@@ -198,7 +198,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v123)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v124)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -1254,9 +1254,9 @@ function hurtP(v) {
   }
   P.deaths = (P.deaths || 0) + 1; P.hp = 0; endGame(false); return true;
 }
-function boomHit(x, y, R, dmg) { // souffle d'explosion ou impact : touche tous les joueurs dans la zone ; true si la partie est perdue
+function boomHit(x, y, R, dmg, type) { // souffle d'explosion ou impact : touche tous les joueurs dans la zone ; true si la partie est perdue (type : efficacité selon le Pokémon touché)
   const P0 = S.P;
-  for (const q of S.players) { if (q.down || q.choosing || q.inv > 0 || Math.hypot(q.x - x, q.y - y) > R + q.r * .6) continue; S.P = q; if (hurtP(dmg * (1 + S.t / 900))) return true; }
+  for (const q of S.players) { if (q.down || q.choosing || q.inv > 0 || Math.hypot(q.x - x, q.y - y) > R + q.r * .6) continue; S.P = q; if (hurtP(dmg * (type ? eff(type, [ptype()]) : 1) * (1 + S.t / 900))) return true; }
   S.P = P0; return false;
 }
 function paralyze(P, t) { // les Pokémon Électrik ne peuvent pas être paralysés
@@ -1423,7 +1423,7 @@ function updateMap7(dt) {
         S.fxs.push({ x:f.x, y:f.y, r:0, max:R, life:.5, col:"rgba(255,235,120," }); S.fxs.push({ x:f.x, y:f.y, r:0, max:R * .6, life:.3, col:"rgba(255,255,230," });
         emit(f.x, f.y, 50, "electrik", { sp:R * 3, life:.6, r:4.5 });
         for (const q of S.players) if (!q.down && !q.choosing && q.inv <= 0 && Math.hypot(q.x - f.x, q.y - f.y) < R + q.r * .6) { S.P = q; paralyze(q, 1.4); }
-        if (boomHit(f.x, f.y, R, 40)) return true;
+        if (boomHit(f.x, f.y, R, 40, "electrik")) return true; // Décharge : type Électrik
         const off = Math.random(); for (let i = 0; i < 8; i++) { const a = (i + off) / 8 * Math.PI * 2; S.eshots.push({ x:f.x, y:f.y, vx:Math.cos(a) * 190, vy:Math.sin(a) * 190, dmg:20, life:3.5, type:"electrik", r:11, cage:true, para:1.2 }); }
         for (const g of S.foes) if (g !== f && !g.d.boss && !g.prop && !g.d.rare && Math.hypot(g.x - f.x, g.y - f.y) < R) { g.hp -= 150; g.hurt = .12; }
       } }
@@ -4874,7 +4874,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v123";
+const NET_VER = "v124";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
