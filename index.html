@@ -253,7 +253,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v128)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v129)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -423,7 +423,7 @@ const achMoney = () => ACHS.reduce((m, a) => m + (achs[a.id] ? a.reward : 0), 0)
 const isUnlocked = line => !ACHS.some(a => a.unlock === line && !achs[a.id]);
 function achGet(id) {
   if (achs[id]) return; const a = ACHS.find(x => x.id === id); if (!a) return;
-  achs[id] = true; sfx("ach"); try { localStorage.setItem("pokesurv-ach", JSON.stringify(achs)); } catch (e) {} cloudSoon();
+  achs[id] = true; sfx("ach"); try { localStorage.setItem("pokesurv-ach", JSON.stringify(achs)); } catch (e) {} cloudSoon(); if (id === "win8") refreshLocks();
   const msg = `🏆 Succès « ${a.name} » ! +${a.reward} ₽` + (a.unlock ? ` · ${LINES[a.unlock].names[0]} débloqué !` : "");
   if (typeof NET !== "undefined" && NET.role === "guest" && NET.started) { NET.earned += a.reward; NET.achMsgs.push(msg); } // invité : sa propre progression
   if (S && state !== "menu") { S.earned = (S.earned || 0) + a.reward; S.achMsgs = [...(S.achMsgs || []), msg]; S.texts.push({ x:S.P.x, y:S.P.y - 70, txt:msg, col:"#ffd84a", life:3, label:true }); }
@@ -477,6 +477,7 @@ const carName = (line, c) => c.ef && EEVEE[c.ef] ? EEVEE[c.ef].name : LINES[line
 const fmtH = t => t >= 3600 ? `${Math.floor(t / 3600)} h ${String(Math.floor(t % 3600 / 60)).padStart(2, "0")}` : fmt(t);
 const nFr = v => Math.round(v).toLocaleString("fr-FR");
 function openCareer() {
+  if (!achs.win8) return;
   const lines = Object.keys(career).filter(k => LINES[k] && career[k].lv).map(k => [k, career[k], careerTot(career[k])]).filter(r => r[2].runs).sort((a, b) => b[2].t - a[2].t);
   const all = { t:0, ko:0, runs:0 }; for (const r of lines) { all.t += r[2].t; all.ko += r[2].ko; all.runs += r[2].runs; }
   $("carSub").textContent = lines.length ? `${lines.length} Pokémon utilisé${lines.length > 1 ? "s" : ""} · ${fmtH(all.t)} de jeu · ${nFr(all.ko)} K.O. · ${all.runs} partie${all.runs > 1 ? "s" : ""}`
@@ -5115,6 +5116,7 @@ LEVELS.forEach((lv, i) => {
 });
 const starterCardEls = {};
 function refreshLocks() {
+  const cb = $("carBtn"); if (cb) cb.hidden = !achs.win8; // le Panthéon n'apparaît qu'après la victoire à la Ligue
   for (const line in starterCardEls) {
     const b = starterCardEls[line], a = ACHS.find(x => x.unlock === line && !achs[x.id]);
     b.classList.toggle("locked", !!a); b.querySelector(".lockInfo").textContent = a ? `🔒 Succès « ${a.name} » : ${a.desc}` : "";
@@ -5261,7 +5263,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v128";
+const NET_VER = "v129";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
