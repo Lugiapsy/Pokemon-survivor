@@ -253,7 +253,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v129)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v130)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -410,7 +410,7 @@ const ACHS = [
   { id:"win6",    name:"Manoir exploré",     desc:"Terminer le Manoir Pokémon.",                    reward:100 },
   { id:"win7",    name:"Oiseau Légendaire",  desc:"Terminer le niveau Oiseau Légendaire (Île Écume, Centrale ou Route Victoire).", reward:150 },
   { id:"win8",    name:"Maître de la Ligue", desc:"Battre le Conseil 4 et le Champion de la Ligue Indigo.", reward:200 },
-  { id:"mewtwo",  name:"Pokémon génétique",  desc:"Vaincre Mewtwo dans le Manoir Pokémon.",         reward:100 },
+  { id:"mewtwo",  name:"Pokémon génétique",  desc:"Repousser Mewtwo dans le Manoir Pokémon.",       reward:100 },
   { id:"legend",  name:"Légende vivante",    desc:"Vaincre Artikodin, Électhor ou Sulfura dans le niveau Oiseau Légendaire.", reward:100 },
   { id:"draco",   name:"Chasseur de dragon", desc:"Attraper le Minidraco pendant la chasse du Parc Safari.", reward:50, unlock:"draco" },
   { id:"nuzwin",  name:"Sans filet",         desc:"Terminer un niveau en mode Nuzlocke.",           reward:100 },
@@ -3043,15 +3043,16 @@ function update(dt) {
       }
     }
     if (f.d.mewtwo) {
-      S.mewtwo = null; teamAch("mewtwo"); S.gems.push({ x:f.x + 40, y:f.y, pick:"chest" }); S.shake = .5;
-      S.seq = [[S.t + 1.5, "Mewtwo s'effondre… puis disparaît dans un éclair. Il laisse deux Poké Balls derrière lui !"]];
+      S.mewtwo = null; teamAch("mewtwo"); S.gems.push({ x:f.x + 40, y:f.y, pick:"chest" }); S.shake = .5; S.white = 1.6; sfx("boss"); // pas vaincu : il s'enfuit
+      banner("Mewtwo : « Nous nous reverrons… »");
+      S.seq = [[S.t + 2.2, "Mewtwo s'est enfui vers la Caverne Azurée… Il laisse deux Poké Balls derrière lui !"]];
     }
     if (f.d.bird) {
       S.bird = null; teamAch("legend"); S.gems.push({ x:f.x + 40, y:f.y, pick:"chest" }); S.shake = .5;
       S.seq = [[S.t + 1.5, `${f.d.name} pousse un dernier cri et s'envole au loin… Il laisse deux Poké Balls derrière lui !`]];
     }
     if (f.d.boss) {
-      if (!(f.d.mewtwo || f.d.bird) || S.boss === f) S.boss = null; banner(`${f.d.name} est K.O. ! Il laisse une Poké Ball…`); teamAch("boss"); if (S.bossClean) teamAch("nohit");
+      if (!(f.d.mewtwo || f.d.bird) || S.boss === f) S.boss = null; if (!f.d.mewtwo) banner(`${f.d.name} est K.O. ! Il laisse une Poké Ball…`); teamAch("boss"); if (S.bossClean) teamAch("nohit");
       S.gems.push({ x:f.x, y:f.y, pick:"chest" });
       for (let i = 0; i < 12; i++) S.gems.push({ x:f.x + (Math.random()-.5)*80, y:f.y + (Math.random()-.5)*80, v:f.d.xp/12 | 0 || 1, berry:i < 2 && !S.nuz });
     } else if (S.gems.length < 450) {
@@ -3086,7 +3087,7 @@ function update(dt) {
   S.bolts = S.bolts.filter(b => b.life > 0);
   for (const m of S.msgs) m.life -= dt;
   S.msgs = S.msgs.filter(m => m.life > 0);
-  S.shake = Math.max(0, S.shake - dt);
+  S.shake = Math.max(0, S.shake - dt); if (S.white) S.white = Math.max(0, S.white - dt);
 
   P = S.P = S.players[0];
   if (NET.role === "host" && NET.started) netChoices(dt); // en ligne : la partie continue pendant les choix
@@ -5040,6 +5041,7 @@ function render(now) {
   drawCanopy(camX, camY, vw, vh, t, P);
   drawMotes(camX, camY, vw, vh, t, Math.min(.05, t - (render.lt || t))); render.lt = t;
   if (LEVEL.cave) drawCaveLight(camX, camY, vw, vh, t, CAM);
+  if (S.white > 0) { cx.fillStyle = `rgba(255,255,255,${Math.min(1, S.white / .8)})`; cx.fillRect(camX - 60, camY - 60, vw + 120, vh + 120); } // écran blanc : Mewtwo s'enfuit
   cx.textAlign = "center";
   for (const tx of S.texts) {
     cx.globalAlpha = Math.min(1, tx.life * 3);
@@ -5263,7 +5265,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v129";
+const NET_VER = "v130";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
