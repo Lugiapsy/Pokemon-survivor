@@ -198,7 +198,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v116)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v117)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -3464,8 +3464,8 @@ const CAVE_PAL = {
   ice:   { base:"#a8c8dc", g:[150, 40, -14, 184, 34, -12, 208, 28, -8], path:[222, 18, 234, 14, 244, 10], dark:"rgba(8,28,52,.58)", gravel:["#8fb2ca", "#bcd6e8", "#eef8ff"], pebble:["#b4d0e2", "#94b8d0"],
            crack:"rgba(255,255,255,.55)", foot:"rgba(170,200,224,.6)", rim:"#d4ebf7", rimStones:["#e8f6fd", "#bcd8ea"], wall:["#f2fbff", "#a6cfe8", "#4e86b0"], wallTop:"rgba(255,255,255,.5)", wallLine:"rgba(40,90,130,.7)",
            spike:["#4e80a8", "#86b8d6", "#bfe2f4", "#f0fbff"], spikeHi:"#ffffff", crystal:1 },
-  plant: { base:"#4a5058", g:[72, 16, -8, 78, 16, -8, 88, 16, -6], path:[124, 12, 116, 10, 88, 8], dark:"rgba(6,10,18,.6)", gravel:["#30363e", "#545c66", "#7c848e"], pebble:["#646c76", "#4a5058"],
-           crack:"rgba(18,22,28,.5)", foot:"rgba(0,0,0,0)", rim:"#3a4048", rimStones:["#5a626c", "#454c55"], wall:["#aab4c0", "#66707c", "#353b44"], wallTop:"rgba(220,230,240,.3)", wallLine:"rgba(16,20,26,.85)",
+  plant: { base:"#4a5058", g:[72, 0, 0, 78, 0, 0, 88, 0, 0], path:[72, 0, 78, 0, 88, 0], dark:"rgba(6,10,18,.45)", gravel:["#30363e", "#545c66", "#7c848e"], pebble:["#646c76", "#4a5058"],
+           crack:"rgba(0,0,0,0)", foot:"rgba(0,0,0,0)", rim:"#3a4048", rimStones:["#5a626c", "#454c55"], wall:["#aab4c0", "#66707c", "#353b44"], wallTop:"rgba(220,230,240,.3)", wallLine:"rgba(16,20,26,.85)",
            spike:["#2a2f36", "#454d57", "#d8ae2e", "#f2d257"], spikeHi:"#fff5c0", crystal:3 },
   lava:  { base:"#2a1e1c", g:[50, 22, -14, 40, 18, -12, 40, 16, -10], path:[94, 16, 80, 14, 72, 12], dark:"rgba(14,4,2,.74)", gravel:["#1a1214", "#3a2a26", "#5a4038"], pebble:["#4a3632", "#2e2220"],
            crack:"rgba(255,110,30,.7)", foot:"rgba(40,28,24,.6)", rim:"#2a1a16", rimStones:["#4a3430", "#352420"], wall:["#9a6a52", "#5e3a2e", "#2a1814"], wallTop:"rgba(210,150,120,.28)", wallLine:"rgba(20,8,4,.85)",
@@ -3473,22 +3473,43 @@ const CAVE_PAL = {
 };
 const crCol = cr => LEVEL.theme ? CAVE_PAL[LEVEL.theme].crystal : cr.col;
 function themeFloor(g, x0, y0, R, th) { // détails du sol propres à chaque carte
-  if (th === "plant") { // dalles métalliques rivetées, bandes de sécurité le long de l'allée, câbles
-    for (let x = Math.floor(x0 / 64) * 64; x < x0 + CH; x += 64) for (let y = Math.floor(y0 / 64) * 64; y < y0 + CH; y += 64) {
-      if (hash(x * .37, y * .53) < .22) { g.fillStyle = "rgba(0,0,0,.09)"; g.fillRect(x, y, 64, 64); }
-      for (const [ox, oy] of [[7, 7], [57, 7], [7, 57], [57, 57]]) circ(g, x + ox, y + oy, 1.7, "rgba(210,220,230,.32)");
+  if (th === "plant") { // sol d'usine : plaques d'acier rivetées, caillebotis, allée en tôle striée bordée de bandes de sécurité
+    const T = 64;
+    for (let ty = Math.floor(y0 / T) * T; ty < y0 + CH; ty += T) for (let tx = Math.floor(x0 / T) * T; tx < x0 + CH; tx += T) {
+      const v = (hash(tx / T + 9, ty / T - 2) - .5) * 10, kind = hash(tx / T - 4, ty / T + 13);
+      const pg = g.createLinearGradient(tx, ty, tx + T, ty + T); pg.addColorStop(0, `rgb(${84 + v},${92 + v},${96 + v})`); pg.addColorStop(1, `rgb(${66 + v},${73 + v},${78 + v})`);
+      g.fillStyle = pg; g.fillRect(tx, ty, T, T);
+      if (kind < .1) { // caillebotis
+        g.fillStyle = "#1c2024"; g.fillRect(tx + 6, ty + 6, T - 12, T - 12); g.strokeStyle = "#5c646c"; g.lineWidth = 2;
+        for (let k = 0; k <= 6; k++) { g.beginPath(); g.moveTo(tx + 6 + k * (T - 12) / 6, ty + 6); g.lineTo(tx + 6 + k * (T - 12) / 6, ty + T - 6); g.stroke(); }
+        g.beginPath(); g.moveTo(tx + 6, ty + T / 2); g.lineTo(tx + T - 6, ty + T / 2); g.stroke();
+      } else if (kind < .16) { // trappe d'accès
+        g.strokeStyle = "rgba(18,22,26,.7)"; g.lineWidth = 2; g.strokeRect(tx + 12, ty + 12, T - 24, T - 24);
+        g.fillStyle = "#c8a030"; g.fillRect(tx + T / 2 - 6, ty + T / 2 - 2, 12, 4);
+      }
+      g.strokeStyle = "rgba(16,20,26,.65)"; g.lineWidth = 2; g.strokeRect(tx + 1, ty + 1, T - 2, T - 2);
+      g.strokeStyle = "rgba(255,255,255,.09)"; g.lineWidth = 1; g.beginPath(); g.moveTo(tx + 3, ty + T - 3); g.lineTo(tx + 3, ty + 3); g.lineTo(tx + T - 3, ty + 3); g.stroke();
+      for (const [rx, ry] of [[7, 7], [T - 7, 7], [7, T - 7], [T - 7, T - 7]]) { circ(g, tx + rx, ty + ry, 2.2, "#40464e"); circ(g, tx + rx - .6, ty + ry - .6, 1, "#c0c8d0"); }
     }
-    g.lineWidth = 1.5;
-    for (let x = Math.ceil(x0 / 64) * 64; x < x0 + CH; x += 64) { g.strokeStyle = "rgba(14,18,24,.5)"; g.beginPath(); g.moveTo(x, y0); g.lineTo(x, y0 + CH); g.stroke(); g.strokeStyle = "rgba(255,255,255,.07)"; g.beginPath(); g.moveTo(x + 1.5, y0); g.lineTo(x + 1.5, y0 + CH); g.stroke(); }
-    for (let y = Math.ceil(y0 / 64) * 64; y < y0 + CH; y += 64) { g.strokeStyle = "rgba(14,18,24,.5)"; g.beginPath(); g.moveTo(x0, y); g.lineTo(x0 + CH, y); g.stroke(); g.strokeStyle = "rgba(255,255,255,.07)"; g.beginPath(); g.moveTo(x0, y + 1.5); g.lineTo(x0 + CH, y + 1.5); g.stroke(); }
-    for (let k = 0; k < 2; k++) {
-      let x = x0 + R() * CH, y = y0 + R() * CH, a = R() * Math.PI * 2; const pts = [[x, y]];
-      for (let q = 0; q < 6; q++) { a += (R() - .5) * 1.4; x += Math.cos(a) * 40; y += Math.sin(a) * 40; pts.push([x, y]); }
-      for (const [w, col] of [[6, "#16191e"], [3.2, k ? "#c8402e" : "#2e6ab0"]]) { g.strokeStyle = col; g.lineWidth = w; g.beginPath(); pts.forEach(([px, py], q) => q ? g.lineTo(px, py) : g.moveTo(px, py)); g.stroke(); }
+    for (let i = 0; i < 9; i++) ell(g, x0 + R() * CH, y0 + R() * CH, 6 + R() * 14, 3 + R() * 7, "rgba(16,18,22,.22)", R() * 3); // taches d'huile
+    for (let k = 0; k < 2; k++) { // câbles posés au sol
+      let x = x0 + R() * CH, y = y0 + R() * CH, an = Math.round(R() * 4) * Math.PI / 2; const pts = [[x, y]];
+      for (let q = 0; q < 5; q++) { if (R() < .4) an += (R() < .5 ? 1 : -1) * Math.PI / 2; x += Math.cos(an) * 64; y += Math.sin(an) * 64; pts.push([x, y]); }
+      for (const [w, col] of [[7, "#121418"], [4, k ? "#c8402e" : "#2e6ab0"]]) { g.strokeStyle = col; g.lineWidth = w; g.lineJoin = "round"; g.beginPath(); pts.forEach(([px, py], q) => q ? g.lineTo(px, py) : g.moveTo(px, py)); g.stroke(); }
     }
-    for (const side of [-1, 1]) {
-      g.beginPath(); for (let x = x0 - 16; x <= x0 + CH + 16; x += 16) { const y = pathY(x) + side * 62; x === x0 - 16 ? g.moveTo(x, y) : g.lineTo(x, y); }
-      g.lineWidth = 7; g.strokeStyle = "#d8ae2e"; g.stroke(); g.setLineDash([9, 9]); g.strokeStyle = "#22262c"; g.stroke(); g.setLineDash([]);
+    // allée en tôle striée, bordée de bandes jaunes et noires
+    const band = (w, col, dash) => { g.strokeStyle = col; g.lineWidth = w; g.setLineDash(dash || []); g.beginPath(); for (let x = x0 - 40; x <= x0 + CH + 40; x += 16) x === x0 - 40 ? g.moveTo(x, pathY(x)) : g.lineTo(x, pathY(x)); g.stroke(); g.setLineDash([]); };
+    band(124, "#e8c032"); band(124, "#22242a", [14, 14]); band(106, "#4c545c"); band(102, "#5a626a");
+    g.save(); g.beginPath(); for (let x = x0 - 40; x <= x0 + CH + 40; x += 16) x === x0 - 40 ? g.moveTo(x, pathY(x) - 50) : g.lineTo(x, pathY(x) - 50); for (let x = x0 + CH + 40; x >= x0 - 40; x -= 16) g.lineTo(x, pathY(x) + 50); g.closePath(); g.clip();
+    g.strokeStyle = "rgba(150,160,170,.35)"; g.lineWidth = 2.2; // motif de tôle striée
+    for (let y = Math.floor((y0 - 200) / 18) * 18; y < y0 + CH + 200; y += 18) for (let x = Math.floor((x0 - 40) / 18) * 18; x < x0 + CH + 40; x += 18) {
+      const o = ((x / 18 + y / 18) & 1) ? 1 : -1; g.beginPath(); g.moveTo(x + 4, y + 9 - o * 4); g.lineTo(x + 13, y + 9 + o * 4); g.stroke();
+    }
+    g.restore();
+    for (let x = Math.ceil(x0 / 360) * 360; x < x0 + CH; x += 360) { // pictogramme haute tension sur l'allée
+      const y = pathY(x); g.save(); g.translate(x, y); g.rotate(Math.atan2(pathY(x + 1) - y, 1));
+      poly(g, [0, -30, 30, 22, -30, 22], "#e8c032"); poly(g, [0, -22, 22, 17, -22, 17], "#22242a");
+      poly(g, [3, -14, -7, 3, 0, 3, -4, 15, 8, -3, 1, -3], "#e8c032"); g.restore();
     }
   } else if (th === "ice") { // congères et givre scintillant
     for (let k = 0; k < 10; k++) ell(g, x0 + R() * CH, y0 + R() * CH, 20 + R() * 40, 8 + R() * 14, "rgba(255,255,255,.2)", (R() - .5) * .6);
@@ -4780,7 +4801,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v116";
+const NET_VER = "v117";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
