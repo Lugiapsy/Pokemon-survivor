@@ -1,11 +1,3 @@
-<!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
-</head>
-<body>
 <title>Pokémon Survivor</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -254,7 +246,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v135)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v136)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -366,12 +358,13 @@ const PICKS = { // objets lâchés par les arbres à baies (forêt) et les roche
   flute:{ name:"Poké Flûte", src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA3ElEQVRYw+2WMQ6DMAxFGRk5QtYcgZGVkSN05BoZew2O0DVjj9CVY7C6/ZE+taqudqQ2lqww5T1jG9F1LVr8eoQQBFkN/NgucrvOvhKAbX1/wtM6+QkQvsdYTnc4KkbllFiHwUdAw5d5LM9V4Dhd+/6t8ipwl8q520xCXSrX65VzFpGjnG6VAy4pleSOU8K857j8/oJqAUpAwHzg+AbYAib23E2A0w4oZZCmHxs97XrVKIHTTACXpiWeqaedYPPqAZ7GtwSnXadp3ylACfc/m882VP21qgJv0eIv4gkMdzTYJunxRgAAAABJRU5ErkJggg==" }, aimant:{ name:"Aimant géant", src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA10lEQVRYw+2VMQ6GIAxGPUqvwRUYGbmGV2Fk/MeOroye6/unKjTiYiUx4Us6YfoeWGVZZmZmvhwigq6hYC6M9EtNvS7SA1+JDINz4e5pvAr30Tel17mwjQQRATkB+dythmsJee6xQA2X6sHNBa7gq3MNsP4ENVzWn733EIBSDngtIM3v5sNEQKoWkMbOrUgZSBmHhD4hc4EruJSeCXOBO7hzqx28lvDRg0NoGhIRYtyw7ye8FjD/CemGIiBVCwy5lHoCQ29ELTAMrucjxm08/G4+ZmZmPpU/ubLZMafRC4UAAAAASUVORK5CYII=" } };
 for (const k in PICKS) { PICKS[k].img = new Image(); PICKS[k].img.src = PICKS[k].src; }
 // Pokédex : K.O. cumulés par Pokémon, sauvegardés dans le navigateur. Chaque palier donne un petit bonus permanent.
-const DEX_TIERS = [10, 100, 1000, 10000], DEX_TIERS_BOSS = [1, 5, 25, 100];
+const DEX_TIERS = [10, 100, 1000, 10000], DEX_TIERS_BOSS = [1, 5, 10, 15];
 const DEX_MONEY = [50, 100, 500, 1000], DEX_MONEY_BOSS = [50, 200, 500, 1000]; // Pokédollars par palier
 let dexKills = {}, dexDirty = false;
 try { dexKills = JSON.parse(localStorage.getItem("pokesurv-dex") || "{}") || {}; } catch (e) { dexKills = {}; }
 function dexSave() { if (!dexDirty) return; dexDirty = false; try { localStorage.setItem("pokesurv-dex", JSON.stringify(dexKills)); } catch (e) {} cloudSoon(); }
-const dexTiers = kind => FOES[kind]?.boss ? DEX_TIERS_BOSS : DEX_TIERS;
+const dexBoss = d => !!(d && (d.boss || d.dexBoss)); // Ronflex : pas un boss en jeu, mais compté comme tel au Pokédex
+const dexTiers = kind => dexBoss(FOES[kind]) ? DEX_TIERS_BOSS : DEX_TIERS;
 const dexLevel = kind => dexTiers(kind).filter(n => (dexKills[kind] || 0) >= n).length;
 // Marchand : améliorations permanentes achetées avec les Pokédollars gagnés aux paliers du Pokédex
 const SHOP = [
@@ -389,7 +382,7 @@ const shopSave = () => { try { localStorage.setItem("pokesurv-shop", JSON.string
 const shopCost = u => u.cost(shop[u.id] || 0);
 function moneyEarned() {
   let m = 0;
-  for (const kind in dexKills) if (FOES[kind]) { const pay = FOES[kind].boss ? DEX_MONEY_BOSS : DEX_MONEY; for (let i = 0; i < dexLevel(kind); i++) m += pay[i]; }
+  for (const kind in dexKills) if (FOES[kind]) { const pay = dexBoss(FOES[kind]) ? DEX_MONEY_BOSS : DEX_MONEY; for (let i = 0; i < dexLevel(kind); i++) m += pay[i]; }
   return m;
 }
 // Succès : rapportent des Pokédollars, certains débloquent des starters
@@ -529,7 +522,7 @@ function dexCount(f) {
   const k = f.kind, n = (dexKills[k] || 0) + 1; dexKills[k] = n; dexDirty = true;
   if (typeof NET !== "undefined" && NET.role === "host" && NET.started) (NET.dexQ ||= {})[k] = (NET.dexQ[k] || 0) + 1; // envoyé aux invités
   const i = dexTiers(k).indexOf(n);
-  if (i >= 0) { const gain = (f.d.boss ? DEX_MONEY_BOSS : DEX_MONEY)[i]; S.earned = (S.earned || 0) + gain;
+  if (i >= 0) { const gain = (dexBoss(f.d) ? DEX_MONEY_BOSS : DEX_MONEY)[i]; S.earned = (S.earned || 0) + gain;
     S.texts.push({ x:S.P.x, y:S.P.y - 52, txt:`Pokédex : ${n} ${foeName(f.d)} ! +${gain} ₽`, col:"#f6c845", life:2.4, label:true }); }
 }
 function openDex() {
@@ -863,7 +856,7 @@ const FOES = {
   kadabra:    { name:"Kadabra",    types:["psy"],              hp:72,  speed:66,  dmg:12, r:16, xp:6, ranged:true, shot:"psy", blink:true },
   metamorph:  { name:"Métamorph",  types:["normal"],           hp:85,  speed:86,  dmg:12, r:15, xp:7, ranged:true, ditto:true },
   mereossa:   { name:"Mère Ossatueur", sprite:"ossatueur", types:["spectre"], hp:1000, speed:72, dmg:14, r:30, xp:0, ghost:true, spirit:true, mother:true },
-  ronflex:    { name:"Ronflex", types:["normal"], hp:1100, speed:0, dmg:0, r:42, xp:0, event:true, solid:true },
+  ronflex:    { name:"Ronflex", types:["normal"], hp:1100, speed:0, dmg:0, r:42, xp:0, event:true, solid:true, dexBoss:true },
   jarbok:     { name:"Arbok de Jessie", sprite:"arbok", types:["poison"], hp:520, speed:86, dmg:12, r:24, xp:24, mini:true, dash:true },
   jsmogogo:   { name:"Smogogo de James", sprite:"smogogo", types:["poison"], hp:520, speed:62, dmg:12, r:24, xp:24, mini:true, sludge:true },
   jmiaouss:   { name:"Miaouss de la Team Rocket", sprite:"rmiaouss", types:["normal"], hp:380, speed:98, dmg:10, r:20, xp:24, mini:true, ranged:true, shot:"normal" },
@@ -5962,7 +5955,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v135";
+const NET_VER = "v136";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -6094,7 +6087,7 @@ function netGuestDex(k) { // l'invité compte dans son Pokédex les K.O. de tout
     const d = FOES[kind]; if (!d) continue;
     for (let i = Math.min(2000, k[kind] | 0); i > 0; i--) {
       const n = dexKills[kind] = (dexKills[kind] || 0) + 1, t = dexTiers(kind).indexOf(n);
-      if (t >= 0) NET.earned += (d.boss ? DEX_MONEY_BOSS : DEX_MONEY)[t];
+      if (t >= 0) NET.earned += (dexBoss(d) ? DEX_MONEY_BOSS : DEX_MONEY)[t];
     }
   }
   dexDirty = true; dexSave();
@@ -6333,7 +6326,7 @@ $("verTag").textContent = "Version " + NET_VER.slice(1); // affichée en bas de 
 const FIREBASE_CFG = { apiKey:"AIzaSyB4YIUasyNSXSgx7pipdRwipAyAtlPMudM", authDomain:"pokemon-survivor-neo.firebaseapp.com", projectId:"pokemon-survivor-neo",
   storageBucket:"pokemon-survivor-neo.firebasestorage.app", messagingSenderId:"1004214351055", appId:"1:1004214351055:web:525503bb4e34d6d4e633ba" };
 var CLOUD = { fb:null, user:null, ready:false, timer:0, busy:false };
-function cloudSoon() { if (!CLOUD.user || !CLOUD.ready) return; clearTimeout(CLOUD.timer); CLOUD.timer = setTimeout(cloudPush, 2500); }
+function cloudSoon() { if (!CLOUD || !CLOUD.user || !CLOUD.ready) return; /* CLOUD pas encore créé si un succès tombe au chargement */ clearTimeout(CLOUD.timer); CLOUD.timer = setTimeout(cloudPush, 2500); }
 function shopSpentFor(sh) { let m = 0; for (const u of SHOP) for (let lv = 0; lv < (sh[u.id] || 0); lv++) m += u.cost(lv); return m; }
 function mergeSave(a, b) { // a, b : { dex, shop, ach }
   const dex = { ...a.dex }; for (const k in b.dex) dex[k] = Math.max(dex[k] || 0, b.dex[k] || 0);
@@ -6399,6 +6392,3 @@ function netAutoJoin() { // lien d'invitation : …/#CODE rejoint directement le
 requestAnimationFrame(t => { last = t; frame(t); });
 })();
 </script>
-
-</body>
-</html>
