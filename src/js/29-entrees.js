@@ -5,7 +5,10 @@ window.addEventListener("keydown", e => {
   if (e.code === "Escape" || e.code === "KeyP") togglePause();
   if (e.code === "KeyM") setMute(!AU.muted);
   const n = parseInt(e.key, 10);
-  if (state === "menu" && n >= 1 && n <= starterOrder.length) pickStarter(starterOrder[n - 1]);
+  const typing = e.target && /INPUT|TEXTAREA/.test(e.target.tagName);
+  if (state === "menu" && !typing && (e.code === "ArrowLeft" || e.code === "ArrowRight")) { e.preventDefault(); carMove(e.code === "ArrowLeft" ? -1 : 1); }
+  else if (state === "menu" && !typing && e.code === "Enter" && !(document.activeElement && document.activeElement.closest("button") && document.activeElement.id !== "sGo")) { e.preventDefault(); chooseStarter(); }
+  else if (state === "menu" && !typing && n >= 1 && n <= starterOrder.length && carVisible().includes(starterOrder[n - 1])) chooseStarter(starterOrder[n - 1]);
   else if (state === "levelup" && n >= 1 && n <= choices.length) applyChoice(choices[n - 1]);
   else if (state === "levelup" && e.code === "KeyR") reroll();
 });
@@ -23,7 +26,7 @@ for (const id of ["muteBtn", "muteBtn2"]) $(id).addEventListener("click", e => {
 $("nuzBtn").addEventListener("click", () => setNuz(!NUZ)); setNuz(NUZ);
 setMute(AU.muted);
 for (const ev of ["pointerdown", "keydown"]) window.addEventListener(ev, auInit, { capture:true });
-document.addEventListener("click", e => { if (e.target.closest(".card, .btn, .lvbtn")) sfx("click"); }); $("achClose").addEventListener("click", closeAch);
+document.addEventListener("click", e => { if (e.target.closest(".card, .btn:not(.sGo), .lvbtn")) sfx("click"); }); $("achClose").addEventListener("click", closeAch);
 for (const id of ["autoPot", "autoPot2"]) $(id).addEventListener("change", e => { autoPotion = e.target.checked; $("autoPot").checked = $("autoPot2").checked = autoPotion; try { localStorage.setItem("pokesurv-autopotion", autoPotion ? "1" : "0"); } catch (er) {} });
 $("autoPot2").checked = autoPotion; refreshMoneyTag(); $("dexClose").addEventListener("click", closeDex);
 $("chestBtn").addEventListener("click", closeChest);

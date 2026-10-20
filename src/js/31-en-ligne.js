@@ -6,7 +6,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v135";
+const NET_VER = "v141";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -138,7 +138,7 @@ function netGuestDex(k) { // l'invité compte dans son Pokédex les K.O. de tout
     const d = FOES[kind]; if (!d) continue;
     for (let i = Math.min(2000, k[kind] | 0); i > 0; i--) {
       const n = dexKills[kind] = (dexKills[kind] || 0) + 1, t = dexTiers(kind).indexOf(n);
-      if (t >= 0) NET.earned += (d.boss ? DEX_MONEY_BOSS : DEX_MONEY)[t];
+      if (t >= 0) NET.earned += (dexBoss(d) ? DEX_MONEY_BOSS : DEX_MONEY)[t];
     }
   }
   dexDirty = true; dexSave();

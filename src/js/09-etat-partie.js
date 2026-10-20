@@ -22,6 +22,7 @@ function mkPlayer(line, idx, n) {
     inv:0, dmgMul:L.dmg || 1, cdMul:L.cd || 1, magnet:70, regen:L.regen || 0, moves:{}, items:{}, dealt:0, evoFlash:0, pendingLv:0, spiky: line === "pika" && Math.random() < 1/30, shiny: (idx === 0 && secretShiny) || Math.random() < 1/30 };
   P.moves[L.move] = { lv:1, t:.3 };
   P.dmgMul *= 1 + .02 * (shop.dmg || 0); P.baseSpeed *= 1 + .02 * (shop.spd || 0); P.maxHp = P.hp = Math.round(P.maxHp * (1 + .02 * (shop.hp || 0))); // achats du Marchand
+  if (shop.rappel && !NUZ) P.revives = 1; // Rappel du Marchand
   if (P.spiky) P.moves.fatalfoudre = { lv:1, t:3 }; // 1 partie sur 30 avec Pichu
   return P;
 }
@@ -53,15 +54,15 @@ function newGame(line, mapK) {
 const pKind = () => (S.P.spiky ? "pichuspiky" : S.P.eform || S.P.line) + (S.P.shiny ? "_s" : "");
 const pName = () => S.P.spiky ? "Pichu Troizépi" : S.P.eform ? EEVEE[S.P.eform].name : LINES[S.P.line].names[S.P.stage];
 const IT = id => S.P.items[id] || 0;
-const AREA = () => 1 + .1 * IT("loupe") + .03 * IT("orbevie"), PSPD = () => 1 + .12 * IT("poudrevite") + .03 * IT("orbevie"), DUR = () => 1 + .12 * IT("lumargile") + .03 * IT("orbevie");
-const EXTRA = () => IT("depipe"), CURSE = () => 1 + .1 * IT("miel");
+const AREA = () => 1 + .1 * IT("loupe") + .01 * (shop.loupe || 0) + .03 * IT("orbevie"), PSPD = () => 1 + .12 * IT("poudrevite") + .03 * IT("orbevie"), DUR = () => 1 + .12 * IT("lumargile") + .03 * IT("orbevie");
+const EXTRA = () => IT("depipe") + (shop.depipe || 0), CURSE = () => 1 + .1 * IT("miel");
 const MAX_ITEMS = 6, MAX_MOVES = () => 4 + (shop.slot || 0); // 4 capacités comme dans les jeux, +1 ou +2 achetées au Marchand
 function hurtP(v) {
   const P = S.P;
   if (P.choosing) return false; // en ligne : intangible pendant son choix
   if (P.shieldT > 0) return false; // Protection (Germignon)
   if (P.line === "draco") v *= .9; // Multiécaille : −10 % de dégâts reçus
-  P.hp -= Math.max(1, v - IT("veste")); P.inv = .5; S.bossClean = false; sfx("hurt");
+  P.hp -= Math.max(1, v - IT("veste") - (shop.veste || 0)); P.inv = .5; S.bossClean = false; sfx("hurt");
   try { (P.gp || pad.gp)?.vibrationActuator?.playEffect("dual-rumble", { duration:120, strongMagnitude:.35, weakMagnitude:.25 }); } catch (e) {}
   if (P.hp > 0) return false;
   if (P.revives > 0) {

@@ -39,10 +39,13 @@ function pollPad(dt) {
   const btns = overlayButtons(); if (!btns.length || !pad.used) return;
   const i = btns.indexOf(document.activeElement);
   if (i >= 0 && !btns[i].classList.contains("padfocus")) padFocus(btns, i);
+  if (state === "menu") { const hx = Math.abs(x) > .5 && Math.abs(x) > Math.abs(y) ? Math.sign(x) : 0;
+    if (!hx) { pad.crep = 0; pad.cheld = false; } else { pad.crep = (pad.crep || 0) - dt; if (pad.crep <= 0) { pad.crep = pad.cheld ? .2 : .4; pad.cheld = true; carMove(hx); } }
+    x = 0; }
   const dir = Math.abs(x) > .5 ? Math.sign(x) : Math.abs(y) > .5 ? Math.sign(y) : 0;
   if (!dir) { pad.rep = 0; pad.held = false; }
   else { pad.rep -= dt; if (pad.rep <= 0) { pad.rep = pad.held ? .16 : .35; pad.held = true; padFocus(btns, i < 0 ? btns.findIndex(b => b.classList.contains("card")) : i + dir); } }
-  if (hit(0)) { if (i < 0) padFocus(btns, Math.max(0, btns.findIndex(b => b.classList.contains("card")))); else btns[i].click(); }
+  if (hit(0)) { if (state === "menu" && i < 0) chooseStarter(); else if (i < 0) padFocus(btns, Math.max(0, btns.findIndex(b => b.classList.contains("card")))); else btns[i].click(); }
 }
 window.addEventListener("gamepadconnected", () => { pad.used = true; });
 

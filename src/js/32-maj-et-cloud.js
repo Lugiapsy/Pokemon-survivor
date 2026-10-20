@@ -14,7 +14,7 @@ $("verTag").textContent = "Version " + NET_VER.slice(1); // affichée en bas de 
 const FIREBASE_CFG = { apiKey:"AIzaSyB4YIUasyNSXSgx7pipdRwipAyAtlPMudM", authDomain:"pokemon-survivor-neo.firebaseapp.com", projectId:"pokemon-survivor-neo",
   storageBucket:"pokemon-survivor-neo.firebasestorage.app", messagingSenderId:"1004214351055", appId:"1:1004214351055:web:525503bb4e34d6d4e633ba" };
 var CLOUD = { fb:null, user:null, ready:false, timer:0, busy:false };
-function cloudSoon() { if (!CLOUD.user || !CLOUD.ready) return; clearTimeout(CLOUD.timer); CLOUD.timer = setTimeout(cloudPush, 2500); }
+function cloudSoon() { if (!CLOUD || !CLOUD.user || !CLOUD.ready) return; /* CLOUD pas encore créé si un succès tombe au chargement */ clearTimeout(CLOUD.timer); CLOUD.timer = setTimeout(cloudPush, 2500); }
 function shopSpentFor(sh) { let m = 0; for (const u of SHOP) for (let lv = 0; lv < (sh[u.id] || 0); lv++) m += u.cost(lv); return m; }
 function mergeSave(a, b) { // a, b : { dex, shop, ach }
   const dex = { ...a.dex }; for (const k in b.dex) dex[k] = Math.max(dex[k] || 0, b.dex[k] || 0);

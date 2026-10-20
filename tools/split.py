@@ -70,9 +70,8 @@ def main():
     files = {}  # chemin dans src/ -> contenu
     tpl = []
 
-    # 1. CSS principal : deuxième <style> (le premier, d'une ligne, reste dans la page)
-    s = find(lines, find(lines, 0, lambda l: l.startswith(b"<style>"), "<style>") + 1,
-             lambda l: l.strip() == b"<style>", "<style> principal")
+    # 1. CSS principal : la balise <style> seule sur sa ligne (un éventuel <style> d'une ligne reste dans la page)
+    s = find(lines, 0, lambda l: l.strip() == b"<style>", "<style> principal")
     e = find(lines, s, lambda l: l.strip() == b"</style>", "</style>")
     tpl += lines[:s + 1] + [inc("css/style.css")]
     files["css/style.css"] = b"".join(lines[s + 1:e])
