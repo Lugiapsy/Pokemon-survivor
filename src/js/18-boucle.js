@@ -1,4 +1,17 @@
 /* ---------- Boucle ---------- */
+// en ligne, chaque joueur a sa propre caméra, centrée sur lui (sur le même écran, la caméra reste commune)
+const SPLIT = () => NET.role === "host" && NET.started && S.players.length > 1;
+function camClamp(cx0, cy0) {
+  if (LEVEL.league) { const A = arena(), hx = W / ZOOM / 2, hy = H / ZOOM / 2, mx = ARENA_WALL + 20;
+    cx0 = hx * 2 >= A.x1 - A.x0 + mx * 2 ? 0 : Math.max(A.x0 - mx + hx, Math.min(A.x1 + mx - hx, cx0));
+    cy0 = hy * 2 >= A.y1 - A.y0 + mx * 2.6 ? START_Y : Math.max(A.y0 - mx * 1.6 + hy, Math.min(A.y1 + mx - hy, cy0)); }
+  return { x:cx0, y:cy0 };
+}
+const camFor = p => camClamp(p.x, p.y);
+function spawnNear() { // autour de qui faire apparaître : la caméra commune, ou en ligne un joueur debout au hasard
+  if (!SPLIT()) return S.cam || S.P;
+  const up = S.players.filter(p => !p.down && !p.choosing); return up.length ? up[Math.random() * up.length | 0] : S.cam;
+}
 function update(dt) {
   let P = S.P;
   S.t += dt; msgCool -= dt;
@@ -75,14 +88,11 @@ function update(dt) {
   }
   for (const sl of S.sludge) sl.life -= dt;
   S.sludge = S.sludge.filter(sl => sl.life > 0);
-  { // caméra commune : centre des joueurs debout, et personne ne sort de l'écran
-    const up = S.players.filter(p => !p.down), list = up.length ? up : S.players;
+  { // caméra commune : centre des joueurs debout, et personne ne sort de l'écran (en ligne : chacun a sa caméra, voir camFor)
+    const up = S.players.filter(p => !p.down), list = SPLIT() ? [S.players[0]] : up.length ? up : S.players;
     let cx0 = 0, cy0 = 0; for (const p of list) { cx0 += p.x; cy0 += p.y; } cx0 /= list.length; cy0 /= list.length;
-    if (S.players.length > 1) { const hx = W / ZOOM / 2 - 40, hy = H / ZOOM / 2 - 50; for (const p of S.players) { p.x = Math.max(cx0 - hx, Math.min(cx0 + hx, p.x)); p.y = Math.max(cy0 - hy, Math.min(cy0 + hy, p.y)); } }
-    if (LEVEL.league) { const A = arena(), hx = W / ZOOM / 2, hy = H / ZOOM / 2, mx = ARENA_WALL + 20;
-      cx0 = hx * 2 >= A.x1 - A.x0 + mx * 2 ? 0 : Math.max(A.x0 - mx + hx, Math.min(A.x1 + mx - hx, cx0));
-      cy0 = hy * 2 >= A.y1 - A.y0 + mx * 2.6 ? START_Y : Math.max(A.y0 - mx * 1.6 + hy, Math.min(A.y1 + mx - hy, cy0)); }
-    S.cam = { x:cx0, y:cy0 };
+    if (S.players.length > 1 && !SPLIT()) { const hx = W / ZOOM / 2 - 40, hy = H / ZOOM / 2 - 50; for (const p of S.players) { p.x = Math.max(cx0 - hx, Math.min(cx0 + hx, p.x)); p.y = Math.max(cy0 - hy, Math.min(cy0 + hy, p.y)); } }
+    S.cam = camClamp(cx0, cy0); // Ligue : la caméra reste dans la salle
   }
   P = S.P = nearP(S.cam.x, S.cam.y);
 
@@ -97,13 +107,13 @@ function update(dt) {
   if (S.t >= S.nextRing && (!LEVEL.league || S.lgPh === "wild")) {
     S.nextRing += LEVEL.league ? 1e9 : 120; // Ligue : une nuée par salle
     const kind = LEVEL.rings[Math.max(0, Math.min(LEVEL.rings.length - 1, Math.floor(S.t / 120) - 1))];
-    for (let i = 0; i < 28; i++) { const a = i / 28 * Math.PI*2; spawnFoe(kind, S.cam.x + Math.cos(a)*420, S.cam.y + Math.sin(a)*420); }
+    const rc = spawnNear(); for (let i = 0; i < 28; i++) { const a = i / 28 * Math.PI*2; spawnFoe(kind, rc.x + Math.cos(a)*420, rc.y + Math.sin(a)*420); }
     banner(`Une nuée de ${FOES[kind].name} vous encercle !`);
   }
   if ((S.propT = (S.propT ?? 3) - dt) <= 0) {
     S.propT = 2.5;
-    if (S.foes.filter(f => f.prop).length < 5) for (let tries = 0; tries < 6; tries++) {
-      const a = Math.random() * Math.PI * 2, d = 650 + Math.random() * 400, x = S.cam.x + Math.cos(a) * d, y = S.cam.y + Math.sin(a) * d;
+    const pc = spawnNear(); if (S.foes.filter(f => f.prop).length < 5 * (SPLIT() ? S.players.length : 1)) for (let tries = 0; tries < 6; tries++) {
+      const a = Math.random() * Math.PI * 2, d = 650 + Math.random() * 400, x = pc.x + Math.cos(a) * d, y = pc.y + Math.sin(a) * d;
       if (solidsNear(x, y).some(o => (x - o.x) ** 2 + (y - o.y) ** 2 < (o.r + 34) ** 2)) continue;
       const pr = spawnFoe(LEVEL.prop || (LEVEL.cave ? "crackrock" : "berrytree"), x, y); pr.prop = true; pr.hp = pr.maxHp = 1; break;
     }

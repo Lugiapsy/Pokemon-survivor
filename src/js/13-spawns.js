@@ -4,7 +4,7 @@ function spawnFoe(kind, x, y) {
   let tS = LEVEL.league ? Math.min(S.t, 600) : S.t, d = FOES[kind], scale = (d.boss ? 1 : d.event || d.mini || d.mother ? 1 + tS / 400 : 1 + tS / 150) * CURSE() * (d.boss || d.event || d.mini || d.mother ? 1 + .6 * (S.players.length - 1) : 1); // boss : +60 % de PV par joueur en plus
   if (x === undefined) {
     const a = Math.random() * Math.PI * 2, dist = Math.hypot(W, H) / ZOOM / 2 + 60;
-    const c = S.cam || S.P; x = c.x + Math.cos(a) * dist; y = c.y + Math.sin(a) * dist;
+    const c = spawnNear(); x = c.x + Math.cos(a) * dist; y = c.y + Math.sin(a) * dist;
     if (LEVEL.league) { // salle fermée : on entre par les bords de la salle, loin des joueurs
       const A = arena();
       for (let k = 0; k < 10; k++) {
