@@ -25,3 +25,4 @@
 .rRow { display:flex; align-items:center; gap:8px; } .rRow .rMon { flex:1; background:radial-gradient(circle at 50% 40%, rgba(var(--pc),.18), rgba(255,255,255,.03) 70%); }
 .rPanel footer { padding:8px 14px; border-top:2px dashed rgba(var(--pc),.4); font:600 12px var(--body); color:var(--ink-dim); text-align:center; }
 .rPanel { background:linear-gradient(180deg, rgba(var(--pc),.22), rgba(14,22,17,.88) 70px); backdrop-filter:blur(3px); }
+.rGrid.dense { grid-template-columns:repeat(4, 1fr); gap:4px; } .rGrid.dense canvas { width:58px; height:54px; } .rGrid.dense b { font-size:10px; } .rGrid.dense small { font-size:8px; }
