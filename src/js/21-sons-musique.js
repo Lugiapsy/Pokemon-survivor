@@ -1,11 +1,11 @@
 /* ---------- Sons et musique (Web Audio, tout est synthétisé : aucun fichier) ---------- */
-const AU = { ctx:null, master:null, music:null, sfx:null, muted:false, track:null, step:0, next:0, timer:null, last:{} };
-try { AU.muted = localStorage.getItem("pokesurv-mute") === "1"; } catch (e) {}
+const AU = { ctx:null, master:null, music:null, sfx:null, muted:false, vol:1, track:null, step:0, next:0, timer:null, last:{} };
+try { AU.muted = localStorage.getItem("pokesurv-mute") === "1"; const v = parseFloat(localStorage.getItem("pokesurv-vol")); if (v >= 0 && v <= 1) AU.vol = v; } catch (e) {} // vol : volume général de 0 à 1 (Options)
 function auInit() {
   if (AU.ctx) { if (AU.ctx.state === "suspended") AU.ctx.resume(); return; }
   try {
     const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
-    AU.ctx = new C(); AU.master = AU.ctx.createGain(); AU.master.gain.value = AU.muted ? 0 : .7; AU.master.connect(AU.ctx.destination);
+    AU.ctx = new C(); AU.master = AU.ctx.createGain(); AU.master.gain.value = AU.muted ? 0 : .7 * AU.vol; AU.master.connect(AU.ctx.destination);
     AU.music = AU.ctx.createGain(); AU.music.gain.value = .13; AU.music.connect(AU.master);
     AU.sfx = AU.ctx.createGain(); AU.sfx.gain.value = .3; AU.sfx.connect(AU.master);
     const len = AU.ctx.sampleRate * .5, buf = AU.ctx.createBuffer(1, len, AU.ctx.sampleRate), d = buf.getChannelData(0);
@@ -97,7 +97,7 @@ function musicTick() {
 }
 function setMute(m) {
   AU.muted = m; try { localStorage.setItem("pokesurv-mute", m ? "1" : "0"); } catch (e) {}
-  if (AU.master) AU.master.gain.value = m ? 0 : .7;
+  if (AU.master) AU.master.gain.value = m ? 0 : .7 * AU.vol;
   for (const id of ["muteBtn", "muteBtn2"]) { const b = document.getElementById(id); if (b) b.textContent = m ? "🔇" : "🔊"; }
 }
 

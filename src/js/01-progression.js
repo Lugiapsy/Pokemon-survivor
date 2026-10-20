@@ -91,7 +91,7 @@ function openAch() {
   $("achList").innerHTML = ACHS.filter(a => !a.secret || (a.id === "win10" ? achs.win9 : achs.win8)).map(a => `<div class="shopRow ${achs[a.id] ? "done" : "todo"}"><div><b>${achs[a.id] ? "🏆" : "🔒"} ${a.name}</b><small>${a.desc}${a.unlock ? ` Débloque ${unlockNames(a)}.` : ""}</small></div><span class="reward">${a.reward} ₽</span></div>`).join("");
   state = "ach"; $("start").hidden = true; $("ach").hidden = false; $("achClose").focus({ preventScroll:true });
 }
-function closeAch() { $("ach").hidden = true; $("start").hidden = false; state = "menu"; }
+function closeAch() { $("ach").hidden = true; $("home").hidden = false; state = "home"; }
 /* Panthéon : temps de jeu, dégâts et K.O. de chaque starter, niveau par niveau (depuis la v128) */
 let career = {}; try { career = JSON.parse(localStorage.getItem("pokesurv-career") || "{}") || {}; } catch (e) {}
 const CAR_F = ["t", "dmg", "ko", "runs", "wins"];
@@ -156,8 +156,8 @@ function openShop() {
   });
   if (state !== "shop") { state = "shop"; $("start").hidden = true; $("shop").hidden = false; $("shopClose").focus({ preventScroll:true }); }
 }
-function closeShop() { $("shop").hidden = true; $("start").hidden = false; state = "menu"; refreshMoneyTag(); }
-const refreshMoneyTag = () => { $("shopBtn").textContent = `🏪 Marchand · ${money().toLocaleString("fr-FR")} ₽`; };
+function closeShop() { $("shop").hidden = true; $("home").hidden = false; state = "home"; refreshMoneyTag(); }
+const refreshMoneyTag = () => { $("shopBtn").innerHTML = `<span>🏪</span>Magasin <small class="homeMoney">${money().toLocaleString("fr-FR")} ₽</small>`; };
 function dexCount(f) {
   const k = f.kind, n = (dexKills[k] || 0) + 1; dexKills[k] = n; dexDirty = true;
   if (typeof NET !== "undefined" && NET.role === "host" && NET.started) (NET.dexQ ||= {})[k] = (NET.dexQ[k] || 0) + 1; // envoyé aux invités
@@ -165,23 +165,45 @@ function dexCount(f) {
   if (i >= 0) { const gain = (f.d.boss ? DEX_MONEY_BOSS : DEX_MONEY)[i]; S.earned = (S.earned || 0) + gain;
     S.texts.push({ x:S.P.x, y:S.P.y - 52, txt:`Pokédex : ${n} ${foeName(f.d)} ! +${gain} ₽`, col:"#f6c845", life:2.4, label:true }); }
 }
+const DEX_CW = 112, DEX_CH = 96, DEX_SC = 2; // case d'image du Pokédex et agrandissement commun
+function dexBox(sh) { // rectangle réellement dessiné dans la 1re image (sans le vide autour), calculé une fois
+  if (sh.bb) return sh.bb;
+  const c = document.createElement("canvas"); c.width = sh.fw; c.height = sh.fh;
+  const g = c.getContext("2d"); g.drawImage(sh.img, 0, 0, sh.fw, sh.fh, 0, 0, sh.fw, sh.fh);
+  const d = g.getImageData(0, 0, sh.fw, sh.fh).data; let x0 = sh.fw, y0 = sh.fh, x1 = -1, y1 = -1;
+  for (let y = 0; y < sh.fh; y++) for (let x = 0; x < sh.fw; x++) if (d[(y * sh.fw + x) * 4 + 3] > 20) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  return sh.bb = x1 < 0 ? [0, 0, sh.fw, sh.fh] : [x0, y0, x1 - x0 + 1, y1 - y0 + 1];
+}
 function openDex() {
   const grid = $("dexGrid"); grid.innerHTML = "";
   $("dexSub").innerHTML = `Chaque palier de K.O. d'un Pokémon rapporte des Pokédollars à dépenser chez le Marchand : ${DEX_TIERS.map((n, i) => `${n} K.O. → ${DEX_MONEY[i]} ₽`).join(", ")}.<br>Boss : ${DEX_TIERS_BOSS.map((n, i) => `${n} → ${DEX_MONEY_BOSS[i]} ₽`).join(", ")}. Total gagné : ${moneyEarned().toLocaleString("fr-FR")} ₽.`;
-  for (const [kind, d] of Object.entries(FOES)) {
-    if (kind === "berrytree" || kind === "crackrock" || kind === "urn" || kind === "crate" || d.hideDex || (d.johto && !achs.win9)) continue;
-    const n = dexKills[kind] || 0, lv = dexLevel(kind), tiers = dexTiers(kind);
-    const card = document.createElement("div"); card.className = "dexCard";
-    const c = document.createElement("canvas"); c.width = c.height = 64;
-    const sh = sheetFor(d.sprite || kind, 0), g = c.getContext("2d"); g.imageSmoothingEnabled = false;
-    if (sh) { const sc = Math.min(64 / sh.fw, 64 / sh.fh); if (!n) g.filter = "brightness(0)"; g.drawImage(sh.img, 0, 0, sh.fw, sh.fh, (64 - sh.fw * sc) / 2, (64 - sh.fh * sc) / 2, sh.fw * sc, sh.fh * sc); }
-    card.appendChild(c);
-    card.insertAdjacentHTML("beforeend", `<b>${n ? d.name : "???"}</b><span>${n} K.O.</span><span class="pips">${"★".repeat(lv)}${"☆".repeat(4 - lv)}</span><span class="next">${lv < 4 ? `Prochain palier : ${tiers[lv]}` : "Complet !"}</span>`);
-    grid.appendChild(card);
+  // Deux catégories : les Pokémon, triés par numéro de Pokédex, puis les boss (géants par numéro, Team Rocket, Ligue)
+  const DEX_ROCKET = ["jarbok", "jsmogogo", "jmiaouss"], DEX_LEAGUE = ["lgLokhlass", "lgMacko", "lgEcto", "lgDraco", "lgAlaka"];
+  const dexNum = (kind, d) => { const v = DEX[d.sprite || kind]; return parseInt(Array.isArray(v) ? v[0] : v, 10) || 9999; };
+  const shown = Object.entries(FOES).filter(([kind, d]) => !(kind === "berrytree" || kind === "crackrock" || kind === "urn" || kind === "crate" || d.hideDex || (d.johto && !achs.win9)));
+  const isBoss = kind => kind.startsWith("boss") || DEX_ROCKET.includes(kind) || DEX_LEAGUE.includes(kind);
+  const byNum = (a, b) => dexNum(...a) - dexNum(...b);
+  const sections = [["Pokémon", shown.filter(([k]) => !isBoss(k)).sort(byNum)],
+    ["Boss", [...shown.filter(([k]) => k.startsWith("boss")).sort(byNum), ...[...DEX_ROCKET, ...DEX_LEAGUE].map(k => shown.find(([q]) => q === k)).filter(Boolean)]]];
+  for (const [title, list] of sections) {
+    grid.insertAdjacentHTML("beforeend", `<h3 class="dexSection">${title} <small>${list.filter(([k]) => dexKills[k]).length} / ${list.length}</small></h3>`);
+    for (const [kind, d] of list) {
+      const n = dexKills[kind] || 0, lv = dexLevel(kind), tiers = dexTiers(kind);
+      const card = document.createElement("div"); card.className = "dexCard";
+      const c = document.createElement("canvas"); c.width = DEX_CW; c.height = DEX_CH;
+      const sh = sheetFor(d.sprite || kind, 0), g = c.getContext("2d"); g.imageSmoothingEnabled = false;
+      if (sh) { // même agrandissement (x2) pour tous, sur le Pokémon découpé au plus près : les petits restent petits
+        const [bx, by, bw, bh] = dexBox(sh), sc = Math.min(DEX_SC, (DEX_CW - 8) / bw, (DEX_CH - 8) / bh);
+        if (!n) g.filter = "brightness(0)";
+        g.drawImage(sh.img, bx, by, bw, bh, Math.round((DEX_CW - bw * sc) / 2), Math.round((DEX_CH - bh * sc) / 2), bw * sc, bh * sc); }
+      card.appendChild(c);
+      card.insertAdjacentHTML("beforeend", `<b>${n ? d.name : "???"}</b><span>${n} K.O.</span><span class="pips">${"★".repeat(lv)}${"☆".repeat(4 - lv)}</span><span class="next">${lv < 4 ? `Prochain palier : ${tiers[lv]}` : "Complet !"}</span>`);
+      grid.appendChild(card);
+    }
   }
   state = "dex"; $("start").hidden = true; $("dex").hidden = false; $("dexClose").focus({ preventScroll:true });
 }
-function closeDex() { $("dex").hidden = true; $("start").hidden = false; state = "menu"; }
+function closeDex() { $("dex").hidden = true; $("home").hidden = false; state = "home"; }
 window.addEventListener("pagehide", dexSave);
 ITEM_ICONS.superpotion = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA/klEQVRYhe2WMQ7CMAxFe5RcgSOwMjIyMvYaGVlzDMaujFyjIyMja4hdfuVaCQzEmWLpq1Ij9b24TZph6NWr1x/lnIsyzcExPpe8Jo65RAkcZ8953EY7iW9gKWAmQQ8N424Bk0QGTJku+/oCPPtrWBOOBxaR4CYCdL2fTyxAMEgQVMZEAOCNQGq/OVxKEBhwKYD7pgKQWFdACmZNXZm9t5fQSxGzbyKwgafg49MCFDMBfu8fAbQfAghETFaCXu85AaS6BHZCKSDhNHMtUV2ANiNucRKhSDjGmghoEO7pMROBXxJmHShJ5N69CVxK4N9QAjc5nunzYPNzYa9eteoNZdlbvNix9y4AAAAASUVORK5CYII="; // soin quand tout est au maximum
 const itemIcon = (id, cls = "ico") => ITEM_ICONS[id] ? `<img class="${cls}" src="${ITEM_ICONS[id]}" alt="">` : "";
