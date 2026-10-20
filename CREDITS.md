@@ -70,6 +70,11 @@ Les sprites originaux sont de Spike Chunsoft (Pokémon Donjon Mystère). Retouch
 | versions shiny (0133-0136, 0470) | Évoli et ses évolutions chromatiques | auteurs indiqués dans les credits.txt SpriteCollab de chaque dossier 0000/0001 |
 | 0064, 0132 | Kadabra, Métamorph (Caverne Azurée, niveau 9) | CHUNSOFT |
 | 0151 | Mew (joueur) | CHUNSOFT ; version chromatique (0151/0000/0001) : contributeurs SpriteCollab indiqués dans son credits.txt |
+| 0152, 0153, 0154, 0155, 0158, 0159, 0160 | Germignon, Macronium, Méganium, Héricendre, Kaiminus, Crocrodil, Aligatueur (joueur, Johto) | CHUNSOFT |
+| 0156, 0157 | Feurisson, Typhlosion (joueur, Johto) | CHUNSOFT + 1 contributeur SpriteCollab chacun |
+| versions shiny (0152-0160) | starters de Johto chromatiques | contributeurs SpriteCollab indiqués dans le credits.txt de chaque dossier 0000/0001 |
+| 0069, 0070, 0071, 0163 | Chétiflor, Boustiflor, Empiflor, Hoothoot (Tour Chétiflor, Johto niveau 1) | CHUNSOFT |
+| 0161, 0162, 0164 | Fouinette, Fouinar, Noarfang (Tour Chétiflor) | CHUNSOFT + 1 à 2 contributeurs SpriteCollab |
 
 Les contributeurs sont identifiés par leur ID Discord dans `sprite/<n°>/credits.txt` du dépôt.
 
