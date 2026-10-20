@@ -77,14 +77,15 @@ function buildPanels() {
   const { wild, boss } = panelKinds(), seen = k => (dexKills[k] || 0) > 0, col = LIFE_COL();
   for (const c of LIFE.cv) { c.width = W; c.height = H; }
   const R = rng(LEVELS.indexOf(LEVEL) * 7919 + 13), mix = wild.slice().sort(() => R() - .5);
-  const walker = (k, x0, x1) => ({ k, x:x0 + R() * (x1 - x0), y:120 + R() * (H - 210), tx:0, ty:0, wait:R() * 2, x0, x1, sp:22 + R() * 22, dir:R() * 8 | 0, mv:false,
-    h:Math.min(56, Math.max(34, (FOES[k].r || 14) * 2.6)), boss:false });
-  const nw = Math.max(4, Math.min(14, Math.round(W * H / 26000)));
-  LIFE.mobs[0] = mix.slice(0, nw).map(k => walker(k, 24, W - 70));
+  const walker = (k, x0, x1, ws) => ({ k, x:x0 + R() * (x1 - x0), y:120 + R() * (H - 210), tx:0, ty:0, wait:R() * 2, x0, x1, sp:22 + R() * 22, dir:R() * 8 | 0, mv:false,
+    h:Math.min(56, Math.max(34, (FOES[k].r || 14) * 2.6)) * ws, boss:false });
+  // tous les sauvages du niveau, répartis sur les deux côtés (un peu plus petits quand ils sont nombreux)
+  const nw = Math.ceil(mix.length * (boss.length > 4 ? .7 : .6)), ws = mix.length > 20 ? .78 : mix.length > 12 ? .88 : 1;
+  LIFE.mobs[0] = mix.slice(0, nw).map(k => walker(k, 24, W - 70, ws));
   const nb = boss.length, bh = (H - 200) / Math.max(1, nb); // boss : en colonne le long du bord, en quinconce
   const bH = Math.max(40, Math.min(nb > 4 ? 84 : 130, bh * (nb > 4 ? 1.2 : nb > 2 ? 1.5 : .8)));
   LIFE.mobs[1] = boss.map((k, i) => ({ k, boss:true, dir:6, mv:false, x:W * (nb > 2 ? (i % 2 ? .62 : .3) : .45), y:110 + bh * (i + .5) + bH / 2, h:bH }));
-  LIFE.mobs[1].push(...mix.slice(nw, nw + (nb > 4 ? 0 : Math.min(6, Math.round(nw / 2)))).map(k => walker(k, W * .62, W - 70)));
+  LIFE.mobs[1].push(...mix.slice(nw).map(k => walker(k, 24, W - 70, ws)));
   LIFE.pills[0].innerHTML = `<b>${wild.filter(seen).length}</b> / ${wild.length} Pokémon sauvages vus`;
   LIFE.pills[1].innerHTML = `<b>${boss.filter(seen).length}</b> / ${boss.length} boss vaincus`;
   for (const p of LIFE.pills) p.style.setProperty("--pc", col);
