@@ -360,6 +360,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
 .rRow { display:flex; align-items:center; gap:8px; } .rRow .rMon { flex:1; background:radial-gradient(circle at 50% 40%, rgba(var(--pc),.18), rgba(255,255,255,.03) 70%); }
 .rPanel footer { padding:8px 14px; border-top:2px dashed rgba(var(--pc),.4); font:600 12px var(--body); color:var(--ink-dim); text-align:center; }
 .rPanel { background:linear-gradient(180deg, rgba(var(--pc),.22), rgba(14,22,17,.88) 70px); backdrop-filter:blur(3px); }
+.rGrid.dense { grid-template-columns:repeat(4, 1fr); gap:4px; } .rGrid.dense canvas { width:58px; height:54px; } .rGrid.dense b { font-size:10px; } .rGrid.dense small { font-size:8px; }
 </style>
 <div class="rotateMsg" id="rotateMsg"><div class="phone">📱</div><div>Tourne ton téléphone<br>pour jouer en paysage</div></div>
 
@@ -435,7 +436,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v146)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v147)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -6328,7 +6329,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v146";
+const NET_VER = "v147";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -6861,12 +6862,15 @@ function drawDeco(force) {
    Jamais battu : silhouette noire et « ??? », comme au Pokédex. */
 const PANEL = { el:[], mons:[], key:"" };
 const PANEL_COL = () => LEVEL.league ? "224,176,64" : LEVEL.rocket ? "200,64,64" : LEVEL.manor ? "210,100,50" : LEVEL.safari ? "200,160,64" : LEVEL.tower ? (LEVEL.sprout ? "190,140,80" : "150,110,190") : LEVEL.cave ? "120,140,210" : "110,190,90";
-function panelKinds() {
-  const wild = new Set();
-  if (LEVEL.table) for (let m = 0; m <= 10; m += .5) { const o = []; LEVEL.table(m, o); for (const [k] of o) if (FOES[k] && !dexBoss(FOES[k]) && !FOES[k].hideDex && !FOES[k].prop) wild.add(k); }
-  for (const k of LEVEL.rings || []) if (FOES[k] && !dexBoss(FOES[k])) wild.add(k);
-  const boss = (LEVEL.bosses || []).map(b => [b.kind, b.at]); if (LEVEL.finalBoss) boss.push([LEVEL.finalBoss, 600]);
-  return { wild:[...wild].slice(0, 12), boss };
+function panelKinds() { // Oiseau Légendaire : les trois cartes ; Ligue : toutes les salles
+  const wild = new Set(), boss = new Set(), add = k => { if (FOES[k] && !FOES[k].hideDex && !FOES[k].prop) (dexBoss(FOES[k]) ? boss : wild).add(k); };
+  for (const src of LEVEL.maps || LEVEL.rooms || [LEVEL]) {
+    if (src.table) for (let m = 0; m <= 10; m += .5) { const o = []; src.table(m, o); for (const [k] of o) add(k); }
+    for (const k of src.rings || []) add(k);
+    for (const b of src.bosses || []) boss.add(b.kind);
+    for (const k of [src.boss, src.bird, src.finalBoss]) if (k && FOES[k]) boss.add(k);
+  }
+  return { wild:[...wild].slice(0, 32), boss:[...boss] };
 }
 function buildPanels() {
   const ov = $("start"); if (!ov || ov.hidden) return;
@@ -6879,8 +6883,8 @@ function buildPanels() {
   for (const d of PANEL.el) { d.style.width = Math.min(W, 300) + "px"; d.style.setProperty("--pc", col); }
   const cell = (k, big) => { const ok = seen(k), n = dexKills[k] || 0, nm = ok ? (FOES[k].name || k).replace(" géant", "") : "???";
     return `<div class="rMon${big ? " big" : ""}${ok ? "" : " unseen"}"><canvas width="${big ? 150 : 76}" height="${big ? 120 : 70}" data-k="${k}"></canvas><b>${nm}</b><small>${ok ? n + " K.O." : "inconnu"}</small></div>`; };
-  PANEL.el[0].innerHTML = `<header><span>Pokémon sauvages</span><i>${LEVEL.name}</i></header><div class="rGrid">${wild.map(k => cell(k)).join("")}</div><footer>${wild.filter(seen).length} / ${wild.length} rencontrés</footer>`;
-  PANEL.el[1].innerHTML = `<header><span>Boss de la zone</span><i>${LEVEL.name}</i></header><div class="rBoss">${boss.map(([k, at]) => `<div class="rRow">${cell(k, true)}</div>`).join("")}</div><footer>${boss.filter(([k]) => seen(k)).length} / ${boss.length} vaincus</footer>`;
+  PANEL.el[0].innerHTML = `<header><span>Pokémon sauvages</span><i>${LEVEL.name}</i></header><div class="rGrid${wild.length > 15 ? " dense" : ""}">${wild.map(k => cell(k)).join("")}</div><footer>${wild.filter(seen).length} / ${wild.length} rencontrés</footer>`;
+  PANEL.el[1].innerHTML = `<header><span>Boss de la zone</span><i>${LEVEL.name}</i></header>${boss.length > 3 ? `<div class="rGrid${boss.length > 9 ? " dense" : ""}">${boss.map(k => cell(k)).join("")}</div>` : `<div class="rBoss">${boss.map(k => `<div class="rRow">${cell(k, true)}</div>`).join("")}</div>`}<footer>${boss.filter(seen).length} / ${boss.length} vaincus</footer>`;
   for (const c of document.querySelectorAll(".rPanel canvas")) PANEL.mons.push([c.getContext("2d"), c.dataset.k, c.width, c.height, c.closest(".big") ? 30 : 15]);
 }
 function drawPanels(t) {

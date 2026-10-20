@@ -34,12 +34,15 @@ function drawDeco(force) {
    Jamais battu : silhouette noire et « ??? », comme au Pokédex. */
 const PANEL = { el:[], mons:[], key:"" };
 const PANEL_COL = () => LEVEL.league ? "224,176,64" : LEVEL.rocket ? "200,64,64" : LEVEL.manor ? "210,100,50" : LEVEL.safari ? "200,160,64" : LEVEL.tower ? (LEVEL.sprout ? "190,140,80" : "150,110,190") : LEVEL.cave ? "120,140,210" : "110,190,90";
-function panelKinds() {
-  const wild = new Set();
-  if (LEVEL.table) for (let m = 0; m <= 10; m += .5) { const o = []; LEVEL.table(m, o); for (const [k] of o) if (FOES[k] && !dexBoss(FOES[k]) && !FOES[k].hideDex && !FOES[k].prop) wild.add(k); }
-  for (const k of LEVEL.rings || []) if (FOES[k] && !dexBoss(FOES[k])) wild.add(k);
-  const boss = (LEVEL.bosses || []).map(b => [b.kind, b.at]); if (LEVEL.finalBoss) boss.push([LEVEL.finalBoss, 600]);
-  return { wild:[...wild].slice(0, 12), boss };
+function panelKinds() { // Oiseau Légendaire : les trois cartes ; Ligue : toutes les salles
+  const wild = new Set(), boss = new Set(), add = k => { if (FOES[k] && !FOES[k].hideDex && !FOES[k].prop) (dexBoss(FOES[k]) ? boss : wild).add(k); };
+  for (const src of LEVEL.maps || LEVEL.rooms || [LEVEL]) {
+    if (src.table) for (let m = 0; m <= 10; m += .5) { const o = []; src.table(m, o); for (const [k] of o) add(k); }
+    for (const k of src.rings || []) add(k);
+    for (const b of src.bosses || []) boss.add(b.kind);
+    for (const k of [src.boss, src.bird, src.finalBoss]) if (k && FOES[k]) boss.add(k);
+  }
+  return { wild:[...wild].slice(0, 32), boss:[...boss] };
 }
 function buildPanels() {
   const ov = $("start"); if (!ov || ov.hidden) return;
@@ -52,8 +55,8 @@ function buildPanels() {
   for (const d of PANEL.el) { d.style.width = Math.min(W, 300) + "px"; d.style.setProperty("--pc", col); }
   const cell = (k, big) => { const ok = seen(k), n = dexKills[k] || 0, nm = ok ? (FOES[k].name || k).replace(" géant", "") : "???";
     return `<div class="rMon${big ? " big" : ""}${ok ? "" : " unseen"}"><canvas width="${big ? 150 : 76}" height="${big ? 120 : 70}" data-k="${k}"></canvas><b>${nm}</b><small>${ok ? n + " K.O." : "inconnu"}</small></div>`; };
-  PANEL.el[0].innerHTML = `<header><span>Pokémon sauvages</span><i>${LEVEL.name}</i></header><div class="rGrid">${wild.map(k => cell(k)).join("")}</div><footer>${wild.filter(seen).length} / ${wild.length} rencontrés</footer>`;
-  PANEL.el[1].innerHTML = `<header><span>Boss de la zone</span><i>${LEVEL.name}</i></header><div class="rBoss">${boss.map(([k, at]) => `<div class="rRow">${cell(k, true)}</div>`).join("")}</div><footer>${boss.filter(([k]) => seen(k)).length} / ${boss.length} vaincus</footer>`;
+  PANEL.el[0].innerHTML = `<header><span>Pokémon sauvages</span><i>${LEVEL.name}</i></header><div class="rGrid${wild.length > 15 ? " dense" : ""}">${wild.map(k => cell(k)).join("")}</div><footer>${wild.filter(seen).length} / ${wild.length} rencontrés</footer>`;
+  PANEL.el[1].innerHTML = `<header><span>Boss de la zone</span><i>${LEVEL.name}</i></header>${boss.length > 3 ? `<div class="rGrid${boss.length > 9 ? " dense" : ""}">${boss.map(k => cell(k)).join("")}</div>` : `<div class="rBoss">${boss.map(k => `<div class="rRow">${cell(k, true)}</div>`).join("")}</div>`}<footer>${boss.filter(seen).length} / ${boss.length} vaincus</footer>`;
   for (const c of document.querySelectorAll(".rPanel canvas")) PANEL.mons.push([c.getContext("2d"), c.dataset.k, c.width, c.height, c.closest(".big") ? 30 : 15]);
 }
 function drawPanels(t) {
