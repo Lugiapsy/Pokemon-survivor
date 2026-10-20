@@ -1,8 +1,6 @@
 # Pokémon Survivor · fork interface (Lugiapsy)
 
-Jeu de survie façon Vampire Survivors dans l'univers Pokémon, dans un seul fichier HTML.
-
-Ce dépôt est un **fork** du projet de Raphaël ([neocrizis/Pokemon-survivor](https://github.com/neocrizis/Pokemon-survivor)), qui reste la branche principale : lui s'occupe du gameplay, ce fork sert à travailler l'interface (menus, nouvelles pages, aspect visuel, arrière-plans). Chaque modification est numérotée (MAJ-001, MAJ-002…) pour pouvoir être reprise dans le projet principal.
+Ce dépôt est un **fork** du projet de Neocrizis([neocrizis/Pokemon-survivor](https://github.com/neocrizis/Pokemon-survivor)), qui reste la branche principale : lui s'occupe du gameplay, ce fork sert à travailler l'interface (menus, nouvelles pages, aspect visuel, arrière-plans). Chaque modification est numérotée (MAJ-001, MAJ-002…) pour pouvoir être reprise dans le projet principal.
 
 **Jouer à cette version :** https://lugiapsy.github.io/Pokemon-survivor/
 **Jouer à la version officielle :** https://neocrizis.github.io/Pokemon-survivor/
