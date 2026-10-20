@@ -425,7 +425,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v153)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v154)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -6318,7 +6318,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v153";
+const NET_VER = "v154";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -6896,13 +6896,12 @@ function buildPanels() {
   const R = rng(LEVELS.indexOf(LEVEL) * 7919 + 13), mix = wild.slice().sort(() => R() - .5);
   const walker = (k, x0, x1, ws) => ({ k, x:x0 + R() * (x1 - x0), y:120 + R() * (H - 210), tx:0, ty:0, wait:R() * 2, x0, x1, sp:22 + R() * 22, dir:R() * 8 | 0, mv:false,
     h:Math.min(56, Math.max(34, (FOES[k].r || 14) * 2.6)) * ws, boss:false });
-  // tous les sauvages du niveau, répartis sur les deux côtés (un peu plus petits quand ils sont nombreux)
-  const nw = Math.ceil(mix.length * (boss.length > 4 ? .7 : .6)), ws = mix.length > 20 ? .78 : mix.length > 12 ? .88 : 1;
-  LIFE.mobs[0] = mix.slice(0, nw).map(k => walker(k, 24, W - 70, ws));
+  // tous les sauvages du niveau à gauche (un peu plus petits quand ils sont nombreux) ; à droite, rien que les boss
+  const ws = mix.length > 20 ? .72 : mix.length > 12 ? .85 : 1;
+  LIFE.mobs[0] = mix.map(k => walker(k, 24, W - 70, ws));
   const nb = boss.length, bh = (H - 200) / Math.max(1, nb); // boss : en colonne le long du bord, en quinconce
   const bH = Math.max(40, Math.min(nb > 4 ? 84 : 130, bh * (nb > 4 ? 1.2 : nb > 2 ? 1.5 : .8)));
   LIFE.mobs[1] = boss.map((k, i) => ({ k, boss:true, dir:6, mv:false, x:W * (nb > 2 ? (i % 2 ? .62 : .3) : .45), y:110 + bh * (i + .5) + bH / 2, h:bH }));
-  LIFE.mobs[1].push(...mix.slice(nw).map(k => walker(k, 24, W - 70, ws)));
   LIFE.pills[0].innerHTML = `<b>${wild.filter(seen).length}</b> / ${wild.length} Pokémon sauvages vus`;
   LIFE.pills[1].innerHTML = `<b>${boss.filter(seen).length}</b> / ${boss.length} boss vaincus`;
   for (const p of LIFE.pills) p.style.setProperty("--pc", col);
