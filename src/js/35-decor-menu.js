@@ -14,7 +14,8 @@ function drawDeco(force) {
   const Z = .8; // un peu dézoomé : on voit plus du niveau
   for (let s = 0; s < 2; s++) {
     const c = decoSide(s); c.width = W; c.height = H; const g = c.getContext("2d");
-    const vw = W / Z, vh = H / Z, camX = s ? 900 : -900 - vw, camY = START_Y - 1400 - vh / 2; // loin du départ, là où le niveau est bien garni
+    const vw = W / Z, vh = H / Z, A = LEVEL.league ? arena() : null; // Ligue : l'intérieur de la salle (dehors, il n'y a rien)
+    const camX = A ? (s ? A.x1 - 60 - vw : A.x0 + 60) : s ? 900 : -900 - vw, camY = A ? START_Y - vh / 2 : START_Y - 1400 - vh / 2; // sinon loin du départ, là où le niveau est bien garni
     g.save(); g.scale(Z, Z); g.translate(-camX, -camY);
     g.fillStyle = LEVEL.rocket ? "#4a505c" : LEVEL.tower ? (LEVEL.sprout ? "#6a4a2c" : "#3a3446") : LEVEL.manor ? "#4a3020" : LEVEL.theme ? (CAVE_PAL[LEVEL.theme] || {}).base || "#2c2834" : LEVEL.cave ? "#2c2834" : LEVEL.safari ? "#b89a50" : "#3d6e38";
     g.fillRect(camX, camY, vw, vh);
