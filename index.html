@@ -333,6 +333,33 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
 .dexGrid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
 .dexCard canvas { width: 112px; height: 96px; }
 @media (max-width: 640px) { .dexGrid { grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); } .dexCard canvas { width: 84px; height: 72px; } }
+/* Écran de choix : bouton Menu fixe, starters voisins rapprochés, décor et panneaux du niveau sur les côtés */
+.sideDeco { position:fixed; top:0; height:100vh; pointer-events:none; z-index:0; }
+.sideDeco.l { left:0; -webkit-mask-image:linear-gradient(to right, #000 55%, transparent); mask-image:linear-gradient(to right, #000 55%, transparent); }
+.sideDeco.r { right:0; -webkit-mask-image:linear-gradient(to left, #000 55%, transparent); mask-image:linear-gradient(to left, #000 55%, transparent); }
+#start > .sheet { position:relative; z-index:1; }
+.homeBack { position:fixed; top:calc(14px + env(safe-area-inset-top, 0px)); left:max(14px, env(safe-area-inset-left, 0px)); z-index:6; box-shadow:0 4px 14px rgba(0,0,0,.45); }
+.sRow { align-items:flex-start; }
+.sSide { margin-top:48px; flex:0 0 160px; position:relative; z-index:3; } .sArrow { margin-top:78px; position:relative; z-index:3; }
+#sPrev { margin-right:-320px; } #sNext { margin-left:-320px; } /* collés au starter du milieu */
+@media (max-width: 700px) { .homeBack { position:static; box-shadow:none; } }
+.rPanel { position:fixed; top:50%; transform:translateY(-50%); max-height:calc(100vh - 110px); overflow:hidden; z-index:2; display:flex; flex-direction:column;
+  background:linear-gradient(180deg, rgba(var(--pc),.16), rgba(14,22,17,.92) 70px); border:2px solid rgba(var(--pc),.55); border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 0 0 4px rgba(10,16,12,.6); font-family:var(--body); color:var(--ink); }
+.rPanel.l { left:max(18px, env(safe-area-inset-left, 0px)); } .rPanel.r { right:max(18px, env(safe-area-inset-right, 0px)); }
+.rPanel header { padding:10px 14px 8px; border-bottom:2px dashed rgba(var(--pc),.4); display:flex; flex-direction:column; gap:2px; }
+.rPanel header span { font:700 15px var(--display); letter-spacing:.06em; color:rgb(var(--pc)); text-transform:uppercase; }
+.rPanel header i { font:600 11px var(--body); font-style:normal; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-dim); }
+.rGrid { display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; padding:10px; overflow:auto; }
+.rMon { display:flex; flex-direction:column; align-items:center; background:rgba(255,255,255,.04); border-radius:10px; padding:4px 2px 6px; min-width:0; }
+.rMon canvas { width:76px; height:70px; image-rendering:pixelated; } .rMon.big canvas { width:150px; height:120px; }
+.rMon b { font:700 12px var(--body); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; } .rMon.big b { font-size:15px; }
+.rMon small { font:9px var(--num); color:var(--ink-dim); margin-top:2px; }
+.rMon.unseen canvas { filter:brightness(0) opacity(.55); } .rMon.unseen b { color:var(--ink-dim); }
+.rBoss { display:flex; flex-direction:column; gap:10px; padding:10px; overflow:auto; }
+.rRow { display:flex; align-items:center; gap:8px; } .rRow .rMon { flex:1; background:radial-gradient(circle at 50% 40%, rgba(var(--pc),.18), rgba(255,255,255,.03) 70%); }
+.rPanel footer { padding:8px 14px; border-top:2px dashed rgba(var(--pc),.4); font:600 12px var(--body); color:var(--ink-dim); text-align:center; }
+.rPanel { background:linear-gradient(180deg, rgba(var(--pc),.22), rgba(14,22,17,.88) 70px); backdrop-filter:blur(3px); }
 </style>
 <div class="rotateMsg" id="rotateMsg"><div class="phone">📱</div><div>Tourne ton téléphone<br>pour jouer en paysage</div></div>
 
@@ -408,15 +435,15 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v143)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v144)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
     <div class="sCar" id="sCar">
       <div class="sTabs" id="sTabs" role="tablist" aria-label="Starters"></div>
       <div class="sRow">
-        <button class="sSide" id="sPrev" type="button" aria-label="Starter précédent"><canvas width="150" height="112"></canvas><b></b></button>
         <button class="sArrow" id="sLeft" type="button" aria-label="Starter précédent">◀</button>
+        <button class="sSide" id="sPrev" type="button" aria-label="Starter précédent"><canvas width="150" height="112"></canvas><b></b></button>
         <div class="sMid">
           <div class="sStage"><div class="sAura" id="sAura"></div><div class="sPed"></div><canvas id="sBig" width="280" height="210"></canvas></div>
           <h3 class="sName"><span id="sName"></span> <span class="chip" id="sChip"></span></h3>
@@ -428,8 +455,8 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
           <button class="btn sGo" id="sGo" type="button">▶ Choisir</button>
           <div class="sDots" id="sDots"></div>
         </div>
-        <button class="sArrow" id="sRight" type="button" aria-label="Starter suivant">▶</button>
         <button class="sSide" id="sNext" type="button" aria-label="Starter suivant"><canvas width="150" height="112"></canvas><b></b></button>
+        <button class="sArrow" id="sRight" type="button" aria-label="Starter suivant">▶</button>
       </div>
     </div>
   </div>
@@ -6011,6 +6038,7 @@ const lvLabel = lv => lv.label || lv.num;
 let REGION = "kanto";
 function setLevel(i) {
   if (!levelOpen(i)) { $("levelTag").textContent = `🔒 Termine ${LEVELS[i].jFirst ? "la Caverne Azurée" : LEVELS[i - 1].name} pour débloquer ${LEVELS[i].name}`; sfx("hurt"); return; }
+  setTimeout(refreshSides); // décor et panneaux des côtés (35-decor-menu.js)
   REGION = LEVELS[i].region || "kanto";
   if (LEVEL !== LEVELS[i]) { LEVEL = LEVELS[i]; chunkData.clear(); nearCache.clear(); liveChunks.clear(); motes.length = 0; }
   $("levelTag").textContent = `${REGION === "johto" ? "Johto · " : ""}Niveau ${lvLabel(LEVEL)} · ${LEVEL.name}`;
@@ -6285,7 +6313,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v143";
+const NET_VER = "v144";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -6782,5 +6810,72 @@ function pauseOpt(on) {
 $("pauseOptBtn").addEventListener("click", () => pauseOpt(true));
 $("pauseOptBack").addEventListener("click", () => pauseOpt(false));
 new MutationObserver(() => { if ($("pause").hidden && !$("pauseOpt").hidden) pauseOpt(false); }).observe($("pause"), { attributes:true, attributeFilter:["hidden"] });
+/* Écran de choix : les côtés vides prennent le décor du niveau choisi (vrai sol du niveau, arbres, etc.) */
+const DECO = { cvs:[], key:"" };
+function decoSide(side) {
+  let c = DECO.cvs[side];
+  if (!c) { c = document.createElement("canvas"); c.className = "sideDeco " + (side ? "r" : "l"); c.setAttribute("aria-hidden", "true"); $("start").prepend(c); DECO.cvs[side] = c; }
+  return c;
+}
+function drawDeco(force) {
+  const ov = $("start"); if (!ov || ov.hidden) return;
+  const sh = ov.querySelector(".sheet").getBoundingClientRect(), W = Math.floor(Math.max(0, sh.left - 8)), H = innerHeight;
+  const key = LEVELS.indexOf(LEVEL) + ":" + W + "x" + H;
+  for (let s = 0; s < 2; s++) decoSide(s).hidden = W < 140;
+  if (W < 140 || (!force && key === DECO.key)) return; DECO.key = key;
+  const Z = .8; // un peu dézoomé : on voit plus du niveau
+  for (let s = 0; s < 2; s++) {
+    const c = decoSide(s); c.width = W; c.height = H; const g = c.getContext("2d");
+    const vw = W / Z, vh = H / Z, camX = s ? 900 : -900 - vw, camY = START_Y - 1400 - vh / 2; // loin du départ, là où le niveau est bien garni
+    g.save(); g.scale(Z, Z); g.translate(-camX, -camY);
+    g.fillStyle = LEVEL.rocket ? "#4a505c" : LEVEL.tower ? (LEVEL.sprout ? "#6a4a2c" : "#3a3446") : LEVEL.manor ? "#4a3020" : LEVEL.theme ? (CAVE_PAL[LEVEL.theme] || {}).base || "#2c2834" : LEVEL.cave ? "#2c2834" : LEVEL.safari ? "#b89a50" : "#3d6e38";
+    g.fillRect(camX, camY, vw, vh);
+    const i0 = Math.floor(camX / CH), j0 = Math.floor(camY / CH), i1 = Math.floor((camX + vw) / CH), j1 = Math.floor((camY + vh) / CH);
+    for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) { const ch = getChunk(i, j); if (!ch.canvas) renderChunk(i, j); if (ch.canvas) g.drawImage(ch.canvas, i * CH, j * CH, CH, CH); }
+    if (!LEVEL.cave && !LEVEL.tower && !LEVEL.manor && !LEVEL.rocket && !LEVEL.league) // cimes des arbres (forêt, safari)
+      for (let j = j0 - 1; j <= j1 + 1; j++) for (let i = i0 - 1; i <= i1 + 1; i++) for (const tr of getChunk(i, j).trees || []) {
+        const sp = LEVEL.safari ? acaciaSprite(tr.r, tr.v) : canopySprite(tr.r, tr.v); g.drawImage(sp.cv, tr.x - sp.size / 2, tr.y - tr.r * .55 - sp.size / 2, sp.size, sp.size);
+      }
+    g.restore();
+    g.fillStyle = "rgba(10,18,13,.38)"; g.fillRect(0, 0, W, H); // assombri : le starter reste la vedette
+  }
+}
+
+/* Panneaux posés sur ce décor : ce que le niveau choisi réserve.
+   À gauche, les Pokémon sauvages qu'on y croise ; à droite, ses boss.
+   Jamais battu : silhouette noire et « ??? », comme au Pokédex. */
+const PANEL = { el:[], mons:[], key:"" };
+const PANEL_COL = () => LEVEL.league ? "224,176,64" : LEVEL.rocket ? "200,64,64" : LEVEL.manor ? "210,100,50" : LEVEL.safari ? "200,160,64" : LEVEL.tower ? (LEVEL.sprout ? "190,140,80" : "150,110,190") : LEVEL.cave ? "120,140,210" : "110,190,90";
+function panelKinds() {
+  const wild = new Set();
+  if (LEVEL.table) for (let m = 0; m <= 10; m += .5) { const o = []; LEVEL.table(m, o); for (const [k] of o) if (FOES[k] && !dexBoss(FOES[k]) && !FOES[k].hideDex && !FOES[k].prop) wild.add(k); }
+  for (const k of LEVEL.rings || []) if (FOES[k] && !dexBoss(FOES[k])) wild.add(k);
+  const boss = (LEVEL.bosses || []).map(b => [b.kind, b.at]); if (LEVEL.finalBoss) boss.push([LEVEL.finalBoss, 600]);
+  return { wild:[...wild].slice(0, 12), boss };
+}
+function buildPanels() {
+  const ov = $("start"); if (!ov || ov.hidden) return;
+  const sh = ov.querySelector(".sheet").getBoundingClientRect(), W = Math.floor(sh.left - 28);
+  for (let s = 0; s < 2; s++) if (!PANEL.el[s]) { const d = document.createElement("aside"); d.className = "rPanel " + (s ? "r" : "l"); d.setAttribute("aria-hidden", "true"); ov.prepend(d); PANEL.el[s] = d; }
+  const show = W >= 200; for (const d of PANEL.el) d.hidden = !show; if (!show) return;
+  const key = LEVELS.indexOf(LEVEL) + ":" + W; if (key === PANEL.key) return; PANEL.key = key;
+  const { wild, boss } = panelKinds(), seen = k => (dexKills[k] || 0) > 0, col = PANEL_COL();
+  PANEL.mons = [];
+  for (const d of PANEL.el) { d.style.width = Math.min(W, 300) + "px"; d.style.setProperty("--pc", col); }
+  const cell = (k, big) => { const ok = seen(k), n = dexKills[k] || 0, nm = ok ? (FOES[k].name || k).replace(" géant", "") : "???";
+    return `<div class="rMon${big ? " big" : ""}${ok ? "" : " unseen"}"><canvas width="${big ? 150 : 76}" height="${big ? 120 : 70}" data-k="${k}"></canvas><b>${nm}</b><small>${ok ? n + " K.O." : "inconnu"}</small></div>`; };
+  PANEL.el[0].innerHTML = `<header><span>Pokémon sauvages</span><i>${LEVEL.name}</i></header><div class="rGrid">${wild.map(k => cell(k)).join("")}</div><footer>${wild.filter(seen).length} / ${wild.length} rencontrés</footer>`;
+  PANEL.el[1].innerHTML = `<header><span>Boss de la zone</span><i>${LEVEL.name}</i></header><div class="rBoss">${boss.map(([k, at]) => `<div class="rRow">${cell(k, true)}</div>`).join("")}</div><footer>${boss.filter(([k]) => seen(k)).length} / ${boss.length} vaincus</footer>`;
+  for (const c of document.querySelectorAll(".rPanel canvas")) PANEL.mons.push([c.getContext("2d"), c.dataset.k, c.width, c.height, c.closest(".big") ? 30 : 15]);
+}
+function drawPanels(t) {
+  if ($("start").hidden || !PANEL.el[0] || PANEL.el[0].hidden) return;
+  for (const [g, k, w, h, r] of PANEL.mons) { g.clearRect(0, 0, w, h); drawMon(g, FOES[k].sprite || k, w / 2, h / 2 - 2, r, false, t, 0, 0, true); }
+}
+(function panelLoop(ts) { drawPanels(ts / 1000); requestAnimationFrame(panelLoop); })(0);
+function refreshSides(force) { if (force) PANEL.key = ""; drawDeco(); buildPanels(); }
+addEventListener("resize", () => refreshSides(true));
+// à chaque ouverture de l'écran de choix : K.O. et boss vaincus à jour
+new MutationObserver(() => { if (!$("start").hidden) refreshSides(true); }).observe($("start"), { attributes:true, attributeFilter:["hidden"] });
 })();
 </script>

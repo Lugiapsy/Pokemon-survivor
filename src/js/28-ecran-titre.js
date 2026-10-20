@@ -7,6 +7,7 @@ const lvLabel = lv => lv.label || lv.num;
 let REGION = "kanto";
 function setLevel(i) {
   if (!levelOpen(i)) { $("levelTag").textContent = `🔒 Termine ${LEVELS[i].jFirst ? "la Caverne Azurée" : LEVELS[i - 1].name} pour débloquer ${LEVELS[i].name}`; sfx("hurt"); return; }
+  setTimeout(refreshSides); // décor et panneaux des côtés (35-decor-menu.js)
   REGION = LEVELS[i].region || "kanto";
   if (LEVEL !== LEVELS[i]) { LEVEL = LEVELS[i]; chunkData.clear(); nearCache.clear(); liveChunks.clear(); motes.length = 0; }
   $("levelTag").textContent = `${REGION === "johto" ? "Johto · " : ""}Niveau ${lvLabel(LEVEL)} · ${LEVEL.name}`;
