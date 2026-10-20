@@ -254,7 +254,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
 .mvs { display:flex; flex-direction:column; gap:4px; }
 .mv { display:grid; grid-template-columns:62px 1fr auto; align-items:center; gap:8px; padding:3px 6px; border-radius:8px; background:#fff; border:2px solid #e2dbc4; }
 .mv .ty { font:800 9px var(--body); text-transform:uppercase; color:#fff; text-align:center; border-radius:5px; padding:3px 0; text-shadow:0 1px 0 rgba(0,0,0,.3); }
-.mv b { font:800 14px var(--body); } .mv small { display:block; font:400 11px var(--body); color:#6a6455; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mv b { font:800 14px var(--body); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .mv small { display:block; font:400 11px var(--body); color:#6a6455; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .mv > div { min-width:0; }
 .mv .tg { font:700 9px var(--body); padding:2px 6px; border-radius:99px; background:#f6c845; color:#2a2310; white-space:nowrap; } .mv .tg.r { background:#7a5cf0; color:#fff; } .mv .tg.a { background:#5a9ef0; color:#fff; }
 .mvs.many { display:grid; grid-template-columns:1fr 1fr; } .mvs.many small { display:none; }
@@ -298,7 +298,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v140)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v141)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -5933,7 +5933,7 @@ function renderCar() {
   const t = TALENTS[line]; $("sTal").innerHTML = (t ? `<b>Talent · ${t[0]}</b> : ${t[1]}<br>` : "") + `<b>Évolution</b> : ${evo}`;
   const mv = lineMoves(line); $("sMvN").textContent = mv.length; $("sMoves").classList.toggle("many", mv.length > 7);
   $("sMoves").innerHTML = mv.map(([id, m, alt]) => { const d = m.desc(1).split(/(?<=\.) /)[0].replace(/\.$/, "");
-    const tg = id === L.move ? `<span class="tg">Départ</span>` : m.rare ? `<span class="tg r">Rare N.${m.rare.minLvl}</span>` : alt ? `<span class="tg a">${L.names[m.alt.stage]}</span>` : m.tier ? `<span class="tg r">Après Métronome ${m.tier - 1}</span>` : "<span></span>";
+    const tg = id === L.move ? `<span class="tg">Départ</span>` : m.rare ? `<span class="tg r">Rare N.${m.rare.minLvl}</span>` : alt ? `<span class="tg a">${L.names[m.alt.stage]}</span>` : m.tier ? `<span class="tg r" title="Proposé après Métronome ${m.tier - 1}">après M.${m.tier - 1}</span>` : "<span></span>";
     return `<div class="mv"><span class="ty" style="background:${TYPE_COLORS[m.type] || "#888"}">${TYPE_NAMES[m.type] || m.type}</span><div><b>${m.name}</b><small>${d}</small></div>${m.tier === 1 ? "<span></span>" : tg}</div>`; }).join("");
   $("sGo").disabled = !!lock; $("sGo").textContent = lock ? "🔒 Verrouillé" : `▶ Choisir ${L.names[0]}`;
   $("sBig").parentElement.classList.toggle("lk", !!lock);
@@ -6137,7 +6137,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v140";
+const NET_VER = "v141";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
