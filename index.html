@@ -254,7 +254,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v134)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v135)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -410,8 +410,8 @@ const ACHS = [
   { id:"win5",    name:"Maître du Safari",   desc:"Terminer le Parc Safari.",                       reward:100 },
   { id:"win6",    name:"Manoir exploré",     desc:"Terminer le Manoir Pokémon.",                    reward:100 },
   { id:"win7",    name:"Oiseau Légendaire",  desc:"Terminer le niveau Oiseau Légendaire (Île Écume, Centrale ou Route Victoire).", reward:150 },
-  { id:"win8",    name:"Maître de la Ligue", desc:"Battre le Conseil 4 et le Champion de la Ligue Indigo.", reward:200, unlock:["germignon", "heri", "kaiminus"] },
-  { id:"win9",    name:"Pokémon fabuleux",   desc:"Vaincre Mewtwo au fond de la Caverne Azurée.",       reward:100, unlock:"mew", secret:true },
+  { id:"win8",    name:"Maître de la Ligue", desc:"Battre le Conseil 4 et le Champion de la Ligue Indigo.", reward:200 },
+  { id:"win9",    name:"Pokémon fabuleux",   desc:"Vaincre Mewtwo au fond de la Caverne Azurée.",       reward:100, unlock:["mew", "germignon", "heri", "kaiminus"], secret:true },
   { id:"win10",   name:"Tour Chétiflor gravie", desc:"Terminer la Tour Chétiflor, premier niveau de Johto.", reward:100, secret:true },
   { id:"mewtwo",  name:"Pokémon génétique",  desc:"Repousser Mewtwo dans le Manoir Pokémon.",       reward:100 },
   { id:"legend",  name:"Légende vivante",    desc:"Vaincre Artikodin, Électhor ou Sulfura dans le niveau Oiseau Légendaire.", reward:100 },
@@ -455,7 +455,7 @@ function achCheck(win) {
 }
 function openAch() {
   $("achSub").textContent = `${ACHS.filter(a => achs[a.id]).length} / ${ACHS.length} succès · ${achMoney().toLocaleString("fr-FR")} ₽ gagnés`;
-  $("achList").innerHTML = ACHS.filter(a => !a.secret || achs.win8).map(a => `<div class="shopRow ${achs[a.id] ? "done" : "todo"}"><div><b>${achs[a.id] ? "🏆" : "🔒"} ${a.name}</b><small>${a.desc}${a.unlock ? ` Débloque ${unlockNames(a)}.` : ""}</small></div><span class="reward">${a.reward} ₽</span></div>`).join("");
+  $("achList").innerHTML = ACHS.filter(a => !a.secret || (a.id === "win10" ? achs.win9 : achs.win8)).map(a => `<div class="shopRow ${achs[a.id] ? "done" : "todo"}"><div><b>${achs[a.id] ? "🏆" : "🔒"} ${a.name}</b><small>${a.desc}${a.unlock ? ` Débloque ${unlockNames(a)}.` : ""}</small></div><span class="reward">${a.reward} ₽</span></div>`).join("");
   state = "ach"; $("start").hidden = true; $("ach").hidden = false; $("achClose").focus({ preventScroll:true });
 }
 function closeAch() { $("ach").hidden = true; $("start").hidden = false; state = "menu"; }
@@ -536,7 +536,7 @@ function openDex() {
   const grid = $("dexGrid"); grid.innerHTML = "";
   $("dexSub").innerHTML = `Chaque palier de K.O. d'un Pokémon rapporte des Pokédollars à dépenser chez le Marchand : ${DEX_TIERS.map((n, i) => `${n} K.O. → ${DEX_MONEY[i]} ₽`).join(", ")}.<br>Boss : ${DEX_TIERS_BOSS.map((n, i) => `${n} → ${DEX_MONEY_BOSS[i]} ₽`).join(", ")}. Total gagné : ${moneyEarned().toLocaleString("fr-FR")} ₽.`;
   for (const [kind, d] of Object.entries(FOES)) {
-    if (kind === "berrytree" || kind === "crackrock" || kind === "urn" || kind === "crate" || d.hideDex || (d.johto && !achs.win8)) continue;
+    if (kind === "berrytree" || kind === "crackrock" || kind === "urn" || kind === "crate" || d.hideDex || (d.johto && !achs.win9)) continue;
     const n = dexKills[kind] || 0, lv = dexLevel(kind), tiers = dexTiers(kind);
     const card = document.createElement("div"); card.className = "dexCard";
     const c = document.createElement("canvas"); c.width = c.height = 64;
@@ -602,7 +602,7 @@ const LINES = {
             blurb:"Pokémon fabuleux, retrouvé au fond de la Caverne Azurée. Ses capacités sont des Métronome : chacun lance au hasard une attaque d'un autre starter. Métronome 1 tire les attaques de base, Métronome 6 les plus puissantes." },
   miaouss:{ names:["Miaouss","Persian","Persian"], type:"normal", move:"combogriffe", hp:36, speed:175, crit:.1, evo:"évolue N.10, se renforce N.22",
             blurb:"Très rapide mais fragile, avec 10 % de coups critiques en plus. Combo-Griffe lacère les ennemis proches de plusieurs coups à la suite." },
-  // Johto : jouables partout une fois la Ligue Indigo gagnée ; ils n'apprennent que leurs propres capacités
+  // Johto : jouables partout une fois la Caverne Azurée gagnée ; ils n'apprennent que leurs propres capacités
   germignon:{ names:["Germignon","Macronium","Méganium"], secret:true, own:true, type:"plante", move:"feuillemagik", hp:50, speed:152,
             blurb:"Le soutien de l'équipe. Feuille Garde : une aura soigne les alliés proches (et un peu Germignon) et ralentit les ennemis. Feuillemagik lance des feuilles qui vont chercher leur cible." },
   heri:     { names:["Héricendre","Feurisson","Typhlosion"], secret:true, own:true, type:"feu", move:"rouefeu", hp:40, speed:172,
@@ -5786,11 +5786,11 @@ function frame(now) {
 const starterOrder = ["plante", "feu", "eau", "miaouss", "pika", "evoli", "draco", "mew", "germignon", "heri", "kaiminus"];
 const previews = [], matchupEls = {}, levelBtns = [];
 $("lgBtn").addEventListener("click", nextRoom);
-const levelOpen = i => i === 0 || !!achs[LEVELS[i].jFirst ? "win8" : "win" + i]; // un niveau se débloque en terminant le précédent (Johto : après la Ligue Indigo)
+const levelOpen = i => i === 0 || !!achs[LEVELS[i].jFirst ? "win9" : "win" + i]; // un niveau se débloque en terminant le précédent (Johto : après la Caverne Azurée)
 const lvLabel = lv => lv.label || lv.num;
 let REGION = "kanto";
 function setLevel(i) {
-  if (!levelOpen(i)) { $("levelTag").textContent = `🔒 Termine ${LEVELS[i].jFirst ? "la Ligue Indigo" : LEVELS[i - 1].name} pour débloquer ${LEVELS[i].name}`; sfx("hurt"); return; }
+  if (!levelOpen(i)) { $("levelTag").textContent = `🔒 Termine ${LEVELS[i].jFirst ? "la Caverne Azurée" : LEVELS[i - 1].name} pour débloquer ${LEVELS[i].name}`; sfx("hurt"); return; }
   REGION = LEVELS[i].region || "kanto";
   if (LEVEL !== LEVELS[i]) { LEVEL = LEVELS[i]; chunkData.clear(); nearCache.clear(); liveChunks.clear(); motes.length = 0; }
   $("levelTag").textContent = `${REGION === "johto" ? "Johto · " : ""}Niveau ${lvLabel(LEVEL)} · ${LEVEL.name}`;
@@ -5800,9 +5800,9 @@ function setLevel(i) {
   if (typeof NET !== "undefined" && NET.role === "host" && !NET.started) setTimeout(netLobby, 0);
   levelBtns.forEach((b, k) => { b.setAttribute("aria-pressed", String(k === i)); const lv = LEVELS[k]; b.hidden = (!!lv.secret && !levelOpen(k)) || (lv.region || "kanto") !== REGION; b.classList.toggle("lvlocked", !levelOpen(k)); b.textContent = `${levelOpen(k) ? "" : "🔒 "}${lvLabel(lv)} · ${lv.name}`; });
   for (const l in starterCardEls) starterCardEls[l].style.order = REGION === "johto" && LINES[l].own ? -1 : 0; // à Johto, ses starters en tête
-  regionBtns.forEach(b => { b.hidden = !achs.win8; b.setAttribute("aria-pressed", String(b.dataset.r === REGION)); });
+  regionBtns.forEach(b => { b.hidden = !achs.win9; b.setAttribute("aria-pressed", String(b.dataset.r === REGION)); });
 }
-const regionBtns = [["kanto", "🗾 Kanto"], ["johto", "🍃 Johto"]].map(([r, txt]) => { // choix de la région, une fois la Ligue Indigo gagnée
+const regionBtns = [["kanto", "🗾 Kanto"], ["johto", "🍃 Johto"]].map(([r, txt]) => { // choix de la région, une fois la Caverne Azurée gagnée
   const b = document.createElement("button"); b.type = "button"; b.className = "lvbtn regbtn"; b.dataset.r = r; b.textContent = txt; b.hidden = true;
   b.addEventListener("click", () => { if (r === REGION) return; const ks = LEVELS.map((lv, k) => k).filter(k => (LEVELS[k].region || "kanto") === r && levelOpen(k) && !(LEVELS[k].secret && !levelOpen(k))); setLevel(ks[ks.length - 1] ?? 0); });
   $("levelPick").appendChild(b); return b;
@@ -5962,7 +5962,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v134";
+const NET_VER = "v135";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
