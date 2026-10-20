@@ -1,11 +1,4 @@
-<!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
-</head>
-<body>
+<meta charset="utf-8"><!-- fork : encodage déclaré, sinon les accents s'affichent mal hors de GitHub Pages -->
 <title>Pokémon Survivor</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -88,11 +81,30 @@
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v135)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v141)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
-    <div class="cards" id="starterCards"></div>
+    <div class="sCar" id="sCar">
+      <div class="sTabs" id="sTabs" role="tablist" aria-label="Starters"></div>
+      <div class="sRow">
+        <button class="sSide" id="sPrev" type="button" aria-label="Starter précédent"><canvas width="150" height="112"></canvas><b></b></button>
+        <button class="sArrow" id="sLeft" type="button" aria-label="Starter précédent">◀</button>
+        <div class="sMid">
+          <div class="sStage"><div class="sAura" id="sAura"></div><div class="sPed"></div><canvas id="sBig" width="280" height="210"></canvas></div>
+          <h3 class="sName"><span id="sName"></span> <span class="chip" id="sChip"></span></h3>
+          <p class="sMu" id="sMu"></p><p class="sLock" id="sLock" hidden></p>
+          <div class="pk">
+            <div class="pkbox"><div class="pkh"><span>Stats</span><span id="sEvo"></span></div><div id="sStats"></div><div class="tal" id="sTal"></div></div>
+            <div class="pkbox"><div class="pkh"><span>Attaques</span><span id="sMvN"></span></div><div class="mvs" id="sMoves"></div></div>
+          </div>
+          <button class="btn sGo" id="sGo" type="button">▶ Choisir</button>
+          <div class="sDots" id="sDots"></div>
+        </div>
+        <button class="sArrow" id="sRight" type="button" aria-label="Starter suivant">▶</button>
+        <button class="sSide" id="sNext" type="button" aria-label="Starter suivant"><canvas width="150" height="112"></canvas><b></b></button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -118,6 +130,7 @@
 
 <div class="overlay" id="shop" hidden>
   <div class="sheet">
+    <button class="lvbtn homeBack" id="shopBack" type="button">← Menu</button>
     <h2>Marchand</h2>
     <p class="lede">Améliorations permanentes, payées avec les Pokédollars des paliers du Pokédex.</p>
     <span class="tag money" id="shopMoney">0 ₽</span>
@@ -128,6 +141,7 @@
 
 <div class="overlay" id="ach" hidden>
   <div class="sheet">
+    <button class="lvbtn homeBack" id="achBack" type="button">← Menu</button>
     <h2>Succès</h2>
     <p class="lede" id="achSub"></p>
     <div class="shopList" id="achList"></div>
@@ -147,6 +161,7 @@
 
 <div class="overlay" id="dex" hidden>
   <div class="sheet">
+    <button class="lvbtn homeBack" id="dexBack" type="button">← Menu</button>
     <h2>Pokédex</h2>
     <p class="lede" id="dexSub"></p>
     <div class="dexGrid" id="dexGrid"></div>
@@ -237,6 +252,3 @@
 <!-- @include js/34-fork-debug.js -->
 })();
 </script>
-
-</body>
-</html>

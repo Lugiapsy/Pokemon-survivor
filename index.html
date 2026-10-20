@@ -1,11 +1,4 @@
-<!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
-</head>
-<body>
+<meta charset="utf-8"><!-- fork : encodage déclaré, sinon les accents s'affichent mal hors de GitHub Pages -->
 <title>Pokémon Survivor</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -228,6 +221,58 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
 }
 @keyframes turnPhone { 0%, 30% { transform: rotate(0); } 60%, 100% { transform: rotate(-90deg); } }
 .fsBtn[hidden] { display: none !important; }
+/* Choix du starter : carrousel + fiches façon jeu Pokémon */
+.sCar { width:100%; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.sTabs { display:flex; gap:6px; align-items:center; }
+.sTabs .lbl { font:600 11px var(--body); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-dim); margin-right:4px; }
+.sTabs button { font:700 13px var(--body); padding:5px 14px; border-radius:8px 8px 0 0; background:var(--panel); color:var(--ink-dim); border:2px solid var(--panel-edge); border-bottom:0; cursor:pointer; }
+.sTabs button[aria-selected="true"] { background:#2c4a36; color:var(--ink); border-color:var(--accent); }
+.sTabs button i { font:9px var(--num); font-style:normal; opacity:.7; margin-left:5px; }
+.sTabs .cnt { font:600 11px var(--body); letter-spacing:.1em; color:var(--ink-dim); margin-left:6px; }
+.sRow { display:flex; align-items:center; justify-content:center; width:100%; gap:14px; }
+.sSide { flex:1; max-width:220px; display:flex; flex-direction:column; align-items:center; gap:2px; background:none; border:0; color:var(--ink-dim); cursor:pointer; opacity:.4; filter:saturate(.4); transition:opacity .15s; font:inherit; }
+.sSide:hover, .sSide.padfocus, .sSide:focus-visible { opacity:.75; outline:none; }
+.sSide canvas { width:150px; height:112px; image-rendering:pixelated; } .sSide b { font:800 16px var(--body); }
+.sSide.lk canvas { filter:brightness(0) opacity(.6); }
+.sArrow { font:700 46px var(--display); color:var(--accent); text-shadow:0 4px 0 #b0661e; background:none; border:0; cursor:pointer; padding:0 6px; line-height:1; }
+.sArrow:hover { transform:scale(1.12); } .sArrow:focus-visible, .sArrow.padfocus { outline:3px solid var(--ink); outline-offset:2px; border-radius:8px; }
+.sMid { width:min(830px, 100%); display:flex; flex-direction:column; align-items:center; gap:4px; }
+.sStage { position:relative; width:300px; height:180px; }
+.sStage canvas { image-rendering:pixelated; position:absolute; left:50%; top:-12px; width:280px; height:210px; transform:translateX(-50%); z-index:2; }
+.sAura { position:absolute; left:50%; top:44%; width:220px; height:220px; transform:translate(-50%, -50%); border-radius:50%; background:radial-gradient(circle, rgba(var(--ca),.55), rgba(var(--ca),.18) 50%, transparent 70%); }
+.sPed { position:absolute; left:50%; bottom:6px; width:220px; height:34px; transform:translateX(-50%); border-radius:50%; background:radial-gradient(#3c5a46, #1a2a20); border:2px solid #4d7058; z-index:1; }
+.sStage.lk canvas { filter:brightness(0) opacity(.6); } .sStage.lk .sAura { opacity:.25; }
+.sName { margin:0; font:800 32px var(--body); display:flex; align-items:center; gap:10px; } .sName .chip { font-size:12px; }
+.sMu { margin:0; font-size:14px; color:var(--ink-dim); } .sMu b { color:var(--c); }
+.sLock { margin:0; font-weight:700; color:var(--accent); font-size:14px; max-width:60ch; }
+.pk { display:grid; grid-template-columns:minmax(0, 330px) minmax(0, 470px); gap:16px; margin-top:4px; width:100%; justify-content:center; text-align:left; }
+.pkbox { background:#f4f1e4; color:#2a2a2a; border-radius:14px; border:3px solid #6b5a3a; box-shadow:inset 0 0 0 3px #fff, 0 6px 0 rgba(0,0,0,.35); padding:10px 14px; }
+.pkh { font:700 15px var(--display); background:var(--c); color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.35); margin:-10px -14px 8px; padding:6px 14px; border-radius:10px 10px 0 0; letter-spacing:.04em; display:flex; justify-content:space-between; text-transform:uppercase; }
+.pst { display:grid; grid-template-columns:96px 52px 1fr; align-items:center; gap:6px; font:700 13px var(--body); padding:3px 0; border-bottom:1px dashed #d6ceb6; }
+.pst .v { font:11px var(--num); text-align:right; } .pst .bb { height:7px; background:#ddd5bd; border-radius:4px; overflow:hidden; } .pst .bb i { display:block; height:100%; background:#58b45a; }
+.pst.up > span:first-child { color:#c8402a; }
+.tal { margin-top:8px; font:12px var(--body); color:#4a4434; background:#fff3dc; border-radius:8px; padding:6px 8px; line-height:1.35; } .tal b { color:#c8402a; }
+.mvs { display:flex; flex-direction:column; gap:4px; }
+.mv { display:grid; grid-template-columns:62px 1fr auto; align-items:center; gap:8px; padding:3px 6px; border-radius:8px; background:#fff; border:2px solid #e2dbc4; }
+.mv .ty { font:800 9px var(--body); text-transform:uppercase; color:#fff; text-align:center; border-radius:5px; padding:3px 0; text-shadow:0 1px 0 rgba(0,0,0,.3); }
+.mv b { font:800 14px var(--body); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .mv small { display:block; font:400 11px var(--body); color:#6a6455; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mv > div { min-width:0; }
+.mv .tg { font:700 9px var(--body); padding:2px 6px; border-radius:99px; background:#f6c845; color:#2a2310; white-space:nowrap; } .mv .tg.r { background:#7a5cf0; color:#fff; } .mv .tg.a { background:#5a9ef0; color:#fff; }
+.mvs.many { display:grid; grid-template-columns:1fr 1fr; } .mvs.many small { display:none; }
+.sGo { margin-top:10px; } .sGo:disabled { opacity:.45; cursor:not-allowed; }
+.sDots { display:flex; gap:6px; justify-content:center; margin-top:6px; } .sDots i { width:9px; height:9px; border-radius:50%; background:var(--panel-edge); cursor:pointer; } .sDots i.on { background:var(--accent); width:24px; border-radius:6px; }
+.regLbl { font:600 11px var(--body); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-dim); align-self:center; }
+@media (max-width: 900px) { .sSide { display:none; } .pk { grid-template-columns:1fr; } }
+@media (orientation: landscape) and (max-height: 520px) {
+  .sSide { display:none; } .sArrow { font-size:32px; }
+  .sStage { width:150px; height:96px; } .sStage canvas { width:140px; height:105px; top:-8px; } .sAura { width:120px; height:120px; } .sPed { width:110px; height:18px; bottom:2px; }
+  .sName { font-size:20px; } .sMu, .sLock { font-size:11px; }
+  .pk { gap:8px; grid-template-columns:minmax(0, 260px) minmax(0, 420px); } .pkbox { padding:6px 10px; } .pkh { font-size:12px; margin:-6px -10px 4px; padding:3px 10px; }
+  .pst { font-size:11px; padding:1px 0; grid-template-columns:72px 40px 1fr; } .pst .v { font-size:9px; } .tal { font-size:10px; margin-top:4px; padding:3px 6px; }
+  .mvs { display:grid; grid-template-columns:1fr 1fr; gap:3px; } .mv { padding:1px 4px; gap:4px; grid-template-columns:44px 1fr auto; } .mv b { font-size:11px; } .mv small { display:none; } .mv .ty { font-size:7px; }
+  .sGo { margin-top:4px; } .sDots { margin-top:2px; }
+}
+
 /* ---------- Fork (Lugiapsy) : menu d'accueil, paramètres, mentions légales ---------- */
 .forkHome { background:
   radial-gradient(circle at 50% 22%, rgba(246,200,69,.16), transparent 42%),
@@ -363,11 +408,30 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v135)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v141)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
-    <div class="cards" id="starterCards"></div>
+    <div class="sCar" id="sCar">
+      <div class="sTabs" id="sTabs" role="tablist" aria-label="Starters"></div>
+      <div class="sRow">
+        <button class="sSide" id="sPrev" type="button" aria-label="Starter précédent"><canvas width="150" height="112"></canvas><b></b></button>
+        <button class="sArrow" id="sLeft" type="button" aria-label="Starter précédent">◀</button>
+        <div class="sMid">
+          <div class="sStage"><div class="sAura" id="sAura"></div><div class="sPed"></div><canvas id="sBig" width="280" height="210"></canvas></div>
+          <h3 class="sName"><span id="sName"></span> <span class="chip" id="sChip"></span></h3>
+          <p class="sMu" id="sMu"></p><p class="sLock" id="sLock" hidden></p>
+          <div class="pk">
+            <div class="pkbox"><div class="pkh"><span>Stats</span><span id="sEvo"></span></div><div id="sStats"></div><div class="tal" id="sTal"></div></div>
+            <div class="pkbox"><div class="pkh"><span>Attaques</span><span id="sMvN"></span></div><div class="mvs" id="sMoves"></div></div>
+          </div>
+          <button class="btn sGo" id="sGo" type="button">▶ Choisir</button>
+          <div class="sDots" id="sDots"></div>
+        </div>
+        <button class="sArrow" id="sRight" type="button" aria-label="Starter suivant">▶</button>
+        <button class="sSide" id="sNext" type="button" aria-label="Starter suivant"><canvas width="150" height="112"></canvas><b></b></button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -393,6 +457,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
 
 <div class="overlay" id="shop" hidden>
   <div class="sheet">
+    <button class="lvbtn homeBack" id="shopBack" type="button">← Menu</button>
     <h2>Marchand</h2>
     <p class="lede">Améliorations permanentes, payées avec les Pokédollars des paliers du Pokédex.</p>
     <span class="tag money" id="shopMoney">0 ₽</span>
@@ -403,6 +468,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
 
 <div class="overlay" id="ach" hidden>
   <div class="sheet">
+    <button class="lvbtn homeBack" id="achBack" type="button">← Menu</button>
     <h2>Succès</h2>
     <p class="lede" id="achSub"></p>
     <div class="shopList" id="achList"></div>
@@ -422,6 +488,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
 
 <div class="overlay" id="dex" hidden>
   <div class="sheet">
+    <button class="lvbtn homeBack" id="dexBack" type="button">← Menu</button>
     <h2>Pokédex</h2>
     <p class="lede" id="dexSub"></p>
     <div class="dexGrid" id="dexGrid"></div>
@@ -486,22 +553,30 @@ const PICKS = { // objets lâchés par les arbres à baies (forêt) et les roche
   flute:{ name:"Poké Flûte", src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA3ElEQVRYw+2WMQ6DMAxFGRk5QtYcgZGVkSN05BoZew2O0DVjj9CVY7C6/ZE+taqudqQ2lqww5T1jG9F1LVr8eoQQBFkN/NgucrvOvhKAbX1/wtM6+QkQvsdYTnc4KkbllFiHwUdAw5d5LM9V4Dhd+/6t8ipwl8q520xCXSrX65VzFpGjnG6VAy4pleSOU8K857j8/oJqAUpAwHzg+AbYAib23E2A0w4oZZCmHxs97XrVKIHTTACXpiWeqaedYPPqAZ7GtwSnXadp3ylACfc/m882VP21qgJv0eIv4gkMdzTYJunxRgAAAABJRU5ErkJggg==" }, aimant:{ name:"Aimant géant", src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA10lEQVRYw+2VMQ6GIAxGPUqvwRUYGbmGV2Fk/MeOroye6/unKjTiYiUx4Us6YfoeWGVZZmZmvhwigq6hYC6M9EtNvS7SA1+JDINz4e5pvAr30Tel17mwjQQRATkB+dythmsJee6xQA2X6sHNBa7gq3MNsP4ENVzWn733EIBSDngtIM3v5sNEQKoWkMbOrUgZSBmHhD4hc4EruJSeCXOBO7hzqx28lvDRg0NoGhIRYtyw7ye8FjD/CemGIiBVCwy5lHoCQ29ELTAMrucjxm08/G4+ZmZmPpU/ubLZMafRC4UAAAAASUVORK5CYII=" } };
 for (const k in PICKS) { PICKS[k].img = new Image(); PICKS[k].img.src = PICKS[k].src; }
 // Pokédex : K.O. cumulés par Pokémon, sauvegardés dans le navigateur. Chaque palier donne un petit bonus permanent.
-const DEX_TIERS = [10, 100, 1000, 10000], DEX_TIERS_BOSS = [1, 5, 25, 100];
+const DEX_TIERS = [10, 100, 1000, 10000], DEX_TIERS_BOSS = [1, 5, 10, 15];
 const DEX_MONEY = [50, 100, 500, 1000], DEX_MONEY_BOSS = [50, 200, 500, 1000]; // Pokédollars par palier
 let dexKills = {}, dexDirty = false;
 try { dexKills = JSON.parse(localStorage.getItem("pokesurv-dex") || "{}") || {}; } catch (e) { dexKills = {}; }
 function dexSave() { if (!dexDirty) return; dexDirty = false; try { localStorage.setItem("pokesurv-dex", JSON.stringify(dexKills)); } catch (e) {} cloudSoon(); }
-const dexTiers = kind => FOES[kind]?.boss ? DEX_TIERS_BOSS : DEX_TIERS;
+const dexBoss = d => !!(d && (d.boss || d.dexBoss)); // Ronflex : pas un boss en jeu, mais compté comme tel au Pokédex
+const dexTiers = kind => dexBoss(FOES[kind]) ? DEX_TIERS_BOSS : DEX_TIERS;
 const dexLevel = kind => dexTiers(kind).filter(n => (dexKills[kind] || 0) >= n).length;
 // Marchand : améliorations permanentes achetées avec les Pokédollars gagnés aux paliers du Pokédex
 const SHOP = [
-  { id:"hp",     name:"PV max",   per:"+2 %",  max:10, cost:() => 150 },
-  { id:"dmg",    name:"Dégâts",   per:"+2 %",  max:10, cost:() => 150 },
-  { id:"spd",    name:"Vitesse",  per:"+2 %",  max:10, cost:() => 150 },
-  { id:"slot",   name:"Capacité supplémentaire", per:"+1 emplacement de capacité (5, puis 6)", max:2, cost:lv => lv ? 2000 : 1000 },
-  { id:"scope",  name:"Scope Sylphe", per:"Révèle les Spectres de la Tour Pokémon : sans lui, ce sont des silhouettes « ??? » qui ne prennent que la moitié des dégâts.", max:1, once:true, cost:() => 500 },
-  { id:"reroll", name:"Relances", per:"+1 relance des choix par partie", max:5, cost:lv => Math.min(300, 100 * (lv + 1)) }, // 100, 200, puis 300
+  { id:"hp",     name:"PV max",   per:"+2 %",  max:10, cost:lv => 150 * (lv + 1) }, // 150, 300, 450… 1500
+  { id:"dmg",    name:"Dégâts",   per:"+2 %",  max:10, cost:lv => 150 * (lv + 1) }, // 150, 300, 450… 1500
+  { id:"spd",    name:"Vitesse",  per:"+2 %",  max:10, cost:lv => 150 * (lv + 1) }, // 150, 300, 450… 1500
+  { id:"slot",   name:"Capacité supplémentaire", per:"+1 emplacement de capacité (5, puis 6)", max:2, cost:lv => lv ? 4000 : 2000 },
+  { id:"scope",  name:"Scope Sylphe", per:"Révèle les Spectres de la Tour Pokémon : sans lui, ce sont des silhouettes « ??? » qui ne prennent que la moitié des dégâts.", max:1, once:true, cost:() => 1000 },
+  { id:"reroll", name:"Relances", per:"+1 relance des choix par partie", max:5, cost:lv => Math.min(600, 200 * (lv + 1)) }, // 200, 400, puis 600
+  // Johto débloqué (achs.win9) : objets permanents
+  { id:"rappel", johto:true, name:"Rappel", per:"Te ranime une fois par partie à 50 % des PV quand tu es K.O. (pas en Nuzlocke).", max:1, once:true, cost:() => 50000 },
+  { id:"depipe", johto:true, name:"Dé Pipé", per:"+1 projectile pour les capacités qui en lancent, à chaque partie.", max:1, once:true, cost:() => 25000 },
+  { id:"loupe", johto:true, name:"Loupe", per:"Zone des capacités +1 %", max:10, cost:lv => 2500 + 500 * lv }, // 2500, 3000… 7000
+  { id:"veste", johto:true, name:"Veste de Combat", per:"Dégâts subis −1 par coup", max:3, cost:lv => 5000 * (lv + 1) }, // 5000, 10000, 15000
+  { id:"lentil", johto:true, name:"Lentilscope", per:"Coups critiques +1 %", max:10, cost:lv => 2500 + 500 * lv },
 ];
+const shopList = () => SHOP.filter(u => !u.johto || achs.win9);
 let shop = {};
 try { shop = JSON.parse(localStorage.getItem("pokesurv-shop") || "{}") || {}; } catch (e) { shop = {}; }
 const scopeOn = () => !!shop.scope && !shop.scopeOff; // Scope Sylphe acheté et activé
@@ -509,7 +584,7 @@ const shopSave = () => { try { localStorage.setItem("pokesurv-shop", JSON.string
 const shopCost = u => u.cost(shop[u.id] || 0);
 function moneyEarned() {
   let m = 0;
-  for (const kind in dexKills) if (FOES[kind]) { const pay = FOES[kind].boss ? DEX_MONEY_BOSS : DEX_MONEY; for (let i = 0; i < dexLevel(kind); i++) m += pay[i]; }
+  for (const kind in dexKills) if (FOES[kind]) { const pay = dexBoss(FOES[kind]) ? DEX_MONEY_BOSS : DEX_MONEY; for (let i = 0; i < dexLevel(kind); i++) m += pay[i]; }
   return m;
 }
 // Succès : rapportent des Pokédollars, certains débloquent des starters
@@ -627,7 +702,7 @@ function closeCareer() { $("career").hidden = true; $("start").hidden = false; s
 const money = () => moneyEarned() + achMoney() - (shop.spent || 0);
 function openShop() {
   $("shopMoney").textContent = `${money().toLocaleString("fr-FR")} ₽`;
-  $("shopList").innerHTML = SHOP.map(u => {
+  $("shopList").innerHTML = shopList().map(u => {
     const lv = shop[u.id] || 0, full = lv >= u.max, cost = shopCost(u);
     return `<div class="shopRow"><div><b>${u.name}</b><small>${u.once ? u.per : `${u.per} par rang · rang ${lv}/${u.max}`}</small><span class="pips">${"★".repeat(lv)}${"☆".repeat(u.max - lv)}</span></div>
       ${u.id === "scope" && full ? `<button class="btn small" type="button" data-scope aria-pressed="${scopeOn()}">${scopeOn() ? "Activé" : "Désactivé"}</button>` : `<button class="btn small${full ? "" : " price"}" type="button" data-buy="${u.id}" ${full || cost > money() ? "disabled" : ""}>${full ? (u.once ? "Acheté" : "Max") : `${cost} ₽`}</button>`}</div>`;
@@ -649,7 +724,7 @@ function dexCount(f) {
   const k = f.kind, n = (dexKills[k] || 0) + 1; dexKills[k] = n; dexDirty = true;
   if (typeof NET !== "undefined" && NET.role === "host" && NET.started) (NET.dexQ ||= {})[k] = (NET.dexQ[k] || 0) + 1; // envoyé aux invités
   const i = dexTiers(k).indexOf(n);
-  if (i >= 0) { const gain = (f.d.boss ? DEX_MONEY_BOSS : DEX_MONEY)[i]; S.earned = (S.earned || 0) + gain;
+  if (i >= 0) { const gain = (dexBoss(f.d) ? DEX_MONEY_BOSS : DEX_MONEY)[i]; S.earned = (S.earned || 0) + gain;
     S.texts.push({ x:S.P.x, y:S.P.y - 52, txt:`Pokédex : ${n} ${foeName(f.d)} ! +${gain} ₽`, col:"#f6c845", life:2.4, label:true }); }
 }
 const DEX_CW = 112, DEX_CH = 96, DEX_SC = 2; // case d'image du Pokédex et agrandissement commun
@@ -664,14 +739,15 @@ function dexBox(sh) { // rectangle réellement dessiné dans la 1re image (sans 
 function openDex() {
   const grid = $("dexGrid"); grid.innerHTML = "";
   $("dexSub").innerHTML = `Chaque palier de K.O. d'un Pokémon rapporte des Pokédollars à dépenser chez le Marchand : ${DEX_TIERS.map((n, i) => `${n} K.O. → ${DEX_MONEY[i]} ₽`).join(", ")}.<br>Boss : ${DEX_TIERS_BOSS.map((n, i) => `${n} → ${DEX_MONEY_BOSS[i]} ₽`).join(", ")}. Total gagné : ${moneyEarned().toLocaleString("fr-FR")} ₽.`;
-  // Deux catégories : les Pokémon, triés par numéro de Pokédex, puis les boss (géants par numéro, Team Rocket, Ligue)
-  const DEX_ROCKET = ["jarbok", "jsmogogo", "jmiaouss"], DEX_LEAGUE = ["lgLokhlass", "lgMacko", "lgEcto", "lgDraco", "lgAlaka"];
+  // Deux catégories : les Pokémon, triés par numéro de Pokédex, puis les boss (géants par numéro, Mère Ossatueur, Team Rocket, Ligue)
+  const DEX_SPECIAL = ["mereossa", "jarbok", "jsmogogo", "jmiaouss"], DEX_LEAGUE = ["lgLokhlass", "lgMacko", "lgEcto", "lgDraco", "lgAlaka"];
   const dexNum = (kind, d) => { const v = DEX[d.sprite || kind]; return parseInt(Array.isArray(v) ? v[0] : v, 10) || 9999; };
   const shown = Object.entries(FOES).filter(([kind, d]) => !(kind === "berrytree" || kind === "crackrock" || kind === "urn" || kind === "crate" || d.hideDex || (d.johto && !achs.win9)));
-  const isBoss = kind => kind.startsWith("boss") || DEX_ROCKET.includes(kind) || DEX_LEAGUE.includes(kind);
+  const isGiant = kind => kind.startsWith("boss");
+  const isBoss = kind => isGiant(kind) || DEX_SPECIAL.includes(kind) || DEX_LEAGUE.includes(kind);
   const byNum = (a, b) => dexNum(...a) - dexNum(...b);
   const sections = [["Pokémon", shown.filter(([k]) => !isBoss(k)).sort(byNum)],
-    ["Boss", [...shown.filter(([k]) => k.startsWith("boss")).sort(byNum), ...[...DEX_ROCKET, ...DEX_LEAGUE].map(k => shown.find(([q]) => q === k)).filter(Boolean)]]];
+    ["Boss", [...shown.filter(([k]) => isGiant(k)).sort(byNum), ...[...DEX_SPECIAL, ...DEX_LEAGUE].map(k => shown.find(([q]) => q === k)).filter(Boolean)]]];
   for (const [title, list] of sections) {
     grid.insertAdjacentHTML("beforeend", `<h3 class="dexSection">${title} <small>${list.filter(([k]) => dexKills[k]).length} / ${list.length}</small></h3>`);
     for (const [kind, d] of list) {
@@ -1004,8 +1080,8 @@ const FOES = {
   mewtwoC:    { name:"Mewtwo", sprite:"mewtwo", types:["psy"], hp:14000, speed:104, dmg:40, r:50, xp:400, boss:true, mewtwo:true, cave:true, hideDex:true },
   kadabra:    { name:"Kadabra",    types:["psy"],              hp:72,  speed:66,  dmg:12, r:16, xp:6, ranged:true, shot:"psy", blink:true },
   metamorph:  { name:"Métamorph",  types:["normal"],           hp:85,  speed:86,  dmg:12, r:15, xp:7, ranged:true, ditto:true },
-  mereossa:   { name:"Mère Ossatueur", sprite:"ossatueur", types:["spectre"], hp:1000, speed:72, dmg:14, r:30, xp:0, ghost:true, spirit:true, mother:true, hideDex:true },
-  ronflex:    { name:"Ronflex", types:["normal"], hp:1100, speed:0, dmg:0, r:42, xp:0, event:true, solid:true },
+  mereossa:   { name:"Mère Ossatueur", sprite:"ossatueur", types:["spectre"], hp:1000, speed:72, dmg:14, r:30, xp:0, ghost:true, spirit:true, mother:true, dexBoss:true },
+  ronflex:    { name:"Ronflex", types:["normal"], hp:1100, speed:0, dmg:0, r:42, xp:0, event:true, solid:true, dexBoss:true },
   jarbok:     { name:"Arbok de Jessie", sprite:"arbok", types:["poison"], hp:520, speed:86, dmg:12, r:24, xp:24, mini:true, dash:true },
   jsmogogo:   { name:"Smogogo de James", sprite:"smogogo", types:["poison"], hp:520, speed:62, dmg:12, r:24, xp:24, mini:true, sludge:true },
   jmiaouss:   { name:"Miaouss de la Team Rocket", sprite:"rmiaouss", types:["normal"], hp:380, speed:98, dmg:10, r:20, xp:24, mini:true, ranged:true, shot:"normal" },
@@ -1652,6 +1728,7 @@ function mkPlayer(line, idx, n) {
     inv:0, dmgMul:L.dmg || 1, cdMul:L.cd || 1, magnet:70, regen:L.regen || 0, moves:{}, items:{}, dealt:0, evoFlash:0, pendingLv:0, spiky: line === "pika" && Math.random() < 1/30, shiny: (idx === 0 && secretShiny) || Math.random() < 1/30 };
   P.moves[L.move] = { lv:1, t:.3 };
   P.dmgMul *= 1 + .02 * (shop.dmg || 0); P.baseSpeed *= 1 + .02 * (shop.spd || 0); P.maxHp = P.hp = Math.round(P.maxHp * (1 + .02 * (shop.hp || 0))); // achats du Marchand
+  if (shop.rappel && !NUZ) P.revives = 1; // Rappel du Marchand
   if (P.spiky) P.moves.fatalfoudre = { lv:1, t:3 }; // 1 partie sur 30 avec Pichu
   return P;
 }
@@ -1683,15 +1760,15 @@ function newGame(line, mapK) {
 const pKind = () => (S.P.spiky ? "pichuspiky" : S.P.eform || S.P.line) + (S.P.shiny ? "_s" : "");
 const pName = () => S.P.spiky ? "Pichu Troizépi" : S.P.eform ? EEVEE[S.P.eform].name : LINES[S.P.line].names[S.P.stage];
 const IT = id => S.P.items[id] || 0;
-const AREA = () => 1 + .1 * IT("loupe") + .03 * IT("orbevie"), PSPD = () => 1 + .12 * IT("poudrevite") + .03 * IT("orbevie"), DUR = () => 1 + .12 * IT("lumargile") + .03 * IT("orbevie");
-const EXTRA = () => IT("depipe"), CURSE = () => 1 + .1 * IT("miel");
+const AREA = () => 1 + .1 * IT("loupe") + .01 * (shop.loupe || 0) + .03 * IT("orbevie"), PSPD = () => 1 + .12 * IT("poudrevite") + .03 * IT("orbevie"), DUR = () => 1 + .12 * IT("lumargile") + .03 * IT("orbevie");
+const EXTRA = () => IT("depipe") + (shop.depipe || 0), CURSE = () => 1 + .1 * IT("miel");
 const MAX_ITEMS = 6, MAX_MOVES = () => 4 + (shop.slot || 0); // 4 capacités comme dans les jeux, +1 ou +2 achetées au Marchand
 function hurtP(v) {
   const P = S.P;
   if (P.choosing) return false; // en ligne : intangible pendant son choix
   if (P.shieldT > 0) return false; // Protection (Germignon)
   if (P.line === "draco") v *= .9; // Multiécaille : −10 % de dégâts reçus
-  P.hp -= Math.max(1, v - IT("veste")); P.inv = .5; S.bossClean = false; sfx("hurt");
+  P.hp -= Math.max(1, v - IT("veste") - (shop.veste || 0)); P.inv = .5; S.bossClean = false; sfx("hurt");
   try { (P.gp || pad.gp)?.vibrationActuator?.playEffect("dual-rumble", { duration:120, strongMagnitude:.35, weakMagnitude:.25 }); } catch (e) {}
   if (P.hp > 0) return false;
   if (P.revives > 0) {
@@ -2255,6 +2332,7 @@ function updateManor(dt) {
 }
 function motherCalm(f) {
   const P = S.P; S.mother = null; sfx("evo");
+  dexCount(f); // l'apaiser compte au Pokédex (catégorie Boss)
   banner(f.calm ? `Le Spectre s'apaise et s'évanouit… C'était la Mère Ossatueur. Elle te bénit avant de rejoindre son petit.`
                 : "L'esprit de la Mère Ossatueur est apaisé. Elle te bénit avant de rejoindre son petit…");
   if (S.nuz) { for (let i = 0; i < 10; i++) S.gems.push({ x:f.x + (Math.random() - .5) * 90, y:f.y + (Math.random() - .5) * 70, v:4 }); } // Nuzlocke : pas de soin
@@ -2296,7 +2374,7 @@ function hitFoe(f, base, type, kx = 0, ky = 0, forceCrit = false) {
   if (f.d.mother && !scopeOn()) { maybeMsg(f, "Aucun effet…", "#c9c9c9"); return; } // Mère Ossatueur : intouchable sans Scope Sylphe
   S.P.orbHit = true;
   const m = eff(type, f.d.types);
-  const crit = forceCrit || Math.random() < .05 * IT("lentilscope") + (LINES[S.P.line].crit || 0);
+  const crit = forceCrit || Math.random() < .05 * IT("lentilscope") + .01 * (shop.lentil || 0) + (LINES[S.P.line].crit || 0);
   const dmg = (veiled(f.d) ? .5 : 1) * base * S.P.dmgMul * (S.P.dracoT > 0 ? S.P.dracoMul : 1) * m * (.9 + Math.random() * .2) * (crit ? 2 : 1) * (f.leerT > 0 ? f.leerMul : 1) * (f.shieldT > 0 ? .15 : 1) * (f.d.armor || 1) * (f.d.solidRock && m > 1 ? .75 : 1) * jBoost(type); // Rhinoféros / Rhinastoc : blindés
   if (m === 0) { maybeMsg(f, "Aucun effet…", "#c9c9c9"); return; }
   f.hp -= dmg; f.hurt = .12; S.P.dealt += dmg; sfx("hit");
@@ -5926,7 +6004,7 @@ function frame(now) {
 
 /* ---------- Écran titre ---------- */
 const starterOrder = ["plante", "feu", "eau", "miaouss", "pika", "evoli", "draco", "mew", "germignon", "heri", "kaiminus"];
-const previews = [], matchupEls = {}, levelBtns = [];
+const levelBtns = [];
 $("lgBtn").addEventListener("click", nextRoom);
 const levelOpen = i => i === 0 || !!achs[LEVELS[i].jFirst ? "win9" : "win" + i]; // un niveau se débloque en terminant le précédent (Johto : après la Caverne Azurée)
 const lvLabel = lv => lv.label || lv.num;
@@ -5938,12 +6016,13 @@ function setLevel(i) {
   $("levelTag").textContent = `${REGION === "johto" ? "Johto · " : ""}Niveau ${lvLabel(LEVEL)} · ${LEVEL.name}`;
   $("levelIntro").textContent = LEVEL.intro;
   if (LEVEL.league) { let hof = []; try { hof = JSON.parse(localStorage.getItem("pokesurv-hof") || "[]"); } catch (e) {} if (Array.isArray(hof) && hof[0]) $("levelIntro").textContent += ` Record du Panthéon : ${hof[0].n}, ${fmt(hof[0].t)}.`; }
-  for (const line in matchupEls) { const mu = LEVEL.matchup[line] || (LINES[line].own && LEVEL.matchup[LINES[line].type]) || ["Variable", "Métronome peut tirer n'importe quel type : chaque partie est une surprise."]; matchupEls[line].innerHTML = `<b>${mu[0]}</b> ${LEVEL.where}. ${mu[1]}`; }
+  if (typeof renderCar === "function") renderCar();
   if (typeof NET !== "undefined" && NET.role === "host" && !NET.started) setTimeout(netLobby, 0);
   levelBtns.forEach((b, k) => { b.setAttribute("aria-pressed", String(k === i)); const lv = LEVELS[k]; b.hidden = (!!lv.secret && !levelOpen(k)) || (lv.region || "kanto") !== REGION; b.classList.toggle("lvlocked", !levelOpen(k)); b.textContent = `${levelOpen(k) ? "" : "🔒 "}${lvLabel(lv)} · ${lv.name}`; });
-  for (const l in starterCardEls) starterCardEls[l].style.order = REGION === "johto" && LINES[l].own ? -1 : 0; // à Johto, ses starters en tête
   regionBtns.forEach(b => { b.hidden = !achs.win9; b.setAttribute("aria-pressed", String(b.dataset.r === REGION)); });
+  regLbl.hidden = !achs.win9;
 }
+const regLbl = document.createElement("span"); regLbl.className = "regLbl"; regLbl.textContent = "Aventure"; regLbl.hidden = true; $("levelPick").appendChild(regLbl); // la région choisit les niveaux, pas les starters
 const regionBtns = [["kanto", "🗾 Kanto"], ["johto", "🍃 Johto"]].map(([r, txt]) => { // choix de la région, une fois la Caverne Azurée gagnée
   const b = document.createElement("button"); b.type = "button"; b.className = "lvbtn regbtn"; b.dataset.r = r; b.textContent = txt; b.hidden = true;
   b.addEventListener("click", () => { if (r === REGION) return; const ks = LEVELS.map((lv, k) => k).filter(k => (LEVELS[k].region || "kanto") === r && levelOpen(k) && !(LEVELS[k].secret && !levelOpen(k))); setLevel(ks[ks.length - 1] ?? 0); });
@@ -5954,24 +6033,128 @@ LEVELS.forEach((lv, i) => {
   b.textContent = `${lvLabel(lv)} · ${lv.name}`; b.addEventListener("click", () => setLevel(i));
   $("levelPick").appendChild(b); levelBtns.push(b);
 });
-const starterCardEls = {};
+// Choix du starter : carrousel, fiche Stats et Attaques façon jeu Pokémon
+const TALENTS = { plante:["Engrais", "récupère 0,4 PV par seconde."], feu:["Brasier", "+10 % de dégâts."], eau:["Torrent", "capacités rechargées 8 % plus vite."],
+  pika:["Statik", "un ennemi qui le touche est paralysé 1 s."], evoli:["Adaptabilité", "+10 % d'expérience."], draco:["Multiécaille", "−10 % de dégâts reçus."],
+  mew:["Fabuleux", "+10 % de dégâts et de bons PV."], miaouss:["Technicien", "+10 % de coups critiques."], germignon:["Feuille Garde", "une aura soigne les alliés proches et ralentit les ennemis."],
+  heri:["Torche", "courir rend ses attaques Feu jusqu'à 40 % plus fortes."], kaiminus:["Sans Limite", "+15 % de dégâts au contact, chaque coup le soigne un peu."] };
+const lineMoves = line => { // capacités que ce starter peut apprendre (même règle que buildChoices, tous stades confondus)
+  const L = LINES[line], out = [];
+  for (const [id, m] of Object.entries(MOVES)) {
+    if (m.line && m.line !== line) continue;
+    const alt = m.alt && m.alt.line === line, also = (m.also || []).includes(line);
+    if (m.only && ![].concat(m.only).includes(L.type) && !alt && !also) continue;
+    if (m.only && L.own && !also) continue;
+    if (!m.only && !m.line) continue;
+    out.push([id, m, alt]);
+  }
+  return out.sort((a, b) => (b[0] === L.move) - (a[0] === L.move) || (a[1].tier || 0) - (b[1].tier || 0) || !!a[1].rare - !!b[1].rare);
+};
+const carVisible = () => starterOrder.filter(l => !(LINES[l].secret && !isUnlocked(l))); // Mew et Johto : invisibles tant qu'ils ne sont pas débloqués
+let carLine = starterOrder[0], ballAnim = null;
+function carMove(d) {
+  if (ballAnim) return; const v = carVisible(); let i = v.indexOf(carLine); if (i < 0) i = 0;
+  carLine = v[(i + d + v.length) % v.length]; renderCar(); sfx("click");
+  $("sGo").scrollIntoView({ block:"nearest", behavior:"smooth" }); // la fiche et le bouton restent à l'écran
+}
+function carGo(line) { if (!ballAnim && v_ok(line)) { carLine = line; renderCar(); } }
+const v_ok = l => carVisible().includes(l);
+function renderCar() {
+  const v = carVisible(); if (!v.includes(carLine)) carLine = v[0];
+  const line = carLine, L = LINES[line], i = v.indexOf(line), col = TYPE_COLORS[L.type], lock = ACHS.find(x => unlocks(x, line) && !achs[x.id]);
+  const hex = col.replace("#", ""), rgb = [0, 2, 4].map(k => parseInt(hex.slice(k, k + 2), 16)).join(",");
+  const car = $("sCar"); car.style.setProperty("--c", col); car.style.setProperty("--ca", rgb);
+  const lum = rgb.split(",").reduce((a, v, k) => a + v * [.3, .59, .11][k], 0); car.querySelectorAll(".pkh").forEach(h => { h.style.color = lum > 170 ? "#2a2310" : "#fff"; h.style.textShadow = lum > 170 ? "none" : ""; }); // en-tête lisible sur le jaune
+  const groups = [["Kanto", v.filter(l => !LINES[l].own)], ["Johto", v.filter(l => LINES[l].own)]].filter(g => g[1].length);
+  $("sTabs").innerHTML = `<span class="lbl">Starters</span>` + (groups.length > 1 ? groups.map(([n, ls]) => `<button type="button" role="tab" data-g="${ls[0]}" aria-selected="${ls.includes(line)}">${n}<i>${ls.length}</i></button>`).join("") : "") + `<span class="cnt">${i + 1} / ${v.length}</span>`;
+  $("sTabs").querySelectorAll("[data-g]").forEach(b => b.addEventListener("click", () => carGo(b.dataset.g)));
+  $("sName").textContent = lock ? "???" : L.names[0]; $("sChip").textContent = TYPE_NAMES[L.type]; $("sChip").style.background = col;
+  const mu = LEVEL.matchup[line] || (L.own && LEVEL.matchup[L.type]) || ["Variable", "Métronome peut tirer n'importe quel type : chaque partie est une surprise."];
+  $("sMu").innerHTML = `<b>${mu[0]}</b> ${LEVEL.where}. ${mu[1]}`;
+  $("sLock").hidden = !lock; $("sLock").textContent = lock ? `🔒 Succès « ${lock.name} » : ${lock.desc}` : "";
+  $("sEvo").textContent = "N.1";
+  const evo = line === "mew" ? "n'évolue pas, se renforce N.10 et N.22" : line === "evoli" ? "Pyroli, Aquali, Phyllali ou Voltali au N.10" : line === "miaouss" ? `${L.names[1]} au N.${EVO_LEVELS[0]}` : `${L.names[1]} au N.${EVO_LEVELS[0]}, ${L.names[2]} au N.${EVO_LEVELS[1]}`;
+  const st = [["PV", L.hp, L.hp / 56, false], ["Attaque", Math.round(100 * (L.dmg || 1)), (L.dmg || 1) / 1.2, (L.dmg || 1) > 1],
+    ["Vitesse", L.speed, (L.speed - 135) / 45, false], ["Recharge", Math.round(100 / (L.cd || 1)), (100 / (L.cd || 1) - 70) / 45, (L.cd || 1) < 1],
+    ["Critique", `${Math.round(100 * (L.crit || 0))} %`, (L.crit || 0) / .2, !!L.crit], ["Régén.", String(L.regen || 0).replace(".", ","), (L.regen || 0) / .8, !!L.regen]];
+  $("sStats").innerHTML = st.map(([n, val, f, up]) => `<div class="pst${up ? " up" : ""}"><span>${n}${up ? " ▲" : ""}</span><span class="v">${val}</span><div class="bb"><i style="width:${Math.round(Math.max(.06, Math.min(1, f)) * 100)}%"></i></div></div>`).join("");
+  const t = TALENTS[line]; $("sTal").innerHTML = (t ? `<b>Talent · ${t[0]}</b> : ${t[1]}<br>` : "") + `<b>Évolution</b> : ${evo}`;
+  const mv = lineMoves(line); $("sMvN").textContent = mv.length; $("sMoves").classList.toggle("many", mv.length > 7);
+  $("sMoves").innerHTML = mv.map(([id, m, alt]) => { const d = m.desc(1).split(/(?<=\.) /)[0].replace(/\.$/, "");
+    const tg = id === L.move ? `<span class="tg">Départ</span>` : m.rare ? `<span class="tg r">Rare N.${m.rare.minLvl}</span>` : alt ? `<span class="tg a">${L.names[m.alt.stage]}</span>` : m.tier ? `<span class="tg r" title="Proposé après Métronome ${m.tier - 1}">après M.${m.tier - 1}</span>` : "<span></span>";
+    return `<div class="mv"><span class="ty" style="background:${TYPE_COLORS[m.type] || "#888"}">${TYPE_NAMES[m.type] || m.type}</span><div><b>${m.name}</b><small>${d}</small></div>${m.tier === 1 ? "<span></span>" : tg}</div>`; }).join("");
+  $("sGo").disabled = !!lock; $("sGo").textContent = lock ? "🔒 Verrouillé" : `▶ Choisir ${L.names[0]}`;
+  $("sBig").parentElement.classList.toggle("lk", !!lock);
+  const side = (el, l) => { el.querySelector("b").textContent = isUnlocked(l) ? LINES[l].names[0] : "???"; el.classList.toggle("lk", !isUnlocked(l)); el.dataset.l = l; };
+  side($("sPrev"), v[(i - 1 + v.length) % v.length]); side($("sNext"), v[(i + 1) % v.length]);
+  $("sDots").innerHTML = v.map(l => `<i data-l="${l}" class="${l === line ? "on" : ""}" title="${isUnlocked(l) ? LINES[l].names[0] : "???"}"></i>`).join("");
+  $("sDots").querySelectorAll("i").forEach(d => d.addEventListener("click", () => carGo(d.dataset.l)));
+}
 function refreshLocks() {
   const cb = $("carBtn"); if (cb) cb.hidden = !achs.win8; // le Panthéon n'apparaît qu'après la victoire à la Ligue
-  for (const line in starterCardEls) {
-    const b = starterCardEls[line], a = ACHS.find(x => unlocks(x, line) && !achs[x.id]);
-    b.classList.toggle("locked", !!a); b.querySelector(".lockInfo").textContent = a ? `🔒 Succès « ${a.name} » : ${a.desc}` : "";
-    if (LINES[line].secret) b.hidden = !!a; // Mew : invisible tant qu'il n'est pas débloqué
-  }
+  renderCar();
 }
-starterOrder.forEach((line, i) => {
-  const L = LINES[line], b = document.createElement("button");
-  b.className = "card"; b.type = "button"; b.style.setProperty("--c", TYPE_COLORS[L.type]);
-  b.innerHTML = `<span class="key">${i+1}</span><canvas width="480" height="240"></canvas><div class="card-body"><h3>${L.names[0]} <span class="chip">${TYPE_NAMES[L.type]}</span></h3><p>${L.blurb}</p><p>Capacité : <b>${MOVES[L.move].name}</b> · ${L.evo || `évolue N.${EVO_LEVELS[0]} et N.${EVO_LEVELS[1]}`}</p><p class="lockInfo"></p><p class="matchup"></p></div>`;
-  b.addEventListener("click", () => pickStarter(line));
-  $("starterCards").appendChild(b); starterCardEls[line] = b;
-  previews.push([b.querySelector("canvas"), line]);
-  matchupEls[line] = b.querySelector(".matchup");
-});
+// Validation : la Poké Ball (Master Ball pour Mew) tombe, tremble et s'ouvre, puis la partie démarre
+function chooseStarter(line = carLine) {
+  if (ballAnim || !isUnlocked(line) || state !== "menu") return;
+  if (line !== carLine) { carLine = line; renderCar(); }
+  ballAnim = { line, t0:performance.now(), master: line === "mew", opened:false }; sfx("chest");
+}
+$("sGo").addEventListener("click", () => chooseStarter());
+$("sLeft").addEventListener("click", () => carMove(-1)); $("sRight").addEventListener("click", () => carMove(1));
+$("sPrev").addEventListener("click", () => carMove(-1)); $("sNext").addEventListener("click", () => carMove(1));
+$("sBig").addEventListener("click", () => chooseStarter());
+{ let sx = null; const st = $("sCar"); // mobile : glisser pour changer de starter
+  st.addEventListener("pointerdown", e => { sx = e.clientX; });
+  st.addEventListener("pointerup", e => { if (sx !== null && Math.abs(e.clientX - sx) > 50) carMove(e.clientX < sx ? 1 : -1); sx = null; }); }
+function drawBall(g, x, y, R, master, open, now) {
+  g.save(); g.translate(x, y); g.lineWidth = R * .14; g.strokeStyle = "#1a1a1a";
+  const top = master ? "#7a3fc8" : "#e8382c";
+  g.save(); g.rotate(-open * 1.1); g.translate(0, -open * R * .5); // moitié haute qui bascule à l'ouverture
+  g.beginPath(); g.arc(0, 0, R, Math.PI, 0); g.closePath(); g.fillStyle = top; g.fill(); g.stroke();
+  g.fillStyle = "rgba(255,255,255,.35)"; g.beginPath(); g.ellipse(-R * .42, -R * .55, R * .22, R * .12, -.6, 0, 7); g.fill();
+  if (master) { // bosses roses et « M »
+    g.fillStyle = "#f05ab4"; for (const s of [-1, 1]) { g.beginPath(); g.ellipse(s * R * .58, -R * .52, R * .2, R * .16, s * .5, 0, 7); g.fill(); g.stroke(); }
+    g.fillStyle = "#fff"; g.font = `bold ${R * .55}px "Pixelify Sans", sans-serif`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("M", 0, -R * .52);
+  }
+  g.restore();
+  g.beginPath(); g.arc(0, 0, R, 0, Math.PI); g.closePath(); g.fillStyle = "#f4f4f0"; g.fill(); g.stroke();
+  g.fillStyle = "#1a1a1a"; g.fillRect(-R, -R * .07, R * 2, R * .14);
+  g.beginPath(); g.arc(0, 0, R * .3, 0, 7); g.fillStyle = "#f4f4f0"; g.fill(); g.stroke();
+  g.beginPath(); g.arc(0, 0, R * .14, 0, 7); g.fillStyle = (now / 120 | 0) % 2 && !open ? "#ffe680" : "#fff"; g.fill();
+  g.restore();
+}
+function drawPreviews(now) {
+  if (state === "menu") {
+    // Canvas à la taille affichée et sprite agrandi d'un nombre entier de fois (×4) : pixels nets et réguliers
+    const c = $("sBig"), dpr = Math.min(2, Math.round(devicePixelRatio || 1)) || 1;
+    if (c.width !== 280 * dpr) { c.width = 280 * dpr; c.height = 210 * dpr; }
+    const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, 280, 210);
+    const line = ballAnim ? ballAnim.line : carLine, sp = sheetFor(line, 0), MX = 140, MY = sp ? 142 : 140, MR = sp ? 28 : 46; // ×4
+    if (!ballAnim) drawMon(g, line, MX, sp ? MY : MY + Math.sin(now / 300) * 3, MR, false, now / 1000, 0, 1, true);
+    else {
+      const t = (now - ballAnim.t0) / 1000, gy = 236, R = 34; g.save(); g.scale(.7, .7); // la Poké Ball est dessinée dans l'ancien repère 400×300
+      if (t < .45) { const k = t / .45, y = 20 + (gy - 20) * k * k - (k > .8 ? Math.sin((k - .8) / .2 * Math.PI) * 18 : 0); drawBall(g, 200, y, R, ballAnim.master, 0, now); }
+      else if (t < 1.25) { const k = (t - .45) / .8, wob = Math.sin(k * Math.PI * 3) * (1 - k) * .45; g.save(); g.translate(200, gy + R); g.rotate(wob); drawBall(g, 0, -R, R, ballAnim.master, 0, now); g.restore(); }
+      else {
+        if (!ballAnim.opened) { ballAnim.opened = true; sfx("evo"); }
+        const k = Math.min(1, (t - 1.25) / .45);
+        drawBall(g, 200, gy, R, ballAnim.master, Math.min(1, k * 2), now);
+        g.save(); g.globalCompositeOperation = "lighter"; const fl = g.createRadialGradient(200, gy - 40, 0, 200, gy - 40, 40 + 160 * k);
+        const fc = ballAnim.master ? "200,140,255" : "255,255,255"; fl.addColorStop(0, `rgba(${fc},${.9 * (1 - k)})`); fl.addColorStop(1, `rgba(${fc},0)`); g.fillStyle = fl; g.fillRect(0, 0, 400, 300); g.restore();
+        g.restore(); g.save(); g.globalAlpha = k; g.translate(MX, MY); g.scale(.3 + .7 * k, .3 + .7 * k); g.translate(-MX, -MY); drawMon(g, line, MX, MY, MR, false, now / 1000, 0, 1, true); g.restore();
+        if (t > 2.05) { const l = ballAnim.line; ballAnim = null; pickStarter(l); }
+      }
+      if (ballAnim && !ballAnim.opened) g.restore();
+    }
+    for (const id of ["sPrev", "sNext"]) {
+      const el = $(id), l = el.dataset.l; if (!l) continue; const cc = el.querySelector("canvas"), gg = cc.getContext("2d"), sp2 = sheetFor(l, 0);
+      if (cc.width !== 150 * dpr) { cc.width = 150 * dpr; cc.height = 112 * dpr; }
+      gg.setTransform(dpr, 0, 0, dpr, 0, 0); gg.clearRect(0, 0, 150, 112); drawMon(gg, l, 75, sp2 ? 64 : 66, sp2 ? 14 : 30, false, now / 1000, 0, 1, true); // ×2
+    }
+  }
+  requestAnimationFrame(drawPreviews);
+}
 setLevel(0);
 achCheck(); refreshLocks();
 // multijoueur local (2 à 4) : chaque joueur choisit son starter à tour de rôle
@@ -6004,14 +6187,6 @@ function pickStarter(line) {
 }
 $("mpBtn").addEventListener("click", () => setPlayers(NPL % 4 + 1));
 window.addEventListener("gamepadconnected", () => mpHint()); window.addEventListener("gamepaddisconnected", () => mpHint());
-function drawPreviews(now) {
-  if (state === "menu") for (const [c, line] of previews) {
-    const g = c.getContext("2d"); g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, 480, 240);
-    const sp = sheetFor(line, 0);
-    drawMon(g, line, 240, sp ? 108 : 118 + Math.sin(now / 300) * 3, sp ? 40 : 54, false, now / 1000, 0, 1, true);
-  }
-  requestAnimationFrame(drawPreviews);
-}
 requestAnimationFrame(drawPreviews);
 
 /* ---------- Entrées ---------- */
@@ -6021,7 +6196,10 @@ window.addEventListener("keydown", e => {
   if (e.code === "Escape" || e.code === "KeyP") togglePause();
   if (e.code === "KeyM") setMute(!AU.muted);
   const n = parseInt(e.key, 10);
-  if (state === "menu" && n >= 1 && n <= starterOrder.length) pickStarter(starterOrder[n - 1]);
+  const typing = e.target && /INPUT|TEXTAREA/.test(e.target.tagName);
+  if (state === "menu" && !typing && (e.code === "ArrowLeft" || e.code === "ArrowRight")) { e.preventDefault(); carMove(e.code === "ArrowLeft" ? -1 : 1); }
+  else if (state === "menu" && !typing && e.code === "Enter" && !(document.activeElement && document.activeElement.closest("button") && document.activeElement.id !== "sGo")) { e.preventDefault(); chooseStarter(); }
+  else if (state === "menu" && !typing && n >= 1 && n <= starterOrder.length && carVisible().includes(starterOrder[n - 1])) chooseStarter(starterOrder[n - 1]);
   else if (state === "levelup" && n >= 1 && n <= choices.length) applyChoice(choices[n - 1]);
   else if (state === "levelup" && e.code === "KeyR") reroll();
 });
@@ -6039,7 +6217,7 @@ for (const id of ["muteBtn", "muteBtn2"]) $(id).addEventListener("click", e => {
 $("nuzBtn").addEventListener("click", () => setNuz(!NUZ)); setNuz(NUZ);
 setMute(AU.muted);
 for (const ev of ["pointerdown", "keydown"]) window.addEventListener(ev, auInit, { capture:true });
-document.addEventListener("click", e => { if (e.target.closest(".card, .btn, .lvbtn")) sfx("click"); }); $("achClose").addEventListener("click", closeAch);
+document.addEventListener("click", e => { if (e.target.closest(".card, .btn:not(.sGo), .lvbtn")) sfx("click"); }); $("achClose").addEventListener("click", closeAch);
 for (const id of ["autoPot", "autoPot2"]) $(id).addEventListener("change", e => { autoPotion = e.target.checked; $("autoPot").checked = $("autoPot2").checked = autoPotion; try { localStorage.setItem("pokesurv-autopotion", autoPotion ? "1" : "0"); } catch (er) {} });
 $("autoPot2").checked = autoPotion; refreshMoneyTag(); $("dexClose").addEventListener("click", closeDex);
 $("chestBtn").addEventListener("click", closeChest);
@@ -6088,10 +6266,13 @@ function pollPad(dt) {
   const btns = overlayButtons(); if (!btns.length || !pad.used) return;
   const i = btns.indexOf(document.activeElement);
   if (i >= 0 && !btns[i].classList.contains("padfocus")) padFocus(btns, i);
+  if (state === "menu") { const hx = Math.abs(x) > .5 && Math.abs(x) > Math.abs(y) ? Math.sign(x) : 0;
+    if (!hx) { pad.crep = 0; pad.cheld = false; } else { pad.crep = (pad.crep || 0) - dt; if (pad.crep <= 0) { pad.crep = pad.cheld ? .2 : .4; pad.cheld = true; carMove(hx); } }
+    x = 0; }
   const dir = Math.abs(x) > .5 ? Math.sign(x) : Math.abs(y) > .5 ? Math.sign(y) : 0;
   if (!dir) { pad.rep = 0; pad.held = false; }
   else { pad.rep -= dt; if (pad.rep <= 0) { pad.rep = pad.held ? .16 : .35; pad.held = true; padFocus(btns, i < 0 ? btns.findIndex(b => b.classList.contains("card")) : i + dir); } }
-  if (hit(0)) { if (i < 0) padFocus(btns, Math.max(0, btns.findIndex(b => b.classList.contains("card")))); else btns[i].click(); }
+  if (hit(0)) { if (state === "menu" && i < 0) chooseStarter(); else if (i < 0) padFocus(btns, Math.max(0, btns.findIndex(b => b.classList.contains("card")))); else btns[i].click(); }
 }
 window.addEventListener("gamepadconnected", () => { pad.used = true; });
 
@@ -6104,7 +6285,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v135";
+const NET_VER = "v141";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -6236,7 +6417,7 @@ function netGuestDex(k) { // l'invité compte dans son Pokédex les K.O. de tout
     const d = FOES[kind]; if (!d) continue;
     for (let i = Math.min(2000, k[kind] | 0); i > 0; i--) {
       const n = dexKills[kind] = (dexKills[kind] || 0) + 1, t = dexTiers(kind).indexOf(n);
-      if (t >= 0) NET.earned += (d.boss ? DEX_MONEY_BOSS : DEX_MONEY)[t];
+      if (t >= 0) NET.earned += (dexBoss(d) ? DEX_MONEY_BOSS : DEX_MONEY)[t];
     }
   }
   dexDirty = true; dexSave();
@@ -6468,7 +6649,7 @@ function netUpdateCheck() {
     location.replace(location.pathname + "?v=" + encodeURIComponent(v) + location.hash); return true;
   }).catch(() => false);
 }
-const FORK_VER = "01"; // version du fork de Lugiapsy (interface), +1 à chaque mise à jour du fork
+const FORK_VER = "02"; // version du fork de Lugiapsy (interface), +1 à chaque mise à jour du fork
 $("verTag").textContent = "Version " + NET_VER.slice(1) + " · Fork " + FORK_VER; // affichée en bas de l'écran d'accueil
 // Sauvegarde en ligne (GitHub Pages seulement) : connexion Google + Firestore (projet Firebase de Raphaël, formule gratuite).
 // Document saves/{uid} = { dex, shop, ach } en JSON. À la connexion, on fusionne la progression locale et celle du nuage
@@ -6476,7 +6657,7 @@ $("verTag").textContent = "Version " + NET_VER.slice(1) + " · Fork " + FORK_VER
 const FIREBASE_CFG = { apiKey:"AIzaSyB4YIUasyNSXSgx7pipdRwipAyAtlPMudM", authDomain:"pokemon-survivor-neo.firebaseapp.com", projectId:"pokemon-survivor-neo",
   storageBucket:"pokemon-survivor-neo.firebasestorage.app", messagingSenderId:"1004214351055", appId:"1:1004214351055:web:525503bb4e34d6d4e633ba" };
 var CLOUD = { fb:null, user:null, ready:false, timer:0, busy:false };
-function cloudSoon() { if (!CLOUD.user || !CLOUD.ready) return; clearTimeout(CLOUD.timer); CLOUD.timer = setTimeout(cloudPush, 2500); }
+function cloudSoon() { if (!CLOUD || !CLOUD.user || !CLOUD.ready) return; /* CLOUD pas encore créé si un succès tombe au chargement */ clearTimeout(CLOUD.timer); CLOUD.timer = setTimeout(cloudPush, 2500); }
 function shopSpentFor(sh) { let m = 0; for (const u of SHOP) for (let lv = 0; lv < (sh[u.id] || 0); lv++) m += u.cost(lv); return m; }
 function mergeSave(a, b) { // a, b : { dex, shop, ach }
   const dex = { ...a.dex }; for (const k in b.dex) dex[k] = Math.max(dex[k] || 0, b.dex[k] || 0);
@@ -6562,6 +6743,7 @@ $("homeMulti").addEventListener("click", () => goPlay(true));
 $("homeSettings").addEventListener("click", () => showPage("settings", "settings"));
 $("homeLegal").addEventListener("click", () => showPage("legal", "legal"));
 for (const id of ["shopBtn", "dexBtn", "achBtn"]) $(id).addEventListener("click", () => { $("home").hidden = true; });
+$("shopBack").addEventListener("click", closeShop); $("dexBack").addEventListener("click", closeDex); $("achBack").addEventListener("click", closeAch); // bouton ← Menu en haut à gauche
 for (const id of ["startBack", "settingsClose", "legalClose"]) $(id).addEventListener("click", () => { if (id === "startBack" && NET.role) netClose(); goHome(); });
 window.addEventListener("keydown", e => { // Échap : retour au menu depuis les pages du menu
   if (e.code !== "Escape") return;
@@ -6693,6 +6875,3 @@ function dbgAuto(now) {
 })();
 })();
 </script>
-
-</body>
-</html>

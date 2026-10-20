@@ -7,6 +7,31 @@ Fork de [neocrizis/Pokemon-survivor](https://github.com/neocrizis/Pokemon-surviv
 
 ---
 
+## MAJ-002 · Fork 02 (base : v141 de Neo)
+
+### Mises à jour de Neo intégrées (v136 → v141)
+- Nouveau choix du starter : carrousel, fiches Stats et Attaques, onglets Kanto/Johto, Poké Ball et Master Ball.
+- Marchand : nouveaux prix, objets permanents de Johto (Rappel, Dé Pipé, Loupe, Veste de Combat, Lentilscope).
+- Pokédex : Ronflex compte comme boss pour les récompenses, paliers des boss 1 / 5 / 10 / 15.
+- Fusion : le carrousel garde le bouton « ← Menu » du fork ; crédits et aide restent dans Mentions légales et Paramètres.
+
+### Corrections
+- **Accents** : la v141 n'a plus d'en-tête de page ; ajout de `<meta charset="utf-8">` en tête, sinon les accents s'affichent mal hors de GitHub Pages (en local, en double-cliquant le fichier).
+- **Mère Ossatueur** : l'apaiser compte désormais au Pokédex (`dexCount` dans `motherCalm`) ; avant, sa case restait noire pour toujours.
+- `tools/split.py` trouve le style principal même sans `<head>`.
+
+### Pokédex
+- Catégorie **Boss** (30) : géants par numéro de Pokédex, puis **Mère Ossatueur** (de retour, paliers de boss), puis Arbok de Jessie, Smogogo de James, Miaouss de la Team Rocket, puis la Ligue.
+- **Ronflex** reste dans la catégorie Pokémon (n° 143), avec les paliers de boss de Neo.
+
+### Menus
+- Magasin, Pokédex et Succès : bouton **« ← Menu »** en haut à gauche, comme l'écran de choix (le bouton « Retour » du bas reste).
+
+### Notes pour l'intégration chez Neo
+- À lui signaler : l'encodage manquant (`<meta charset="utf-8">`) et la Mère Ossatueur jamais comptée au Pokédex.
+
+---
+
 ## MAJ-001 · Fork 01 (base : v135 de Neo)
 
 ### Organisation du code

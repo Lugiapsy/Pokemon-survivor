@@ -20,6 +20,7 @@ $("homeMulti").addEventListener("click", () => goPlay(true));
 $("homeSettings").addEventListener("click", () => showPage("settings", "settings"));
 $("homeLegal").addEventListener("click", () => showPage("legal", "legal"));
 for (const id of ["shopBtn", "dexBtn", "achBtn"]) $(id).addEventListener("click", () => { $("home").hidden = true; });
+$("shopBack").addEventListener("click", closeShop); $("dexBack").addEventListener("click", closeDex); $("achBack").addEventListener("click", closeAch); // bouton ← Menu en haut à gauche
 for (const id of ["startBack", "settingsClose", "legalClose"]) $(id).addEventListener("click", () => { if (id === "startBack" && NET.role) netClose(); goHome(); });
 window.addEventListener("keydown", e => { // Échap : retour au menu depuis les pages du menu
   if (e.code !== "Escape") return;

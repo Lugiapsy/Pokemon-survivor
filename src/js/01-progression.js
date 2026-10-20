@@ -1,20 +1,28 @@
 // Pokédex : K.O. cumulés par Pokémon, sauvegardés dans le navigateur. Chaque palier donne un petit bonus permanent.
-const DEX_TIERS = [10, 100, 1000, 10000], DEX_TIERS_BOSS = [1, 5, 25, 100];
+const DEX_TIERS = [10, 100, 1000, 10000], DEX_TIERS_BOSS = [1, 5, 10, 15];
 const DEX_MONEY = [50, 100, 500, 1000], DEX_MONEY_BOSS = [50, 200, 500, 1000]; // Pokédollars par palier
 let dexKills = {}, dexDirty = false;
 try { dexKills = JSON.parse(localStorage.getItem("pokesurv-dex") || "{}") || {}; } catch (e) { dexKills = {}; }
 function dexSave() { if (!dexDirty) return; dexDirty = false; try { localStorage.setItem("pokesurv-dex", JSON.stringify(dexKills)); } catch (e) {} cloudSoon(); }
-const dexTiers = kind => FOES[kind]?.boss ? DEX_TIERS_BOSS : DEX_TIERS;
+const dexBoss = d => !!(d && (d.boss || d.dexBoss)); // Ronflex : pas un boss en jeu, mais compté comme tel au Pokédex
+const dexTiers = kind => dexBoss(FOES[kind]) ? DEX_TIERS_BOSS : DEX_TIERS;
 const dexLevel = kind => dexTiers(kind).filter(n => (dexKills[kind] || 0) >= n).length;
 // Marchand : améliorations permanentes achetées avec les Pokédollars gagnés aux paliers du Pokédex
 const SHOP = [
-  { id:"hp",     name:"PV max",   per:"+2 %",  max:10, cost:() => 150 },
-  { id:"dmg",    name:"Dégâts",   per:"+2 %",  max:10, cost:() => 150 },
-  { id:"spd",    name:"Vitesse",  per:"+2 %",  max:10, cost:() => 150 },
-  { id:"slot",   name:"Capacité supplémentaire", per:"+1 emplacement de capacité (5, puis 6)", max:2, cost:lv => lv ? 2000 : 1000 },
-  { id:"scope",  name:"Scope Sylphe", per:"Révèle les Spectres de la Tour Pokémon : sans lui, ce sont des silhouettes « ??? » qui ne prennent que la moitié des dégâts.", max:1, once:true, cost:() => 500 },
-  { id:"reroll", name:"Relances", per:"+1 relance des choix par partie", max:5, cost:lv => Math.min(300, 100 * (lv + 1)) }, // 100, 200, puis 300
+  { id:"hp",     name:"PV max",   per:"+2 %",  max:10, cost:lv => 150 * (lv + 1) }, // 150, 300, 450… 1500
+  { id:"dmg",    name:"Dégâts",   per:"+2 %",  max:10, cost:lv => 150 * (lv + 1) }, // 150, 300, 450… 1500
+  { id:"spd",    name:"Vitesse",  per:"+2 %",  max:10, cost:lv => 150 * (lv + 1) }, // 150, 300, 450… 1500
+  { id:"slot",   name:"Capacité supplémentaire", per:"+1 emplacement de capacité (5, puis 6)", max:2, cost:lv => lv ? 4000 : 2000 },
+  { id:"scope",  name:"Scope Sylphe", per:"Révèle les Spectres de la Tour Pokémon : sans lui, ce sont des silhouettes « ??? » qui ne prennent que la moitié des dégâts.", max:1, once:true, cost:() => 1000 },
+  { id:"reroll", name:"Relances", per:"+1 relance des choix par partie", max:5, cost:lv => Math.min(600, 200 * (lv + 1)) }, // 200, 400, puis 600
+  // Johto débloqué (achs.win9) : objets permanents
+  { id:"rappel", johto:true, name:"Rappel", per:"Te ranime une fois par partie à 50 % des PV quand tu es K.O. (pas en Nuzlocke).", max:1, once:true, cost:() => 50000 },
+  { id:"depipe", johto:true, name:"Dé Pipé", per:"+1 projectile pour les capacités qui en lancent, à chaque partie.", max:1, once:true, cost:() => 25000 },
+  { id:"loupe", johto:true, name:"Loupe", per:"Zone des capacités +1 %", max:10, cost:lv => 2500 + 500 * lv }, // 2500, 3000… 7000
+  { id:"veste", johto:true, name:"Veste de Combat", per:"Dégâts subis −1 par coup", max:3, cost:lv => 5000 * (lv + 1) }, // 5000, 10000, 15000
+  { id:"lentil", johto:true, name:"Lentilscope", per:"Coups critiques +1 %", max:10, cost:lv => 2500 + 500 * lv },
 ];
+const shopList = () => SHOP.filter(u => !u.johto || achs.win9);
 let shop = {};
 try { shop = JSON.parse(localStorage.getItem("pokesurv-shop") || "{}") || {}; } catch (e) { shop = {}; }
 const scopeOn = () => !!shop.scope && !shop.scopeOff; // Scope Sylphe acheté et activé
@@ -22,7 +30,7 @@ const shopSave = () => { try { localStorage.setItem("pokesurv-shop", JSON.string
 const shopCost = u => u.cost(shop[u.id] || 0);
 function moneyEarned() {
   let m = 0;
-  for (const kind in dexKills) if (FOES[kind]) { const pay = FOES[kind].boss ? DEX_MONEY_BOSS : DEX_MONEY; for (let i = 0; i < dexLevel(kind); i++) m += pay[i]; }
+  for (const kind in dexKills) if (FOES[kind]) { const pay = dexBoss(FOES[kind]) ? DEX_MONEY_BOSS : DEX_MONEY; for (let i = 0; i < dexLevel(kind); i++) m += pay[i]; }
   return m;
 }
 // Succès : rapportent des Pokédollars, certains débloquent des starters
@@ -140,7 +148,7 @@ function closeCareer() { $("career").hidden = true; $("start").hidden = false; s
 const money = () => moneyEarned() + achMoney() - (shop.spent || 0);
 function openShop() {
   $("shopMoney").textContent = `${money().toLocaleString("fr-FR")} ₽`;
-  $("shopList").innerHTML = SHOP.map(u => {
+  $("shopList").innerHTML = shopList().map(u => {
     const lv = shop[u.id] || 0, full = lv >= u.max, cost = shopCost(u);
     return `<div class="shopRow"><div><b>${u.name}</b><small>${u.once ? u.per : `${u.per} par rang · rang ${lv}/${u.max}`}</small><span class="pips">${"★".repeat(lv)}${"☆".repeat(u.max - lv)}</span></div>
       ${u.id === "scope" && full ? `<button class="btn small" type="button" data-scope aria-pressed="${scopeOn()}">${scopeOn() ? "Activé" : "Désactivé"}</button>` : `<button class="btn small${full ? "" : " price"}" type="button" data-buy="${u.id}" ${full || cost > money() ? "disabled" : ""}>${full ? (u.once ? "Acheté" : "Max") : `${cost} ₽`}</button>`}</div>`;
@@ -162,7 +170,7 @@ function dexCount(f) {
   const k = f.kind, n = (dexKills[k] || 0) + 1; dexKills[k] = n; dexDirty = true;
   if (typeof NET !== "undefined" && NET.role === "host" && NET.started) (NET.dexQ ||= {})[k] = (NET.dexQ[k] || 0) + 1; // envoyé aux invités
   const i = dexTiers(k).indexOf(n);
-  if (i >= 0) { const gain = (f.d.boss ? DEX_MONEY_BOSS : DEX_MONEY)[i]; S.earned = (S.earned || 0) + gain;
+  if (i >= 0) { const gain = (dexBoss(f.d) ? DEX_MONEY_BOSS : DEX_MONEY)[i]; S.earned = (S.earned || 0) + gain;
     S.texts.push({ x:S.P.x, y:S.P.y - 52, txt:`Pokédex : ${n} ${foeName(f.d)} ! +${gain} ₽`, col:"#f6c845", life:2.4, label:true }); }
 }
 const DEX_CW = 112, DEX_CH = 96, DEX_SC = 2; // case d'image du Pokédex et agrandissement commun
@@ -177,14 +185,15 @@ function dexBox(sh) { // rectangle réellement dessiné dans la 1re image (sans 
 function openDex() {
   const grid = $("dexGrid"); grid.innerHTML = "";
   $("dexSub").innerHTML = `Chaque palier de K.O. d'un Pokémon rapporte des Pokédollars à dépenser chez le Marchand : ${DEX_TIERS.map((n, i) => `${n} K.O. → ${DEX_MONEY[i]} ₽`).join(", ")}.<br>Boss : ${DEX_TIERS_BOSS.map((n, i) => `${n} → ${DEX_MONEY_BOSS[i]} ₽`).join(", ")}. Total gagné : ${moneyEarned().toLocaleString("fr-FR")} ₽.`;
-  // Deux catégories : les Pokémon, triés par numéro de Pokédex, puis les boss (géants par numéro, Team Rocket, Ligue)
-  const DEX_ROCKET = ["jarbok", "jsmogogo", "jmiaouss"], DEX_LEAGUE = ["lgLokhlass", "lgMacko", "lgEcto", "lgDraco", "lgAlaka"];
+  // Deux catégories : les Pokémon, triés par numéro de Pokédex, puis les boss (géants par numéro, Mère Ossatueur, Team Rocket, Ligue)
+  const DEX_SPECIAL = ["mereossa", "jarbok", "jsmogogo", "jmiaouss"], DEX_LEAGUE = ["lgLokhlass", "lgMacko", "lgEcto", "lgDraco", "lgAlaka"];
   const dexNum = (kind, d) => { const v = DEX[d.sprite || kind]; return parseInt(Array.isArray(v) ? v[0] : v, 10) || 9999; };
   const shown = Object.entries(FOES).filter(([kind, d]) => !(kind === "berrytree" || kind === "crackrock" || kind === "urn" || kind === "crate" || d.hideDex || (d.johto && !achs.win9)));
-  const isBoss = kind => kind.startsWith("boss") || DEX_ROCKET.includes(kind) || DEX_LEAGUE.includes(kind);
+  const isGiant = kind => kind.startsWith("boss");
+  const isBoss = kind => isGiant(kind) || DEX_SPECIAL.includes(kind) || DEX_LEAGUE.includes(kind);
   const byNum = (a, b) => dexNum(...a) - dexNum(...b);
   const sections = [["Pokémon", shown.filter(([k]) => !isBoss(k)).sort(byNum)],
-    ["Boss", [...shown.filter(([k]) => k.startsWith("boss")).sort(byNum), ...[...DEX_ROCKET, ...DEX_LEAGUE].map(k => shown.find(([q]) => q === k)).filter(Boolean)]]];
+    ["Boss", [...shown.filter(([k]) => isGiant(k)).sort(byNum), ...[...DEX_SPECIAL, ...DEX_LEAGUE].map(k => shown.find(([q]) => q === k)).filter(Boolean)]]];
   for (const [title, list] of sections) {
     grid.insertAdjacentHTML("beforeend", `<h3 class="dexSection">${title} <small>${list.filter(([k]) => dexKills[k]).length} / ${list.length}</small></h3>`);
     for (const [kind, d] of list) {

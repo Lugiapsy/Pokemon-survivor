@@ -151,6 +151,7 @@ function updateManor(dt) {
 }
 function motherCalm(f) {
   const P = S.P; S.mother = null; sfx("evo");
+  dexCount(f); // l'apaiser compte au Pokédex (catégorie Boss)
   banner(f.calm ? `Le Spectre s'apaise et s'évanouit… C'était la Mère Ossatueur. Elle te bénit avant de rejoindre son petit.`
                 : "L'esprit de la Mère Ossatueur est apaisé. Elle te bénit avant de rejoindre son petit…");
   if (S.nuz) { for (let i = 0; i < 10; i++) S.gems.push({ x:f.x + (Math.random() - .5) * 90, y:f.y + (Math.random() - .5) * 70, v:4 }); } // Nuzlocke : pas de soin
