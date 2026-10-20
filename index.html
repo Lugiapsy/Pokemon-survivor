@@ -231,13 +231,13 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
 .sRow { display:flex; align-items:center; justify-content:center; width:100%; gap:14px; }
 .sSide { flex:1; max-width:220px; display:flex; flex-direction:column; align-items:center; gap:2px; background:none; border:0; color:var(--ink-dim); cursor:pointer; opacity:.4; filter:saturate(.4); transition:opacity .15s; font:inherit; }
 .sSide:hover, .sSide.padfocus, .sSide:focus-visible { opacity:.75; outline:none; }
-.sSide canvas { width:150px; height:112px; } .sSide b { font:800 16px var(--body); }
+.sSide canvas { width:150px; height:112px; image-rendering:pixelated; } .sSide b { font:800 16px var(--body); }
 .sSide.lk canvas { filter:brightness(0) opacity(.6); }
 .sArrow { font:700 46px var(--display); color:var(--accent); text-shadow:0 4px 0 #b0661e; background:none; border:0; cursor:pointer; padding:0 6px; line-height:1; }
 .sArrow:hover { transform:scale(1.12); } .sArrow:focus-visible, .sArrow.padfocus { outline:3px solid var(--ink); outline-offset:2px; border-radius:8px; }
 .sMid { width:min(830px, 100%); display:flex; flex-direction:column; align-items:center; gap:4px; }
 .sStage { position:relative; width:300px; height:180px; }
-.sStage canvas { position:absolute; left:50%; top:-12px; width:280px; height:210px; transform:translateX(-50%); z-index:2; }
+.sStage canvas { image-rendering:pixelated; position:absolute; left:50%; top:-12px; width:280px; height:210px; transform:translateX(-50%); z-index:2; }
 .sAura { position:absolute; left:50%; top:44%; width:220px; height:220px; transform:translate(-50%, -50%); border-radius:50%; background:radial-gradient(circle, rgba(var(--ca),.55), rgba(var(--ca),.18) 50%, transparent 70%); }
 .sPed { position:absolute; left:50%; bottom:6px; width:220px; height:34px; transform:translateX(-50%); border-radius:50%; background:radial-gradient(#3c5a46, #1a2a20); border:2px solid #4d7058; z-index:1; }
 .sStage.lk canvas { filter:brightness(0) opacity(.6); } .sStage.lk .sAura { opacity:.25; }
@@ -264,7 +264,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
 @media (max-width: 900px) { .sSide { display:none; } .pk { grid-template-columns:1fr; } }
 @media (orientation: landscape) and (max-height: 520px) {
   .sSide { display:none; } .sArrow { font-size:32px; }
-  .sStage { width:150px; height:96px; } .sStage canvas { width:150px; height:112px; } .sAura { width:120px; height:120px; } .sPed { width:110px; height:18px; bottom:2px; }
+  .sStage { width:150px; height:96px; } .sStage canvas { width:140px; height:105px; top:-8px; } .sAura { width:120px; height:120px; } .sPed { width:110px; height:18px; bottom:2px; }
   .sName { font-size:20px; } .sMu, .sLock { font-size:11px; }
   .pk { gap:8px; grid-template-columns:minmax(0, 260px) minmax(0, 420px); } .pkbox { padding:6px 10px; } .pkh { font-size:12px; margin:-6px -10px 4px; padding:3px 10px; }
   .pst { font-size:11px; padding:1px 0; grid-template-columns:72px 40px 1fr; } .pst .v { font-size:9px; } .tal { font-size:10px; margin-top:4px; padding:3px 6px; }
@@ -298,17 +298,17 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v139)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v140)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
     <div class="sCar" id="sCar">
       <div class="sTabs" id="sTabs" role="tablist" aria-label="Starters"></div>
       <div class="sRow">
-        <button class="sSide" id="sPrev" type="button" aria-label="Starter précédent"><canvas width="240" height="180"></canvas><b></b></button>
+        <button class="sSide" id="sPrev" type="button" aria-label="Starter précédent"><canvas width="150" height="112"></canvas><b></b></button>
         <button class="sArrow" id="sLeft" type="button" aria-label="Starter précédent">◀</button>
         <div class="sMid">
-          <div class="sStage"><div class="sAura" id="sAura"></div><div class="sPed"></div><canvas id="sBig" width="400" height="300"></canvas></div>
+          <div class="sStage"><div class="sAura" id="sAura"></div><div class="sPed"></div><canvas id="sBig" width="280" height="210"></canvas></div>
           <h3 class="sName"><span id="sName"></span> <span class="chip" id="sChip"></span></h3>
           <p class="sMu" id="sMu"></p><p class="sLock" id="sLock" hidden></p>
           <div class="pk">
@@ -319,7 +319,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
           <div class="sDots" id="sDots"></div>
         </div>
         <button class="sArrow" id="sRight" type="button" aria-label="Starter suivant">▶</button>
-        <button class="sSide" id="sNext" type="button" aria-label="Starter suivant"><canvas width="240" height="180"></canvas><b></b></button>
+        <button class="sSide" id="sNext" type="button" aria-label="Starter suivant"><canvas width="150" height="112"></canvas><b></b></button>
       </div>
     </div>
     <p class="credits">Sprites : <a href="https://sprites.pmdcollab.org/" target="_blank" rel="noopener">PMD Sprite Repository</a> (SpriteCollab, CC BY-NC 4.0), originaux de Spike Chunsoft pour Pokémon Donjon Mystère, avec retouches de la communauté. Pokémon © Nintendo, Creatures, Game Freak. Jeu de fan non commercial.<br><span class="verTag" id="verTag"></span></p>
@@ -5978,11 +5978,14 @@ function drawBall(g, x, y, R, master, open, now) {
 }
 function drawPreviews(now) {
   if (state === "menu") {
-    const c = $("sBig"), g = c.getContext("2d"); g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, 400, 300);
-    const line = ballAnim ? ballAnim.line : carLine, sp = sheetFor(line, 0);
-    if (!ballAnim) drawMon(g, line, 200, sp ? 178 : 190 + Math.sin(now / 300) * 4, sp ? 62 : 80, false, now / 1000, 0, 1, true);
+    // Canvas à la taille affichée et sprite agrandi d'un nombre entier de fois (×4) : pixels nets et réguliers
+    const c = $("sBig"), dpr = Math.min(2, Math.round(devicePixelRatio || 1)) || 1;
+    if (c.width !== 280 * dpr) { c.width = 280 * dpr; c.height = 210 * dpr; }
+    const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, 280, 210);
+    const line = ballAnim ? ballAnim.line : carLine, sp = sheetFor(line, 0), MX = 140, MY = sp ? 142 : 140, MR = sp ? 28 : 46; // ×4
+    if (!ballAnim) drawMon(g, line, MX, sp ? MY : MY + Math.sin(now / 300) * 3, MR, false, now / 1000, 0, 1, true);
     else {
-      const t = (now - ballAnim.t0) / 1000, gy = 236, R = 34;
+      const t = (now - ballAnim.t0) / 1000, gy = 236, R = 34; g.save(); g.scale(.7, .7); // la Poké Ball est dessinée dans l'ancien repère 400×300
       if (t < .45) { const k = t / .45, y = 20 + (gy - 20) * k * k - (k > .8 ? Math.sin((k - .8) / .2 * Math.PI) * 18 : 0); drawBall(g, 200, y, R, ballAnim.master, 0, now); }
       else if (t < 1.25) { const k = (t - .45) / .8, wob = Math.sin(k * Math.PI * 3) * (1 - k) * .45; g.save(); g.translate(200, gy + R); g.rotate(wob); drawBall(g, 0, -R, R, ballAnim.master, 0, now); g.restore(); }
       else {
@@ -5991,13 +5994,15 @@ function drawPreviews(now) {
         drawBall(g, 200, gy, R, ballAnim.master, Math.min(1, k * 2), now);
         g.save(); g.globalCompositeOperation = "lighter"; const fl = g.createRadialGradient(200, gy - 40, 0, 200, gy - 40, 40 + 160 * k);
         const fc = ballAnim.master ? "200,140,255" : "255,255,255"; fl.addColorStop(0, `rgba(${fc},${.9 * (1 - k)})`); fl.addColorStop(1, `rgba(${fc},0)`); g.fillStyle = fl; g.fillRect(0, 0, 400, 300); g.restore();
-        g.save(); g.globalAlpha = k; g.translate(200, 178); g.scale(.3 + .7 * k, .3 + .7 * k); g.translate(-200, -178); drawMon(g, line, 200, sp ? 178 : 190, sp ? 62 : 80, false, now / 1000, 0, 1, true); g.restore();
+        g.restore(); g.save(); g.globalAlpha = k; g.translate(MX, MY); g.scale(.3 + .7 * k, .3 + .7 * k); g.translate(-MX, -MY); drawMon(g, line, MX, MY, MR, false, now / 1000, 0, 1, true); g.restore();
         if (t > 2.05) { const l = ballAnim.line; ballAnim = null; pickStarter(l); }
       }
+      if (ballAnim && !ballAnim.opened) g.restore();
     }
     for (const id of ["sPrev", "sNext"]) {
       const el = $(id), l = el.dataset.l; if (!l) continue; const cc = el.querySelector("canvas"), gg = cc.getContext("2d"), sp2 = sheetFor(l, 0);
-      gg.setTransform(1, 0, 0, 1, 0, 0); gg.clearRect(0, 0, 240, 180); drawMon(gg, l, 120, sp2 ? 108 : 112, sp2 ? 40 : 52, false, now / 1000, 0, 1, true);
+      if (cc.width !== 150 * dpr) { cc.width = 150 * dpr; cc.height = 112 * dpr; }
+      gg.setTransform(dpr, 0, 0, dpr, 0, 0); gg.clearRect(0, 0, 150, 112); drawMon(gg, l, 75, sp2 ? 64 : 66, sp2 ? 14 : 30, false, now / 1000, 0, 1, true); // ×2
     }
   }
   requestAnimationFrame(drawPreviews);
@@ -6132,7 +6137,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v139";
+const NET_VER = "v140";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
