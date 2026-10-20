@@ -6,7 +6,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v143";
+const NET_VER = "v145";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -185,11 +185,11 @@ function netRep(k, v) {
   }
   return v;
 }
-function netSnap() {
-  const c = S.cam, near = o => !o || typeof o.x !== "number" || (Math.abs(o.x - c.x) < 1400 && Math.abs(o.y - c.y) < 1000);
+function netSnap(c = S.cam) {
+  const near = o => !o || typeof o.x !== "number" || (Math.abs(o.x - c.x) < 1400 && Math.abs(o.y - c.y) < 1000);
   const out = {};
   for (const k in S) { if (NET_SKIP.has(k)) continue; const v = S[k]; out[k] = Array.isArray(v) ? v.filter(near) : v; }
-  out.players = S.players; out.texts = (out.texts || []).slice(-60);
+  out.cam = c; out.players = S.players; out.texts = (out.texts || []).slice(-60);
   // Pokémon : [espèce, x, y, direction + 8 si retourné, id, PV en %, extras]
   out.fz = S.foes.filter(f => f.hp > 0 && Math.abs(f.x - c.x) < 1050 && Math.abs(f.y - c.y) < 700).map(f => {
     const a = [FOE_KEYS.indexOf(f.kind), Math.round(f.x), Math.round(f.y), (f.dir || 0) + (f.flip ? 8 : 0), f.id || 0, Math.max(0, Math.min(100, Math.round(f.hp / f.maxHp * 100)))];
@@ -244,7 +244,7 @@ function netInput() {
 function netFrame(now, dt) {
   chooseTimer();
   if (NET.role === "host" && NET.started && S && NET.conns.length) {
-    NET.sendT -= dt; if (NET.sendT <= 0) { NET.sendT = 1 / 15; netAll("S" + netSnap()); } // 15 fois par seconde
+    NET.sendT -= dt; if (NET.sendT <= 0) { NET.sendT = 1 / 15; for (const g of NET.conns) { const p = S.players[g.idx]; netTo(g, "S" + netSnap(p ? camFor(p) : S.cam)); } } // chacun reçoit ce qui entoure sa caméra // 15 fois par seconde
     if ((NET.dexT = (NET.dexT || 0) - dt) <= 0) { NET.dexT = 2; netDexFlush(); }
   }
   if (NET.role === "guest" && NET.started) {

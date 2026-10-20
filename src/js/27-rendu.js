@@ -264,7 +264,11 @@ function drawMinimap(P) {
     g.beginPath(); g.arc(P.x + dx, P.y + dy, 105 * pulse, 0, Math.PI * 2); g.fillStyle = col; g.fill();
     g.lineWidth = 28; g.strokeStyle = "#fff"; g.stroke();
   }
-  if (S.players.length > 1) for (const p of S.players) { g.fillStyle = PCOL[p.idx]; g.globalAlpha = p.down ? .5 : 1; g.beginPath(); g.arc(p.x, p.y, 70, 0, Math.PI * 2); g.fill(); g.globalAlpha = 1; } // un point par joueur
+  if (S.players.length > 1) for (const p of S.players) { // un point par joueur ; collé au bord s'il est loin
+    let dx = p.x - P.x, dy = p.y - P.y; const l = Math.hypot(dx, dy) || 1; if (l > 1000) { dx *= 1000 / l; dy *= 1000 / l; }
+    g.fillStyle = PCOL[p.idx]; g.globalAlpha = p.down ? .5 : 1; g.beginPath(); g.arc(P.x + dx, P.y + dy, p === P ? 85 : 70, 0, Math.PI * 2); g.fill();
+    if (p === P) { g.lineWidth = 24; g.strokeStyle = "#fff"; g.stroke(); } g.globalAlpha = 1;
+  }
   g.restore();
   if (S.players.length === 1) { g.fillStyle = "#fff"; g.beginPath(); g.arc(R2, R2, 3.5, 0, Math.PI * 2); g.fill(); }
   g.strokeStyle = "rgba(255,255,255,.25)"; g.lineWidth = 1.5; g.beginPath(); g.arc(R2, R2, R2 - 1, 0, Math.PI * 2); g.stroke();
@@ -786,10 +790,11 @@ function render(now) {
   if (S.journal) arrowTo(S.journal.x, S.journal.y, `rgba(255,240,200,${.7 + .3 * Math.sin(t * 6)})`);
   if (S.dracoJump) arrowTo(S.dracoJump.tx, S.dracoJump.ty, `rgba(130,180,255,${.7 + .3 * Math.sin(t * 6)})`);
   for (const f of S.foes) if (f.d.rare && f.hp > 0) arrowTo(f.x, f.y, `rgba(255,170,200,${.7 + .3 * Math.sin(t * 6)})`);
+  if (NET.started) for (const p of S.players) if (p.idx !== (NET.role === "guest" ? NET.idx : 0)) arrowTo(p.x, p.y, PCOL[p.idx]); // en ligne : coéquipiers hors de l'écran
   const vg = cx.createRadialGradient(W/2, H/2, Math.min(W, H) * .35, W/2, H/2, Math.max(W, H) * .75);
   vg.addColorStop(0, "rgba(10,20,12,0)"); vg.addColorStop(1, "rgba(6,16,8,.5)"); cx.fillStyle = vg; cx.fillRect(0, 0, W, H);
   drawLight(t);
-  mmT -= 1; if (mmT <= 0 && state === "play") { drawMinimap(CAM); mmT = 6; }
+  mmT -= 1; if (mmT <= 0 && (state === "play" || state === "netplay")) { drawMinimap(NET.started ? S.players[NET.role === "guest" ? NET.idx : 0] || CAM : CAM); mmT = 6; }
   if (S.msgs[0]) {
     const m = S.msgs[0], bw = Math.min(W - 32, 520), bx = (W - bw) / 2, by = H - 124 - Math.max(0, S.foes.filter(f => f.d.boss).length - 1) * 38;
     cx.globalAlpha = Math.min(1, m.life * 2);
