@@ -246,7 +246,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v137)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v138)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -374,7 +374,14 @@ const SHOP = [
   { id:"slot",   name:"Capacité supplémentaire", per:"+1 emplacement de capacité (5, puis 6)", max:2, cost:lv => lv ? 4000 : 2000 },
   { id:"scope",  name:"Scope Sylphe", per:"Révèle les Spectres de la Tour Pokémon : sans lui, ce sont des silhouettes « ??? » qui ne prennent que la moitié des dégâts.", max:1, once:true, cost:() => 1000 },
   { id:"reroll", name:"Relances", per:"+1 relance des choix par partie", max:5, cost:lv => Math.min(600, 200 * (lv + 1)) }, // 200, 400, puis 600
+  // Johto débloqué (achs.win9) : objets permanents
+  { id:"rappel", johto:true, name:"Rappel", per:"Te ranime une fois par partie à 50 % des PV quand tu es K.O. (pas en Nuzlocke).", max:1, once:true, cost:() => 50000 },
+  { id:"depipe", johto:true, name:"Dé Pipé", per:"+1 projectile pour les capacités qui en lancent, à chaque partie.", max:1, once:true, cost:() => 25000 },
+  { id:"loupe", johto:true, name:"Loupe", per:"Zone des capacités +1 %", max:10, cost:lv => 2500 + 500 * lv }, // 2500, 3000… 7000
+  { id:"veste", johto:true, name:"Veste de Combat", per:"Dégâts subis −1 par coup", max:3, cost:lv => 5000 * (lv + 1) }, // 5000, 10000, 15000
+  { id:"lentil", johto:true, name:"Lentilscope", per:"Coups critiques +1 %", max:10, cost:lv => 2500 + 500 * lv },
 ];
+const shopList = () => SHOP.filter(u => !u.johto || achs.win9);
 let shop = {};
 try { shop = JSON.parse(localStorage.getItem("pokesurv-shop") || "{}") || {}; } catch (e) { shop = {}; }
 const scopeOn = () => !!shop.scope && !shop.scopeOff; // Scope Sylphe acheté et activé
@@ -500,7 +507,7 @@ function closeCareer() { $("career").hidden = true; $("start").hidden = false; s
 const money = () => moneyEarned() + achMoney() - (shop.spent || 0);
 function openShop() {
   $("shopMoney").textContent = `${money().toLocaleString("fr-FR")} ₽`;
-  $("shopList").innerHTML = SHOP.map(u => {
+  $("shopList").innerHTML = shopList().map(u => {
     const lv = shop[u.id] || 0, full = lv >= u.max, cost = shopCost(u);
     return `<div class="shopRow"><div><b>${u.name}</b><small>${u.once ? u.per : `${u.per} par rang · rang ${lv}/${u.max}`}</small><span class="pips">${"★".repeat(lv)}${"☆".repeat(u.max - lv)}</span></div>
       ${u.id === "scope" && full ? `<button class="btn small" type="button" data-scope aria-pressed="${scopeOn()}">${scopeOn() ? "Activé" : "Désactivé"}</button>` : `<button class="btn small${full ? "" : " price"}" type="button" data-buy="${u.id}" ${full || cost > money() ? "disabled" : ""}>${full ? (u.once ? "Acheté" : "Max") : `${cost} ₽`}</button>`}</div>`;
@@ -1503,6 +1510,7 @@ function mkPlayer(line, idx, n) {
     inv:0, dmgMul:L.dmg || 1, cdMul:L.cd || 1, magnet:70, regen:L.regen || 0, moves:{}, items:{}, dealt:0, evoFlash:0, pendingLv:0, spiky: line === "pika" && Math.random() < 1/30, shiny: (idx === 0 && secretShiny) || Math.random() < 1/30 };
   P.moves[L.move] = { lv:1, t:.3 };
   P.dmgMul *= 1 + .02 * (shop.dmg || 0); P.baseSpeed *= 1 + .02 * (shop.spd || 0); P.maxHp = P.hp = Math.round(P.maxHp * (1 + .02 * (shop.hp || 0))); // achats du Marchand
+  if (shop.rappel && !NUZ) P.revives = 1; // Rappel du Marchand
   if (P.spiky) P.moves.fatalfoudre = { lv:1, t:3 }; // 1 partie sur 30 avec Pichu
   return P;
 }
@@ -1534,15 +1542,15 @@ function newGame(line, mapK) {
 const pKind = () => (S.P.spiky ? "pichuspiky" : S.P.eform || S.P.line) + (S.P.shiny ? "_s" : "");
 const pName = () => S.P.spiky ? "Pichu Troizépi" : S.P.eform ? EEVEE[S.P.eform].name : LINES[S.P.line].names[S.P.stage];
 const IT = id => S.P.items[id] || 0;
-const AREA = () => 1 + .1 * IT("loupe") + .03 * IT("orbevie"), PSPD = () => 1 + .12 * IT("poudrevite") + .03 * IT("orbevie"), DUR = () => 1 + .12 * IT("lumargile") + .03 * IT("orbevie");
-const EXTRA = () => IT("depipe"), CURSE = () => 1 + .1 * IT("miel");
+const AREA = () => 1 + .1 * IT("loupe") + .01 * (shop.loupe || 0) + .03 * IT("orbevie"), PSPD = () => 1 + .12 * IT("poudrevite") + .03 * IT("orbevie"), DUR = () => 1 + .12 * IT("lumargile") + .03 * IT("orbevie");
+const EXTRA = () => IT("depipe") + (shop.depipe || 0), CURSE = () => 1 + .1 * IT("miel");
 const MAX_ITEMS = 6, MAX_MOVES = () => 4 + (shop.slot || 0); // 4 capacités comme dans les jeux, +1 ou +2 achetées au Marchand
 function hurtP(v) {
   const P = S.P;
   if (P.choosing) return false; // en ligne : intangible pendant son choix
   if (P.shieldT > 0) return false; // Protection (Germignon)
   if (P.line === "draco") v *= .9; // Multiécaille : −10 % de dégâts reçus
-  P.hp -= Math.max(1, v - IT("veste")); P.inv = .5; S.bossClean = false; sfx("hurt");
+  P.hp -= Math.max(1, v - IT("veste") - (shop.veste || 0)); P.inv = .5; S.bossClean = false; sfx("hurt");
   try { (P.gp || pad.gp)?.vibrationActuator?.playEffect("dual-rumble", { duration:120, strongMagnitude:.35, weakMagnitude:.25 }); } catch (e) {}
   if (P.hp > 0) return false;
   if (P.revives > 0) {
@@ -2147,7 +2155,7 @@ function hitFoe(f, base, type, kx = 0, ky = 0, forceCrit = false) {
   if (f.d.mother && !scopeOn()) { maybeMsg(f, "Aucun effet…", "#c9c9c9"); return; } // Mère Ossatueur : intouchable sans Scope Sylphe
   S.P.orbHit = true;
   const m = eff(type, f.d.types);
-  const crit = forceCrit || Math.random() < .05 * IT("lentilscope") + (LINES[S.P.line].crit || 0);
+  const crit = forceCrit || Math.random() < .05 * IT("lentilscope") + .01 * (shop.lentil || 0) + (LINES[S.P.line].crit || 0);
   const dmg = (veiled(f.d) ? .5 : 1) * base * S.P.dmgMul * (S.P.dracoT > 0 ? S.P.dracoMul : 1) * m * (.9 + Math.random() * .2) * (crit ? 2 : 1) * (f.leerT > 0 ? f.leerMul : 1) * (f.shieldT > 0 ? .15 : 1) * (f.d.armor || 1) * (f.d.solidRock && m > 1 ? .75 : 1) * jBoost(type); // Rhinoféros / Rhinastoc : blindés
   if (m === 0) { maybeMsg(f, "Aucun effet…", "#c9c9c9"); return; }
   f.hp -= dmg; f.hurt = .12; S.P.dealt += dmg; sfx("hit");
@@ -5955,7 +5963,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v137";
+const NET_VER = "v138";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
