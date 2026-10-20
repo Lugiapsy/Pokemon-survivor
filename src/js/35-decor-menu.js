@@ -14,20 +14,40 @@ function drawDeco(force) {
   const Z = .8; // un peu dézoomé : on voit plus du niveau
   for (let s = 0; s < 2; s++) {
     const c = decoSide(s); c.width = W; c.height = H; const g = c.getContext("2d");
-    const vw = W / Z, vh = H / Z, A = LEVEL.league ? arena() : null; // Ligue : l'intérieur de la salle (dehors, il n'y a rien)
-    const camX = A ? (s ? A.x1 - 60 - vw : A.x0 + 60) : s ? 900 : -900 - vw, camY = A ? START_Y - vh / 2 : START_Y - 1400 - vh / 2; // sinon loin du départ, là où le niveau est bien garni
-    g.save(); g.scale(Z, Z); g.translate(-camX, -camY);
-    g.fillStyle = LEVEL.rocket ? "#4a505c" : LEVEL.tower ? (LEVEL.sprout ? "#6a4a2c" : "#3a3446") : LEVEL.manor ? "#4a3020" : LEVEL.theme ? (CAVE_PAL[LEVEL.theme] || {}).base || "#2c2834" : LEVEL.cave ? "#2c2834" : LEVEL.safari ? "#b89a50" : "#3d6e38";
-    g.fillRect(camX, camY, vw, vh);
-    const i0 = Math.floor(camX / CH), j0 = Math.floor(camY / CH), i1 = Math.floor((camX + vw) / CH), j1 = Math.floor((camY + vh) / CH);
-    for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) { const ch = getChunk(i, j); if (!ch.canvas) renderChunk(i, j); if (ch.canvas) g.drawImage(ch.canvas, i * CH, j * CH, CH, CH); }
-    if (!LEVEL.cave && !LEVEL.tower && !LEVEL.manor && !LEVEL.rocket && !LEVEL.league) // cimes des arbres (forêt, safari)
-      for (let j = j0 - 1; j <= j1 + 1; j++) for (let i = i0 - 1; i <= i1 + 1; i++) for (const tr of getChunk(i, j).trees || []) {
-        const sp = LEVEL.safari ? acaciaSprite(tr.r, tr.v) : canopySprite(tr.r, tr.v); g.drawImage(sp.cv, tr.x - sp.size / 2, tr.y - tr.r * .55 - sp.size / 2, sp.size, sp.size);
-      }
-    g.restore();
+    if (LEVEL.league) leagueDeco(g, s, W, H, Z);
+    else if (LEVEL.maps) birdDeco(g, s, W, H, Z);
+    else paintView(g, s ? 900 : -900 - W / Z, START_Y - 1400 - H / Z / 2, W, H, Z); // loin du départ, là où le niveau est bien garni
     g.fillStyle = "rgba(10,18,13,.38)"; g.fillRect(0, 0, W, H); // assombri : le starter reste la vedette
   }
+}
+function paintView(g, camX, camY, W, H, Z) {
+  const vw = W / Z, vh = H / Z;
+  g.save(); g.scale(Z, Z); g.translate(-camX, -camY);
+  g.fillStyle = LEVEL.rocket ? "#4a505c" : LEVEL.tower ? (LEVEL.sprout ? "#6a4a2c" : "#3a3446") : LEVEL.manor ? "#4a3020" : LEVEL.theme ? (CAVE_PAL[LEVEL.theme] || {}).base || "#2c2834" : LEVEL.cave ? "#2c2834" : LEVEL.safari ? "#b89a50" : "#3d6e38";
+  g.fillRect(camX, camY, vw, vh);
+  const i0 = Math.floor(camX / CH), j0 = Math.floor(camY / CH), i1 = Math.floor((camX + vw) / CH), j1 = Math.floor((camY + vh) / CH);
+  for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) { const ch = getChunk(i, j); if (!ch.canvas) renderChunk(i, j); if (ch.canvas) g.drawImage(ch.canvas, i * CH, j * CH, CH, CH); }
+  if (!LEVEL.cave && !LEVEL.tower && !LEVEL.manor && !LEVEL.rocket && !LEVEL.league) // cimes des arbres (forêt, safari)
+    for (let j = j0 - 1; j <= j1 + 1; j++) for (let i = i0 - 1; i <= i1 + 1; i++) for (const tr of getChunk(i, j).trees || []) {
+      const sp = LEVEL.safari ? acaciaSprite(tr.r, tr.v) : canopySprite(tr.r, tr.v); g.drawImage(sp.cv, tr.x - sp.size / 2, tr.y - tr.r * .55 - sp.size / 2, sp.size, sp.size);
+    }
+  g.restore();
+}
+function leagueDeco(g, s, W, H, Z) { // Ligue : la salle du Champion, vue de l'intérieur (dehors, il n'y a rien)
+  const A = arena(), k0 = LEVEL.roomIdx || 0;
+  setRoom(LEVEL.rooms.length - 1); paintView(g, s ? A.x1 - 60 - W / Z : A.x0 + 60, START_Y - H / Z / 2, W, H, Z); setRoom(k0);
+}
+function birdDeco(g, s, W, H, Z) { // Oiseau Légendaire : les trois cartes en bandes, de chaque côté
+  const k0 = LEVEL.mapIdx || 0, n = LEVEL.maps.length;
+  for (let b = 0; b < n; b++) {
+    const y0 = Math.round(b * H / n), h = Math.round((b + 1) * H / n) - y0, mp = LEVEL.maps[b];
+    pickMap(b); g.save(); g.beginPath(); g.rect(0, y0, W, h); g.clip(); g.translate(0, y0);
+    paintView(g, s ? 900 : -900 - W / Z, START_Y - 1400 - h / Z / 2, W, h, Z); g.restore();
+    if (b) { g.fillStyle = "rgba(120,140,210,.75)"; g.fillRect(0, y0 - 2, W, 4); }
+    g.font = "bold 13px Outfit, sans-serif"; g.textAlign = s ? "right" : "left"; g.fillStyle = "rgba(220,230,255,.95)";
+    g.fillText(mp.mapName, s ? W - 16 : 16, y0 + (b ? h - 12 : 64));
+  }
+  pickMap(k0);
 }
 
 /* Panneaux posés sur ce décor : ce que le niveau choisi réserve.
