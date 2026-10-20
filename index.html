@@ -421,7 +421,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
       <p><b>Sprites</b> : <a href="https://sprites.pmdcollab.org/" target="_blank" rel="noopener">PMD Sprite Repository</a> (SpriteCollab), licence CC BY-NC 4.0. Originaux de Spike Chunsoft pour Pokémon Donjon Mystère, avec retouches de la communauté. Détail des auteurs : <a href="https://github.com/neocrizis/Pokemon-survivor/blob/main/CREDITS.md" target="_blank" rel="noopener">CREDITS.md</a>.</p>
       <p><b>Musiques et bruitages</b> : originaux, synthétisés par le jeu.</p>
       <p><b>Données</b> : ta progression est enregistrée dans ton navigateur. La sauvegarde en ligne (facultative) passe par une connexion Google. Le jeu en ligne relie directement les navigateurs des joueurs (PeerJS / WebRTC).</p>
-      <p><b>Jeu original</b> : <a href="https://github.com/neocrizis/Pokemon-survivor" target="_blank" rel="noopener">Neocrizis</a> · <b>Interface (fork)</b> : <a href="https://github.com/Lugiapsy/Pokemon-survivor" target="_blank" rel="noopener">Lugiapsy</a></p>
+      <p><b>Jeu original</b> : <a href="https://github.com/neocrizis/Pokemon-survivor" target="_blank" rel="noopener">Neocrizis</a></p>
     </div>
     <button class="btn" id="legalClose" type="button">Retour</button>
   </div>
@@ -436,7 +436,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v150)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v151)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -6329,7 +6329,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v150";
+const NET_VER = "v151";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -6693,8 +6693,7 @@ function netUpdateCheck() {
     location.replace(location.pathname + "?v=" + encodeURIComponent(v) + location.hash); return true;
   }).catch(() => false);
 }
-const FORK_VER = "02"; // version du fork de Lugiapsy (interface), +1 à chaque mise à jour du fork
-$("verTag").textContent = "Version " + NET_VER.slice(1) + " · Fork " + FORK_VER; // affichée en bas de l'écran d'accueil
+$("verTag").textContent = "Version " + NET_VER.slice(1); // affichée en bas de l'écran d'accueil
 // Sauvegarde en ligne (GitHub Pages seulement) : connexion Google + Firestore (projet Firebase de Raphaël, formule gratuite).
 // Document saves/{uid} = { dex, shop, ach } en JSON. À la connexion, on fusionne la progression locale et celle du nuage
 // en gardant le plus avancé : K.O. du Pokédex au maximum, succès réunis, rangs du Marchand au maximum.
