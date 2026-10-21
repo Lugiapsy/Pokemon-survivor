@@ -55,6 +55,7 @@ function birdDeco(g, s, W, H, Z) { // Oiseau Légendaire : les trois cartes en b
    Jamais battu : silhouette noire, comme au Pokédex. Survol : nom et K.O. */
 const LIFE = { cv:[], pills:[], mobs:[[], []], key:"", mx:-1, my:-1, last:0 };
 const LIFE_COL = () => LEVEL.league ? "224,176,64" : LEVEL.rocket ? "200,64,64" : LEVEL.manor ? "210,100,50" : LEVEL.safari ? "200,160,64" : LEVEL.tower ? (LEVEL.sprout ? "190,140,80" : "150,110,190") : LEVEL.cave ? "120,140,210" : "110,190,90";
+const EVENT_FOES = { ronflex:["ronflex"], rocket:["jarbok", "jsmogogo", "jmiaouss"], mere:["mereossa"], journal:["mewtwo"] };
 function panelKinds() { // Oiseau Légendaire : les trois cartes ; Ligue : toutes les salles
   const wild = new Set(), boss = new Set(), add = k => { if (FOES[k] && !FOES[k].hideDex && !FOES[k].prop) (dexBoss(FOES[k]) ? boss : wild).add(k); };
   for (const src of LEVEL.maps || LEVEL.rooms || [LEVEL]) {
@@ -62,6 +63,8 @@ function panelKinds() { // Oiseau Légendaire : les trois cartes ; Ligue : toute
     for (const k of src.rings || []) add(k);
     for (const b of src.bosses || []) boss.add(b.kind);
     for (const k of [src.boss, src.bird, src.finalBoss]) if (k && FOES[k]) boss.add(k);
+    for (const k of EVENT_FOES[src.event && src.event.kind] || []) if (FOES[k] && !FOES[k].hideDex) boss.add(k); // événements : Ronflex, Team Rocket, Mère Ossatueur, Mewtwo
+    for (const b of src.bosses || []) if (FOES[b.kind] && FOES[b.kind].herd) add("tauros"); // le troupeau du Tauros géant
   }
   return { wild:[...wild], boss:[...boss] };
 }

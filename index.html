@@ -425,7 +425,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v154)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v155)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -6318,7 +6318,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v154";
+const NET_VER = "v155";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -6872,6 +6872,7 @@ function birdDeco(g, s, W, H, Z) { // Oiseau Légendaire : les trois cartes en b
    Jamais battu : silhouette noire, comme au Pokédex. Survol : nom et K.O. */
 const LIFE = { cv:[], pills:[], mobs:[[], []], key:"", mx:-1, my:-1, last:0 };
 const LIFE_COL = () => LEVEL.league ? "224,176,64" : LEVEL.rocket ? "200,64,64" : LEVEL.manor ? "210,100,50" : LEVEL.safari ? "200,160,64" : LEVEL.tower ? (LEVEL.sprout ? "190,140,80" : "150,110,190") : LEVEL.cave ? "120,140,210" : "110,190,90";
+const EVENT_FOES = { ronflex:["ronflex"], rocket:["jarbok", "jsmogogo", "jmiaouss"], mere:["mereossa"], journal:["mewtwo"] };
 function panelKinds() { // Oiseau Légendaire : les trois cartes ; Ligue : toutes les salles
   const wild = new Set(), boss = new Set(), add = k => { if (FOES[k] && !FOES[k].hideDex && !FOES[k].prop) (dexBoss(FOES[k]) ? boss : wild).add(k); };
   for (const src of LEVEL.maps || LEVEL.rooms || [LEVEL]) {
@@ -6879,6 +6880,8 @@ function panelKinds() { // Oiseau Légendaire : les trois cartes ; Ligue : toute
     for (const k of src.rings || []) add(k);
     for (const b of src.bosses || []) boss.add(b.kind);
     for (const k of [src.boss, src.bird, src.finalBoss]) if (k && FOES[k]) boss.add(k);
+    for (const k of EVENT_FOES[src.event && src.event.kind] || []) if (FOES[k] && !FOES[k].hideDex) boss.add(k); // événements : Ronflex, Team Rocket, Mère Ossatueur, Mewtwo
+    for (const b of src.bosses || []) if (FOES[b.kind] && FOES[b.kind].herd) add("tauros"); // le troupeau du Tauros géant
   }
   return { wild:[...wild], boss:[...boss] };
 }
