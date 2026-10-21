@@ -4,7 +4,15 @@
   radial-gradient(ellipse at 50% 120%, rgba(90,168,240,.12), transparent 60%),
   linear-gradient(180deg, #1b2e23, #0c140f); }
 .forkHome .sheet { gap: 26px; }
-.homeLogo { position: relative; font-size: clamp(44px, 9vw, 92px); text-shadow: 0 4px 0 #b0661e, 0 8px 0 rgba(0,0,0,.45), 0 0 40px rgba(246,200,69,.25); }
+.homeLogo { position: relative; display: flex; flex-direction: column; align-items: center; font-size: clamp(44px, 10vw, 88px); line-height: 1; }
+/* Logo « arc + bannière » (v163) : or du jeu, contour brun, relief orange */
+.logoArc { display: flex; color: #f6c845; filter: drop-shadow(0 .1em 0 rgba(0,0,0,.4));
+  text-shadow: .045em 0 #3a2410, -.045em 0 #3a2410, 0 .045em #3a2410, 0 -.045em #3a2410, .045em .045em #3a2410, -.045em .045em #3a2410, .045em -.045em #3a2410, -.045em -.045em #3a2410,
+    -.045em .07em #b0661e, 0 .07em #b0661e, .045em .07em #b0661e, -.045em .095em #b0661e, 0 .095em #b0661e, .045em .095em #b0661e,
+    -.045em .14em #3a2410, 0 .14em #3a2410, .045em .14em #3a2410; }
+.logoArc span { display: inline-block; transform: translateY(calc(var(--k) * var(--k) * .024em)) rotate(calc(var(--k) * 3deg)); }
+.logoBan { margin-top: .5em; padding: .32em .5em .26em; text-shadow: 0 .14em 0 #1a120a; font: .25em/1 "Press Start 2P", var(--display); letter-spacing: .18em; color: #f6c845;
+  background: #2a3f30; border: .17em solid #f6c845; box-shadow: 0 .25em 0 #b0661e, 0 0 0 .17em #1a120a, 0 .5em .4em rgba(0,0,0,.35); }
 .homeLogo::before { /* Poké Ball discrète derrière le logo */
   content: ""; position: absolute; left: 50%; top: 50%; width: 2.6em; height: 2.6em; transform: translate(-50%, -50%); z-index: -1; border-radius: 50%;
   border: .06em solid rgba(246,200,69,.10);
@@ -37,7 +45,7 @@
 
 @media (max-height: 520px) { /* téléphone en paysage : menu sur deux colonnes */
   .forkHome .sheet { gap: 14px; }
-  .homeLogo { font-size: 38px; } .homeLogo br { display: none; }
+  .homeLogo { font-size: 38px; }
   .homeMenu { display: grid; grid-template-columns: 1fr 1fr; width: min(520px, 100%); gap: 8px; }
   .homeBtn { font-size: 16px; padding: 8px 12px; } .homeBtn.small { grid-column: 1 / -1; }
 }
