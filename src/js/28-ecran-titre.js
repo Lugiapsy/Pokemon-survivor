@@ -80,7 +80,7 @@ function renderCar() {
   $("sMoves").innerHTML = mv.map(([id, m, alt]) => { const d = m.desc(1).split(/(?<=\.) /)[0].replace(/\.$/, "");
     const tg = id === L.move ? `<span class="tg">Départ</span>` : m.rare ? `<span class="tg r">Rare N.${m.rare.minLvl}</span>` : alt ? `<span class="tg a">${L.names[m.alt.stage]}</span>` : m.tier ? `<span class="tg r" title="Proposé après Métronome ${m.tier - 1}">après M.${m.tier - 1}</span>` : "<span></span>";
     return `<div class="mv"><span class="ty" style="background:${TYPE_COLORS[m.type] || "#888"}">${TYPE_NAMES[m.type] || m.type}</span><div><b>${m.name}</b><small>${d}</small></div>${m.tier === 1 ? "<span></span>" : tg}</div>`; }).join("");
-  $("sGo").disabled = !!lock; $("sGo").textContent = lock ? "🔒 Verrouillé" : `▶ Choisir ${L.names[0]}`;
+  $("sGo").disabled = !!lock; $("sGo").textContent = lock ? "🔒 Verrouillé" : `Choisir ${L.names[0]}`;
   $("sBig").parentElement.classList.toggle("lk", !!lock);
   const side = (el, l) => { el.querySelector("b").textContent = isUnlocked(l) ? LINES[l].names[0] : "???"; el.classList.toggle("lk", !isUnlocked(l)); el.dataset.l = l; };
   side($("sPrev"), v[(i - 1 + v.length) % v.length]); side($("sNext"), v[(i + 1) % v.length]);
