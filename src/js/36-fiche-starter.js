@@ -1,4 +1,5 @@
-/* Fiche du starter, version modernisée : stats en hexagone (avec la moyenne des starters en pointillés),
+/* Évoli : la liste des évolutions vient d'EEVEE, donc une nouvelle forme ajoutée là apparaît ici toute seule (4 par ligne au-delà de 4).
+   Fiche du starter, version modernisée : stats en hexagone (avec la moyenne des starters en pointillés),
    évolution en images, icônes rondes pour les types d'attaque. Se greffe sur renderCar (28-ecran-titre.js). */
 const STAT_AX = ["PV", "Attaque", "Vitesse", "Recharge", "Critique", "Régén."];
 const statF = L => [L.hp / 56, (L.dmg || 1) / 1.2, (L.speed - 135) / 45, (100 / (L.cd || 1) - 70) / 45, (L.crit || 0) / .2, (L.regen || 0) / .8].map(f => Math.max(0, Math.min(1, f)));
@@ -38,7 +39,7 @@ function drawRadar(cv, L) {
 function evoStages(line) {
   const L = LINES[line];
   if (line === "mew") return null;
-  if (line === "evoli") return [[line, 0, L.names[0], ""], ...["pyroli", "aquali", "phyllali", "voltali"].map(k => [k, 0, EEVEE[k].name, `N.${EVO_LEVELS[0]}`])];
+  if (line === "evoli") return [[line, 0, L.names[0], ""], ...Object.keys(EEVEE).map(k => [k, 0, EEVEE[k].name, `N.${EVO_LEVELS[0]}`])];
   const n = line === "miaouss" ? 2 : 3; return L.names.slice(0, n).map((nm, s) => [line, s, nm, s ? `N.${EVO_LEVELS[s - 1]}` : "Départ"]);
 }
 // Évoli : clic sur une évolution = ses attaques dans le panneau de droite (même règle que buildChoices avec le type de l'évolution)
@@ -67,7 +68,7 @@ function decorateFiche() {
   const t = TALENTS[line], st = evoStages(line);
   FICHE.evo = [];
   $("sTal").innerHTML = (t ? `<div class="talB"><b>${t[0]}</b><span>${t[1]}</span></div>` : "") +
-    (line === "evoli" ? `<div class="evoEv"><div class="evoSt"><canvas width="96" height="80" data-k="evoli" data-s="0"></canvas><b>Évoli</b></div><div class="evoCh"><i class="evoAr">›</i><small>N.${EVO_LEVELS[0]}<br>au choix</small></div><div class="evoGrid">${["pyroli", "aquali", "phyllali", "voltali"].map(k => `<div class="evoCard" role="button" tabindex="0" title="Voir les attaques de ${EEVEE[k].name}" data-k="${k}" style="--t:${TYPE_COLORS[EEVEE[k].type]}"><canvas width="64" height="56" data-k="${k}" data-s="0"></canvas><div><b>${EEVEE[k].name} ${typeIcon(EEVEE[k].type)}</b><small>${EEVEE[k].bonus.replace(/\.$/, "")}</small></div></div>`).join("")}</div></div>`
+    (line === "evoli" ? `<div class="evoEv"><div class="evoSt"><canvas width="96" height="80" data-k="evoli" data-s="0"></canvas><b>Évoli</b></div><div class="evoCh"><i class="evoAr">›</i><small>N.${EVO_LEVELS[0]}<br>au choix</small></div><div class="evoGrid${Object.keys(EEVEE).length > 4 ? " many" : ""}">${Object.keys(EEVEE).map(k => `<div class="evoCard" role="button" tabindex="0" title="${EEVEE[k].name} : ${EEVEE[k].bonus} Clic : voir ses attaques." data-k="${k}" style="--t:${TYPE_COLORS[EEVEE[k].type]}"><canvas width="64" height="56" data-k="${k}" data-s="0"></canvas><div><b>${EEVEE[k].name} ${typeIcon(EEVEE[k].type)}</b><small>${EEVEE[k].bonus.replace(/\.$/, "")}</small></div></div>`).join("")}</div></div>`
     : st ? `<div class="evoRow${st.length > 3 ? " many" : ""}">${st.map(([k, s, nm, lv], i) => `${i && st.length <= 3 ? '<i class="evoAr">›</i>' : ""}<div class="evoSt"><canvas width="96" height="80" data-k="${k}" data-s="${s}"></canvas><b>${nm}</b><small>${lv}</small></div>`).join("")}</div>`
         : `<div class="evoRow"><small class="evoNo">N'évolue pas : se renforce au N.${EVO_LEVELS[0]} et au N.${EVO_LEVELS[1]}.</small></div>`);
   $("sTal").querySelectorAll(".evoSt canvas, .evoCard canvas").forEach(c => FICHE.evo.push(c));
