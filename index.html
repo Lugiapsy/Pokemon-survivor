@@ -188,7 +188,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
 @media (orientation: landscape) and (max-height: 520px) {
   .overlay { padding-block: calc(8px + env(safe-area-inset-top, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)); place-items: start center; }
   .sheet { gap: 8px; }
-  h1 { font-size: 30px; text-shadow: 0 2px 0 #b0661e, 0 4px 0 rgba(0,0,0,.45); } #gameTitle br { display: none; }
+  h1 { font-size: 30px; text-shadow: 0 2px 0 #b0661e, 0 4px 0 rgba(0,0,0,.45); } #gameTitle { font-size: 30px; }
   h2 { font-size: 22px; }
   .levels { gap: 5px; } .lvbtn { font-size: 12px; padding: 4px 10px; border-width: 1.5px; }
   .lede { font-size: 12px; line-height: 1.35; max-width: 90ch; }
@@ -286,6 +286,8 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     -.045em .07em #b0661e, 0 .07em #b0661e, .045em .07em #b0661e, -.045em .095em #b0661e, 0 .095em #b0661e, .045em .095em #b0661e,
     -.045em .14em #3a2410, 0 .14em #3a2410, .045em .14em #3a2410; }
 .logoArc span { display: inline-block; transform: translateY(calc(var(--k) * var(--k) * .024em)) rotate(calc(var(--k) * 3deg)); }
+#gameTitle { display: flex; flex-direction: column; align-items: center; font-size: clamp(36px, 6.5vw, 64px); line-height: 1; text-shadow: none; margin-bottom: .15em; } /* même logo sur l'écran de choix */
+#gameTitle.shinyOn .logoArc { color: #ffe680; filter: drop-shadow(0 0 .25em rgba(255,220,120,.7)); }
 .logoBan { margin-top: .5em; padding: .32em .5em .26em; text-shadow: 0 .14em 0 #1a120a; font: .25em/1 "Press Start 2P", var(--display); letter-spacing: .18em; color: #f6c845;
   background: #2a3f30; border: .17em solid #f6c845; box-shadow: 0 .25em 0 #b0661e, 0 0 0 .17em #1a120a, 0 .5em .4em rgba(0,0,0,.35); }
 .homeLogo::before { /* Poké Ball en fond : moitiés teintées, bande et bouton, lente rotation */
@@ -326,7 +328,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
 
 @media (max-height: 520px) { /* téléphone en paysage : menu sur deux colonnes */
   .forkHome .sheet { gap: 14px; }
-  .homeLogo { font-size: 38px; margin: .15em 0 .35em; } .homeLogo::before { width: 2.2em; height: 2.2em; margin: -1.1em 0 0 -1.1em; }
+  .homeLogo { font-size: 38px; margin: .15em 0 .35em; } #gameTitle { font-size: 30px; } .homeLogo::before { width: 2.2em; height: 2.2em; margin: -1.1em 0 0 -1.1em; }
   .homeMenu { display: grid; grid-template-columns: 1fr 1fr; width: min(520px, 100%); gap: 8px; }
   .homeBtn { font-size: 16px; padding: 8px 12px; } .homeBtn.small { grid-column: 1 / -1; }
 }
@@ -473,13 +475,13 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
 <div class="overlay" id="start" hidden>
   <div class="sheet">
     <button class="lvbtn homeBack" id="startBack" type="button">← Menu</button>
-    <h1 id="gameTitle">Pokémon<br>Survivor</h1><div id="shinyHint" hidden>✦ Code secret : ton starter sera chromatique ✦</div>
+    <h1 id="gameTitle" aria-label="Pokémon Survivor"><span class="logoArc" aria-hidden="true"><span style="--k:-3">P</span><span style="--k:-2">o</span><span style="--k:-1">k</span><span style="--k:0">é</span><span style="--k:1">m</span><span style="--k:2">o</span><span style="--k:3">n</span></span><span class="logoBan" aria-hidden="true">SURVIVOR</span></h1><div id="shinyHint" hidden>✦ Code secret : ton starter sera chromatique ✦</div>
     <div class="levels" id="levelPick" role="group" aria-label="Choix du niveau"></div>
     <div class="levels"><button class="lvbtn dexbtn" id="carBtn" type="button">🏛 Panthéon</button><button class="lvbtn nuzbtn" id="nuzBtn" type="button" aria-pressed="false" title="Pas de Rappel, pas de soin au sol (Baies, Potions). Même gain de Pokédollars.">💀 Nuzlocke</button><button class="lvbtn dexbtn" id="netBtn" type="button" aria-pressed="false" title="Jouer à plusieurs sur des ordinateurs différents, avec un code de salon">🌐 En ligne</button><button class="lvbtn dexbtn" id="mpBtn" type="button" aria-pressed="false" title="Multijoueur local : J1 au clavier, les autres à la manette">👥 1 joueur</button></div>
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v164)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v165)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -6395,7 +6397,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v164";
+const NET_VER = "v165";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
