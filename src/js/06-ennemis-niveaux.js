@@ -371,6 +371,7 @@ const LEVELS = [
         table(m, o) {
           o.push(["fantominus", 3], ["abo", 2.2], ["smogo", 1.2], ["tadmorv", 1.2]);
           o.push(["spectrum", 1.2], ["nosferalto", 1.6 + m / 8], ["arbok", 1.4 + m / 8]);
+          if (m > 1) o.push(["smogogo", .8 + m / 10], ["grotadmorv", .6 + m / 12]); // les évolutions de Smogo et Tadmorv arrivent après la première minute
         } },
       { mapName:"Salle de Peter", member:"Peter", mtype:"Dragon", theme:"peter", ice:false, plant:false, lava:false, wild:90, boss:"lgDraco", windy:true,
         tip:"Des bourrasques balaient la salle !", rings:["lgmini"],
