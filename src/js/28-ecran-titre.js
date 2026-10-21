@@ -104,21 +104,23 @@ $("sBig").addEventListener("click", () => chooseStarter());
 { let sx = null; const st = $("sCar"); // mobile : glisser pour changer de starter
   st.addEventListener("pointerdown", e => { sx = e.clientX; });
   st.addEventListener("pointerup", e => { if (sx !== null && Math.abs(e.clientX - sx) > 50) carMove(e.clientX < sx ? 1 : -1); sx = null; }); }
+// Poké Ball du choix du starter : la même que celle des boss (pixel art), pas un dessin vectoriel
+let masterBallCv = null;
+function ballSprite(master) {
+  const img = PICKS.chest.img; if (!master || !img.complete) return img;
+  if (masterBallCv) return masterBallCv;
+  const c = document.createElement("canvas"); c.width = c.height = 32; const g = c.getContext("2d"); g.drawImage(img, 0, 0);
+  const d = g.getImageData(0, 0, 32, 32), MAP = { "255,148,57":[142, 78, 214], "222,90,57":[104, 48, 172], "156,74,57":[70, 32, 120], "255,213,57":[222, 190, 255] };
+  for (let i = 0; i < d.data.length; i += 4) { const m = MAP[d.data[i] + "," + d.data[i + 1] + "," + d.data[i + 2]]; if (m) [d.data[i], d.data[i + 1], d.data[i + 2]] = m; }
+  for (const [x, y] of [[10, 12], [11, 12], [19, 10], [20, 10]]) { const i = (y * 32 + x) * 4; d.data[i] = 240; d.data[i + 1] = 90; d.data[i + 2] = 180; } // les deux bosses roses
+  g.putImageData(d, 0, 0); return masterBallCv = c;
+}
 function drawBall(g, x, y, R, master, open, now) {
-  g.save(); g.translate(x, y); g.lineWidth = R * .14; g.strokeStyle = "#1a1a1a";
-  const top = master ? "#7a3fc8" : "#e8382c";
-  g.save(); g.rotate(-open * 1.1); g.translate(0, -open * R * .5); // moitié haute qui bascule à l'ouverture
-  g.beginPath(); g.arc(0, 0, R, Math.PI, 0); g.closePath(); g.fillStyle = top; g.fill(); g.stroke();
-  g.fillStyle = "rgba(255,255,255,.35)"; g.beginPath(); g.ellipse(-R * .42, -R * .55, R * .22, R * .12, -.6, 0, 7); g.fill();
-  if (master) { // bosses roses et « M »
-    g.fillStyle = "#f05ab4"; for (const s of [-1, 1]) { g.beginPath(); g.ellipse(s * R * .58, -R * .52, R * .2, R * .16, s * .5, 0, 7); g.fill(); g.stroke(); }
-    g.fillStyle = "#fff"; g.font = `bold ${R * .55}px "Pixelify Sans", sans-serif`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("M", 0, -R * .52);
-  }
-  g.restore();
-  g.beginPath(); g.arc(0, 0, R, 0, Math.PI); g.closePath(); g.fillStyle = "#f4f4f0"; g.fill(); g.stroke();
-  g.fillStyle = "#1a1a1a"; g.fillRect(-R, -R * .07, R * 2, R * .14);
-  g.beginPath(); g.arc(0, 0, R * .3, 0, 7); g.fillStyle = "#f4f4f0"; g.fill(); g.stroke();
-  g.beginPath(); g.arc(0, 0, R * .14, 0, 7); g.fillStyle = (now / 120 | 0) % 2 && !open ? "#ffe680" : "#fff"; g.fill();
+  const img = ballSprite(master), s = 3 / .7, cut = 17; // 3 px d'écran par pixel du sprite (la scène est dessinée à 0,7)
+  g.save(); g.imageSmoothingEnabled = false; g.globalAlpha *= 1 - Math.max(0, open - .6) / .4; // la balle s'efface pendant que le Pokémon sort
+  g.drawImage(img, 0, cut, 32, 32 - cut, x - 16 * s, y + (cut - 16) * s, 32 * s, (32 - cut) * s); // moitié basse
+  g.translate(x + 8 * s, y + (cut - 16) * s); g.rotate(open * .5); g.translate(0, -open * R * .6); // le couvercle se soulève en basculant vers l'arrière
+  g.drawImage(img, 0, 0, 32, cut, -24 * s, -cut * s, 32 * s, cut * s);
   g.restore();
 }
 function drawPreviews(now) {
