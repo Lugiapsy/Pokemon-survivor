@@ -1,0 +1,54 @@
+/* ---------- Carte de route : régions et niveaux (v166) ---------- */
+.rtTagHidden { display: none !important; }
+.rtRegs { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.rtReg { position: relative; display: flex; align-items: center; gap: 14px; width: 320px; max-width: 100%; padding: 12px 16px; border-radius: 14px; border: 2px solid var(--panel-edge); background: var(--panel); color: var(--ink); text-align: left; cursor: pointer; font: inherit; }
+.rtReg[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(246,200,69,.18), 0 6px 0 rgba(0,0,0,.35); }
+.rtReg:focus-visible, .rtReg.padfocus { outline: 3px solid var(--ink); outline-offset: 2px; }
+.rtChap { position: absolute; top: -10px; right: 12px; font: 700 10px var(--body); letter-spacing: .1em; text-transform: uppercase; background: #0d1611; color: var(--ink-dim); padding: 2px 8px; border-radius: 9px; border: 1px solid var(--panel-edge); }
+.rtPorts { display: flex; flex: none; }
+.rtPorts img { width: 42px; height: 42px; border-radius: 50%; image-rendering: pixelated; border: 3px solid #24382a; background: #cfe8d0; margin-left: -14px; box-shadow: 0 2px 0 rgba(0,0,0,.35); }
+.rtPorts img:first-child { margin-left: 0; }
+.rtReg[data-r="johto"] .rtPorts img { background: #d6e2f2; }
+.rtReg[aria-pressed="false"] .rtPorts img { filter: saturate(.7) brightness(.9); }
+.rtInfo { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rtInfo b { font: 800 20px var(--body); } .rtReg[aria-pressed="true"] .rtInfo b { color: var(--accent); }
+.rtInfo small { font-size: 12px; color: var(--ink-dim); }
+.rtBar { display: block; height: 6px; width: 170px; max-width: 100%; margin-top: 4px; border-radius: 9px; background: #0d1611; overflow: hidden; }
+.rtBar i { display: block; height: 100%; background: var(--accent); }
+.rtRoute { position: relative; width: min(1060px, 100%); height: 150px; border-radius: 16px; border: 2px solid var(--panel-edge);
+  background: radial-gradient(circle at 20% 30%, rgba(95,209,106,.12), transparent 40%), radial-gradient(circle at 80% 70%, rgba(90,168,240,.10), transparent 40%), #18291e; }
+.rtRoute svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.rtRoute polyline { fill: none; stroke: #4f7a5c; stroke-width: 5; stroke-dasharray: 2 10; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.rtNode { position: absolute; transform: translate(-50%, -50%); width: 0; height: 0; padding: 0; border: 0; background: none; cursor: pointer; font: inherit; color: inherit; }
+.rtNode .dot { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font: 800 15px var(--body);
+  background: #2b4433; border: 3px solid #4f7a5c; color: var(--ink); box-shadow: 0 3px 0 rgba(0,0,0,.4); transition: transform .12s; }
+.rtNode:hover .dot { transform: translate(-50%, -50%) scale(1.1); }
+.rtNode .lbl { position: absolute; left: 0; bottom: 28px; transform: translateX(-50%); font: 600 11px var(--body); color: var(--ink-dim); white-space: nowrap; pointer-events: none; }
+.rtNode.low .lbl { bottom: auto; top: 28px; }
+.rtNode.done .dot { background: #3d8a4e; border-color: #7fe08c; }
+.rtNode.boss .dot { border-color: #e2513f; }
+.rtNode.lock .dot { background: #1a2a20; border-color: #33473a; color: #5b7363; font-size: 14px; }
+.rtNode.lock { cursor: not-allowed; }
+.rtNode.soon { cursor: default; opacity: .55; } .rtNode.soon .dot { background: transparent; border-style: dashed; border-color: #4f7a5c; color: var(--ink-dim); } .rtNode.soon:hover .dot { transform: translate(-50%, -50%); }
+.rtNode.sel .dot { width: 52px; height: 52px; font-size: 20px; background: var(--accent); border-color: #fff3b0; color: #1a1a1a; box-shadow: 0 0 0 6px rgba(246,200,69,.25), 0 4px 0 #b0661e; }
+.rtNode.sel .lbl { font: 700 13px var(--body); color: var(--accent); bottom: 34px; } .rtNode.sel.low .lbl { top: 34px; }
+.rtNode:focus-visible .dot, .rtNode.padfocus .dot { outline: 3px solid var(--ink); outline-offset: 3px; }
+.rtCard { display: flex; gap: 16px; align-items: center; width: min(1060px, 100%); box-sizing: border-box; padding: 14px 18px; border-radius: 14px; background: var(--panel); border: 2px solid var(--panel-edge); text-align: left; }
+.rtNum { flex: none; font: 800 32px var(--body); color: var(--accent); min-width: 1.2em; text-align: center; }
+.rtBody { min-width: 0; } .rtName { font: 800 19px var(--body); color: var(--ink); }
+.rtIntro .lede { margin: 4px 0 0; max-width: none; text-align: left; font-size: 14px; }
+.rtTags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.rtTags span { font: 600 11px var(--body); padding: 3px 9px; border-radius: 9px; background: #0d1611; border: 1px solid var(--panel-edge); color: var(--ink-dim); }
+.rtBoss { flex: none; margin-left: auto; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.rtBoss small { font: 700 10px var(--body); letter-spacing: .12em; text-transform: uppercase; color: #ff9a8a; }
+.rtBossRow { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; max-width: 240px; }
+.rtBossRow canvas { width: 40px; height: 40px; border-radius: 10px; background: radial-gradient(circle at 50% 70%, rgba(226,81,63,.28), rgba(0,0,0,.25) 70%); border: 2px solid #4a2a26; }
+.rtTags span.warn { color: #ffb4a8; border-color: #e2513f; }
+@media (max-width: 760px) { .rtNode .lbl { display: none; } .rtNode.sel .lbl { display: block; } }
+@media (orientation: landscape) and (max-height: 520px) {
+  .rtRegs { gap: 8px; } .rtReg { width: 250px; padding: 6px 10px; gap: 8px; } .rtPorts img { width: 30px; height: 30px; margin-left: -10px; border-width: 2px; }
+  .rtInfo b { font-size: 15px; } .rtInfo small { font-size: 10px; } .rtBar { width: 120px; height: 4px; } .rtChap { font-size: 8px; top: -8px; }
+  .rtRoute { height: 104px; } .rtNode .dot { width: 28px; height: 28px; font-size: 12px; border-width: 2px; } .rtNode.sel .dot { width: 38px; height: 38px; font-size: 15px; }
+  .rtNode .lbl { font-size: 9px; bottom: 20px; } .rtNode.low .lbl { top: 20px; } .rtNode.sel .lbl { font-size: 10px; bottom: 25px; } .rtNode.sel.low .lbl { top: 25px; }
+  .rtCard { padding: 8px 12px; gap: 10px; } .rtBossRow canvas { width: 30px; height: 30px; } .rtNum { font-size: 22px; } .rtName { font-size: 15px; } .rtIntro .lede { font-size: 12px; } .rtTags { margin-top: 4px; }
+}
