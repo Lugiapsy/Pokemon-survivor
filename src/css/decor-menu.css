@@ -1,0 +1,17 @@
+/* Écran de choix : bouton Menu fixe, starters voisins rapprochés, décor et panneaux du niveau sur les côtés */
+.sideDeco { position:fixed; top:0; height:100vh; pointer-events:none; z-index:0; }
+.sideDeco.l { left:0; -webkit-mask-image:linear-gradient(to right, #000 55%, transparent); mask-image:linear-gradient(to right, #000 55%, transparent); }
+.sideDeco.r { right:0; -webkit-mask-image:linear-gradient(to left, #000 55%, transparent); mask-image:linear-gradient(to left, #000 55%, transparent); }
+#start > .sheet { position:relative; z-index:1; }
+.homeBack { position:fixed; top:calc(14px + env(safe-area-inset-top, 0px)); left:max(14px, env(safe-area-inset-left, 0px)); z-index:6; box-shadow:0 4px 14px rgba(0,0,0,.45); }
+.sRow { align-items:flex-start; }
+.sSide { margin-top:48px; flex:0 0 160px; position:relative; z-index:3; } .sArrow { margin-top:78px; position:relative; z-index:3; }
+#sPrev { margin-right:-320px; } #sNext { margin-left:-320px; } /* collés au starter du milieu */
+@media (max-width: 700px) { .homeBack { position:static; box-shadow:none; } }
+.sideLife { position:fixed; top:0; height:100vh; pointer-events:none; z-index:2; }
+.sideLife.l { left:0; -webkit-mask-image:linear-gradient(to right, #000 75%, transparent); mask-image:linear-gradient(to right, #000 75%, transparent); }
+.sideLife.r { right:0; -webkit-mask-image:linear-gradient(to left, #000 75%, transparent); mask-image:linear-gradient(to left, #000 75%, transparent); }
+.lifePill { position:fixed; bottom:calc(18px + env(safe-area-inset-bottom, 0px)); z-index:3; pointer-events:none; padding:7px 14px; border-radius:999px;
+  background:rgba(12,18,14,.72); backdrop-filter:blur(4px); border:1px solid rgba(var(--pc),.5); font:600 12px var(--body); color:var(--ink-dim); white-space:nowrap; }
+.lifePill b { color:rgb(var(--pc)); font-size:14px; }
+.lifePill.l { left:max(18px, env(safe-area-inset-left, 0px)); } .lifePill.r { right:max(18px, env(safe-area-inset-right, 0px)); }

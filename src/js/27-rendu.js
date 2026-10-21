@@ -257,6 +257,7 @@ function drawMinimap(P) {
   g.fillStyle = "#ffb347"; for (const f of S.foes) if (f.d.boss) { g.beginPath(); g.arc(f.x, f.y, 70, 0, Math.PI * 2); g.fill(); }
   const rares = S.foes.filter(f => f.d.rare && f.hp > 0).map(f => [f.x, f.y, f.kind === "minidraco" ? "#7aa8ff" : "#ffd84a"]);
   if (S.dracoJump) rares.push([S.dracoJump.tx, S.dracoJump.ty, "#7aa8ff"]); // Minidraco en plein saut hors de l'eau
+  if (S.orme?.on) rares.push([S.orme.x, S.orme.y, "#fff3a0"]); // assistant du Prof. Orme
   if (S.journal && S.journal.x !== undefined) rares.push([S.journal.x, S.journal.y, "#4fe07a"]); // page du journal (Manoir), en vert
   for (const [fx, fy, col] of rares) { // Pokémon dorés et Minidraco du Parc Safari : point clignotant, collé au bord s'il est loin
     let dx = fx - P.x, dy = fy - P.y; const l = Math.hypot(dx, dy) || 1; if (l > 1000) { dx *= 1000 / l; dy *= 1000 / l; }
@@ -264,7 +265,11 @@ function drawMinimap(P) {
     g.beginPath(); g.arc(P.x + dx, P.y + dy, 105 * pulse, 0, Math.PI * 2); g.fillStyle = col; g.fill();
     g.lineWidth = 28; g.strokeStyle = "#fff"; g.stroke();
   }
-  if (S.players.length > 1) for (const p of S.players) { g.fillStyle = PCOL[p.idx]; g.globalAlpha = p.down ? .5 : 1; g.beginPath(); g.arc(p.x, p.y, 70, 0, Math.PI * 2); g.fill(); g.globalAlpha = 1; } // un point par joueur
+  if (S.players.length > 1) for (const p of S.players) { // un point par joueur ; collé au bord s'il est loin
+    let dx = p.x - P.x, dy = p.y - P.y; const l = Math.hypot(dx, dy) || 1; if (l > 1000) { dx *= 1000 / l; dy *= 1000 / l; }
+    g.fillStyle = PCOL[p.idx]; g.globalAlpha = p.down ? .5 : 1; g.beginPath(); g.arc(P.x + dx, P.y + dy, p === P ? 85 : 70, 0, Math.PI * 2); g.fill();
+    if (p === P) { g.lineWidth = 24; g.strokeStyle = "#fff"; g.stroke(); } g.globalAlpha = 1;
+  }
   g.restore();
   if (S.players.length === 1) { g.fillStyle = "#fff"; g.beginPath(); g.arc(R2, R2, 3.5, 0, Math.PI * 2); g.fill(); }
   g.strokeStyle = "rgba(255,255,255,.25)"; g.lineWidth = 1.5; g.beginPath(); g.arc(R2, R2, R2 - 1, 0, Math.PI * 2); g.stroke();
@@ -466,7 +471,7 @@ function render(now) {
   }
   cx.save(); cx.globalCompositeOperation = "lighter";
   for (const s of S.shots) { // traînées lumineuses
-    const TR = { elek:"250,215,60", star:"255,225,120", seed:"110,200,80", fire:"255,110,30", dfire:"140,100,255", bubble:"140,200,255", coin:"255,210,90", water:"80,150,240", blast:"255,140,40" }[s.kind];
+    const TR = { elek:"250,215,60", star:"255,225,120", seed:"110,200,80", fire:"255,110,30", dfire:"140,100,255", bubble:"140,200,255", coin:"255,210,90", water:"80,150,240", blast:"255,140,40", fairy:"255,160,215", aura:"110,160,255" }[s.kind];
     if (!TR || !s.tr) continue;
     for (let i = 0; i < s.tr.length; i++) { const q = 1 - i / s.tr.length; glow(s.tr[i][0], s.tr[i][1], s.r * 2 * q + 2, TR, .38 * q); }
     glow(s.x, s.y, s.r * (s.kind === "fire" || s.kind === "dfire" || s.kind === "blast" ? 3.6 : 2.8), TR, .6);
@@ -488,6 +493,28 @@ function render(now) {
       }
       for (let q = 1; q <= 3; q++) { cx.strokeStyle = `rgba(255,236,180,${.25 * k / q})`; cx.lineWidth = 3; cx.beginPath(); cx.moveTo(-s.r * .35 - q * 18, -s.r * .8); cx.quadraticCurveTo(s.r * .3 - q * 18, 0, -s.r * .35 - q * 18, s.r * .8); cx.stroke(); }
       cx.restore(); continue;
+    }
+    if (s.kind === "airblade") { // Lame d'Air
+      const a = Math.atan2(s.vy, s.vx), k = Math.min(1, s.life * 4);
+      cx.save(); cx.translate(s.x, s.y); cx.rotate(a); cx.lineCap = "round";
+      for (const [lw, col] of [[14, `rgba(170,210,255,${.3 * k})`], [7, `rgba(225,240,255,${.85 * k})`], [2.5, `rgba(255,255,255,${k})`]]) {
+        cx.strokeStyle = col; cx.lineWidth = lw; cx.beginPath(); cx.moveTo(-s.r * .3, -s.r); cx.quadraticCurveTo(s.r * .5, 0, -s.r * .3, s.r); cx.stroke();
+      }
+      for (let q = 1; q <= 3; q++) { cx.strokeStyle = `rgba(210,232,255,${.28 * k / q})`; cx.lineWidth = 2.5; cx.beginPath(); cx.moveTo(-s.r * .3 - q * 14, -s.r * .75); cx.quadraticCurveTo(s.r * .3 - q * 14, 0, -s.r * .3 - q * 14, s.r * .75); cx.stroke(); }
+      cx.restore(); continue;
+    }
+    if (s.kind === "fairy") { // Vent Féérique : étincelle rose
+      cx.save(); cx.translate(s.x, s.y); cx.rotate(t * 6 + s.ph); const pts = [];
+      for (let k = 0; k < 8; k++) { const rr = k % 2 ? s.r * .35 : s.r * 1.2, a = k / 8 * Math.PI * 2; pts.push(Math.cos(a) * rr, Math.sin(a) * rr); }
+      poly(cx, pts, "#ffb3dc"); circ(cx, 0, 0, s.r * .35, "#fff"); cx.restore();
+      circ(cx, s.x - s.vx * .03, s.y - s.vy * .03 + Math.sin(t * 20 + s.ph) * 3, 1.8, "rgba(255,255,255,.8)"); continue;
+    }
+    if (s.kind === "aura") { // Aurasphère : boule d'aura bleue
+      const g2 = cx.createRadialGradient(s.x, s.y, 1, s.x, s.y, s.r * 1.5); g2.addColorStop(0, "#ffffff"); g2.addColorStop(.35, "#9cc4ff"); g2.addColorStop(.8, "rgba(60,110,240,.7)"); g2.addColorStop(1, "rgba(60,110,240,0)");
+      cx.fillStyle = g2; cx.beginPath(); cx.arc(s.x, s.y, s.r * 1.5, 0, Math.PI * 2); cx.fill();
+      cx.strokeStyle = "rgba(200,225,255,.8)"; cx.lineWidth = 1.5;
+      for (let k = 0; k < 3; k++) { const a = t * 7 + k * 2.1 + s.ph; cx.beginPath(); cx.arc(s.x, s.y, s.r * 1.15, a, a + 1.1); cx.stroke(); }
+      continue;
     }
     if (s.kind === "mleaf") { // Feuillemagik
       cx.save(); cx.translate(s.x, s.y); cx.rotate(Math.atan2(s.vy, s.vx) + Math.sin(t * 12 + s.ph) * .4);
@@ -734,6 +761,7 @@ function render(now) {
     cx.save(); cx.globalCompositeOperation = "lighter"; glow(c.x, c.y + bob, 46, "140,255,150", .55 * a); cx.restore();
     cx.save(); cx.globalAlpha = a; drawMon(cx, "celebi", c.x, c.y + bob, 15, c.x < P.x, t, 0, 0, true); cx.restore();
   }
+  drawOrme(t);
   for (const f of S.foes) if (f.jump) { // zone d'atterrissage de Kangourex géant
     const k = f.jump.t / f.jump.dur; cx.save(); cx.globalAlpha = .25 + .35 * k; cx.strokeStyle = "#e2513f"; cx.lineWidth = 3; cx.fillStyle = "rgba(226,81,63,.15)";
     cx.beginPath(); cx.ellipse(f.jump.tx, f.jump.ty, 110, 80, 0, 0, Math.PI * 2); cx.fill(); cx.stroke(); cx.beginPath(); cx.ellipse(f.jump.tx, f.jump.ty, 110 * k, 80 * k, 0, 0, Math.PI * 2); cx.stroke(); cx.restore();
@@ -784,12 +812,14 @@ function render(now) {
     cx.save(); cx.translate(ex, ey); cx.rotate(a); poly(cx, [12, 0, -8, -9, -8, 9], col); cx.restore();
   };
   if (S.journal) arrowTo(S.journal.x, S.journal.y, `rgba(255,240,200,${.7 + .3 * Math.sin(t * 6)})`);
+  if (S.orme?.on) arrowTo(S.orme.x, S.orme.y, `rgba(255,236,160,${.7 + .3 * Math.sin(t * 6)})`);
   if (S.dracoJump) arrowTo(S.dracoJump.tx, S.dracoJump.ty, `rgba(130,180,255,${.7 + .3 * Math.sin(t * 6)})`);
   for (const f of S.foes) if (f.d.rare && f.hp > 0) arrowTo(f.x, f.y, `rgba(255,170,200,${.7 + .3 * Math.sin(t * 6)})`);
+  if (NET.started) for (const p of S.players) if (p.idx !== (NET.role === "guest" ? NET.idx : 0)) arrowTo(p.x, p.y, PCOL[p.idx]); // en ligne : coéquipiers hors de l'écran
   const vg = cx.createRadialGradient(W/2, H/2, Math.min(W, H) * .35, W/2, H/2, Math.max(W, H) * .75);
   vg.addColorStop(0, "rgba(10,20,12,0)"); vg.addColorStop(1, "rgba(6,16,8,.5)"); cx.fillStyle = vg; cx.fillRect(0, 0, W, H);
   drawLight(t);
-  mmT -= 1; if (mmT <= 0 && state === "play") { drawMinimap(CAM); mmT = 6; }
+  mmT -= 1; if (mmT <= 0 && (state === "play" || state === "netplay")) { drawMinimap(NET.started ? S.players[NET.role === "guest" ? NET.idx : 0] || CAM : CAM); mmT = 6; }
   if (S.msgs[0]) {
     const m = S.msgs[0], bw = Math.min(W - 32, 520), bx = (W - bw) / 2, by = H - 124 - Math.max(0, S.foes.filter(f => f.d.boss).length - 1) * 38;
     cx.globalAlpha = Math.min(1, m.life * 2);

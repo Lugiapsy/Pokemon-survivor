@@ -1,0 +1,20 @@
+@import url("https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Press+Start+2P&family=Rubik:wght@400;600;800&display=swap");
+:root {
+  --ink:#f4f1e4; --ink-dim:#b9c4b0; --accent:#f6c845; --accent-dk:#b0661e;
+  --display:"Pixelify Sans", "Courier New", monospace; --num:"Press Start 2P", monospace; --body:"Rubik", system-ui, sans-serif;
+}
+* { box-sizing:border-box; }
+html, body { margin:0; min-height:100%; }
+body { color:var(--ink); font-family:var(--body); user-select:none; overflow-x:hidden; font-variant-ligatures:none; } /* Pixelify Sans dessine mal la ligature « fi » */
+canvas { image-rendering:pixelated; display:block; }
+button { font:inherit; color:inherit; cursor:pointer; }
+.proto-nav { position:fixed; right:10px; bottom:10px; z-index:99; display:flex; gap:6px; font:600 12px var(--body); }
+.proto-nav a { color:var(--ink); background:rgba(0,0,0,.6); border:1px solid rgba(255,255,255,.25); border-radius:6px; padding:5px 9px; text-decoration:none; }
+.proto-nav a.on { background:var(--accent); color:#1a1a1a; border-color:var(--accent); }
+#toast { position:fixed; left:50%; bottom:58px; transform:translate(-50%, 20px); opacity:0; z-index:98; pointer-events:none; background:rgba(10,14,12,.95);
+  border:2px solid var(--accent); border-radius:10px; padding:10px 16px; font:600 14px var(--body); text-align:center; transition:.25s; }
+#toast.on { opacity:1; transform:translate(-50%, 0); animation:toastOut 2.8s forwards; }
+@keyframes toastOut { 80% { opacity:1; } 100% { opacity:0; } }
+.chip { display:inline-block; font:700 11px var(--body); padding:2px 8px; border-radius:99px; color:#1a1a1a; background:var(--c, #888); vertical-align:middle; }
+.keys { display:flex; gap:22px; align-items:center; font:600 14px var(--body); color:var(--ink-dim); }
+.keys kbd { display:inline-grid; place-items:center; min-width:26px; height:26px; padding:0 6px; margin-right:6px; border-radius:6px; background:var(--ink); color:#1a1a1a; font:700 12px var(--body); }

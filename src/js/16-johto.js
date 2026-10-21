@@ -6,6 +6,9 @@ const dirFor = P => { // direction d'une ruée : le déplacement, sinon la visé
   if (P.aiming) return [P.fx, P.fy];
   const f = nearestFoes(1)[0]; return f ? [f.x - P.x, f.y - P.y] : [0, 0];
 };
+const serene = () => S.P && S.P.line === "togepi" ? 2 : 1; // Sérénité (Togepi) : effets secondaires ×2
+function fear(f, ch, T) { if (f.hp > 0 && !f.d.boss && Math.random() < ch * serene()) { f.stunT = Math.max(f.stunT || 0, T); f.fearT = S.t + T; } } // apeuré : immobile
+function charm(f, ch, T) { if (f.hp > 0 && !f.d.boss && Math.random() < ch * serene()) f.charmT = S.t + T; } // charmé : s'éloigne sans attaquer
 const nearAim = P => { const f = nearestFoes(1)[0]; return P.aiming || !f ? Math.atan2(P.fy, P.fx) : Math.atan2(f.y - P.y, f.x - P.x); };
 const JMOVE = {
   rouefeu(P, m, lv) {
@@ -111,6 +114,47 @@ const JMOVE = {
     m.t = (lv >= 4 ? 4.5 : 6) * P.cdMul;
     const life = (4 + .5 * lv) * DUR();
     (S.carpets ||= []).push({ x:P.x, y:P.y, r:(80 + 12 * lv + (lv >= 2 ? 15 : 0)) * AREA(), life, max:life, dmg:(4 + 2 * lv) * (lv >= 3 ? 1.4 : 1), slow:lv >= 5 ? .45 : .6, heal:1 + .3 * lv, tk:0, o:P, seed:Math.floor(Math.random() * 1e6) });
+  },
+  ventfeerique(P, m, lv) {
+    const n = 2 + (lv >= 2) + (lv >= 4) + EXTRA(), ts = nearestFoes(n);
+    if (!ts.length && !P.aiming) { m.t = .2; return; }
+    m.t = (lv >= 4 ? .85 : 1.05) * P.cdMul;
+    const dmg = (11 + 3 * lv) * (lv >= 3 ? 1.4 : 1);
+    for (let i = 0; i < n; i++) {
+      const f = ts[i % Math.max(1, ts.length)], a = (f && !P.aiming ? Math.atan2(f.y - P.y, f.x - P.x) : Math.atan2(P.fy, P.fx)) + (i - (n - 1) / 2) * .16;
+      S.shots.push({ kind:"fairy", x:P.x, y:P.y - 4, vx:Math.cos(a) * 380, vy:Math.sin(a) * 380, r:7 + P.stage, dmg, life:1.2, pierce:lv >= 5 ? 2 : 1, type:"fee", hit:new Set(), ph:Math.random() * 6, onHit:g => fear(g, .1, .6) });
+    }
+  },
+  lamedair(P, m, lv) {
+    if (!P.aiming && !nearestFoes(1).length) { m.t = .2; return; }
+    m.t = (lv >= 4 ? 1.2 : 1.6) * P.cdMul;
+    const a0 = nearAim(P), n = 1 + (lv >= 2) + (lv >= 5) + EXTRA(), dmg = (22 + 6 * lv) * (lv >= 3 ? 1.4 : 1);
+    for (let i = 0; i < n; i++) { const a = a0 + (i - (n - 1) / 2) * .28; S.shots.push({ kind:"airblade", x:P.x, y:P.y, vx:Math.cos(a) * 620, vy:Math.sin(a) * 620, r:15 + 2 * P.stage, dmg, life:.75, pierce:999, type:"vol", hit:new Set(), onHit:g => fear(g, .3, .6) }); }
+  },
+  aurasphere(P, m, lv) {
+    const tg = nearestFoes(10).sort((a, b) => b.hp - a.hp); if (!tg.length) { m.t = .3; return; }
+    m.t = (lv >= 4 ? 2 : 2.6) * P.cdMul;
+    const n = 1 + (lv >= 5) + EXTRA(), dmg = (45 + 12 * lv) * (lv >= 3 ? 1.4 : 1);
+    for (let i = 0; i < n; i++) {
+      const f = tg[i % tg.length], a = Math.atan2(f.y - P.y, f.x - P.x) + (i ? (i % 2 ? .7 : -.7) : 0);
+      S.shots.push({ kind:"aura", x:P.x, y:P.y - 4, vx:Math.cos(a) * 300, vy:Math.sin(a) * 300, r:10 + (lv >= 2 ? 3 : 0) + P.stage, dmg, life:3, pierce:1, type:"combat", home:f, hit:new Set(), ph:Math.random() * 6, boom:lv >= 2, boomR:60 * AREA(), boomMul:.5 });
+    }
+  },
+  eclatmagique(P, m, lv) {
+    const R0 = (120 + 15 * lv + (lv >= 2 ? 25 : 0)) * AREA();
+    if (!S.foes.some(f => !f.prop && !f.d.rare && f.hp > 0 && (f.x - P.x) ** 2 + (f.y - P.y) ** 2 < (R0 + f.r) ** 2)) { m.t = .25; return; }
+    m.t = (lv >= 4 ? 3 : 4) * P.cdMul;
+    const dmg = (20 + 6 * lv) * (lv >= 3 ? 1.4 : 1), ct = (lv >= 5 ? 2.5 : 1.5) * DUR();
+    S.fxs.push({ x:P.x, y:P.y, r:0, max:R0, life:.4, col:"rgba(255,170,220," }); S.fxs.push({ x:P.x, y:P.y, r:0, max:R0 * .45, life:.4, star:true });
+    emit(P.x, P.y, 26, "fee", { sp:R0 * 2.5, life:.5, r:3 });
+    for (const f of S.foes) if (!f.prop && !f.d.rare && f.hp > 0 && (f.x - P.x) ** 2 + (f.y - P.y) ** 2 < (R0 + f.r) ** 2) { hitFoe(f, dmg, "fee"); charm(f, .2, ct); }
+  },
+  metronome(P, m, lv) { // Togepi : emprunte au hasard l'attaque d'un autre starter
+    for (const id of m.cur || []) if (P.moves[id]?.tmp === "metronome") delete P.moves[id];
+    const pool = METRO[[1, 2, 3, 3, 4][lv - 1]].filter(id => !P.moves[id]); m.cur = [];
+    for (let i = 0; i < (lv >= 5 ? 2 : 1) && pool.length; i++) { const id = pool.splice(Math.random() * pool.length | 0, 1)[0]; P.moves[id] = { lv:Math.min(lv, MOVES[id].max), t:.1, tmp:"metronome", since:S.t }; m.cur.push(id); }
+    m.t = lv >= 4 ? 5 : 6;
+    S.texts.push({ x:P.x, y:P.y - P.r - 26, txt:m.cur.map(id => MOVES[id].name).join(" + "), col:"#ff9ac8", life:1.4, label:true });
   },
   tempeteflorale(P, m, lv) {
     m.t = (lv >= 4 ? 7 : 9) * P.cdMul;
@@ -269,6 +313,11 @@ function drawJohtoOver(t, CAM, vw, vh) { // au-dessus : fumée, boucliers, liane
         ell(cx, ex, ey, 12, 7, `rgba(110,200,80,${k})`, a); cx.restore();
       }
     }
+  }
+  for (const f of S.foes) if (f.hp > 0 && (f.charmT > S.t || f.fearT > S.t)) { // Togepi : charmé (cœur) ou apeuré (gouttes)
+    const y = f.y - f.r - 14 + Math.sin(t * 6 + f.ph) * 2;
+    if (f.charmT > S.t) { cx.save(); cx.translate(f.x, y); cx.scale(.9, .9); cx.fillStyle = "#ff7ab8"; cx.beginPath(); cx.moveTo(0, 5); cx.bezierCurveTo(-9, -2, -5, -10, 0, -5); cx.bezierCurveTo(5, -10, 9, -2, 0, 5); cx.fill(); cx.strokeStyle = "#fff"; cx.lineWidth = 1.2; cx.stroke(); cx.restore(); }
+    else for (const s of [-1, 1]) ell(cx, f.x + s * (f.r * .6), y + 4, 2.4, 3.6, "rgba(150,210,255,.9)");
   }
   for (const f of S.foes) if (f.frozeT > S.t) { circ(cx, f.x, f.y - f.r * .3, f.r * 1.05, "rgba(170,230,255,.32)"); cx.strokeStyle = "rgba(230,250,255,.7)"; cx.lineWidth = 1.5; cx.beginPath(); cx.arc(f.x, f.y - f.r * .3, f.r * 1.05, 0, Math.PI * 2); cx.stroke(); }
   if (S.petalT > 0) {

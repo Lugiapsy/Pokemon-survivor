@@ -23,7 +23,10 @@ const LINES = {
             blurb:"Toujours en mouvement. Torche : courir remplit sa jauge de Chaleur, qui rend ses attaques Feu jusqu'à 40 % plus fortes ; elle retombe s'il s'arrête. Roue de Feu le fait foncer en roulant dans un sillage de flammes." },
   kaiminus: { names:["Kaiminus","Crocrodil","Aligatueur"], secret:true, own:true, type:"eau", move:"machouille", hp:52, speed:158,
             blurb:"Combat au corps-à-corps. Sans Limite : +15 % de dégâts au contact, et chaque coup le soigne un peu. Mâchouille mord les ennemis les plus proches, de plus en plus vite si tu enchaînes (Frénésie)." },
+  togepi:   { names:["Togepi","Togetic","Togekiss"], secret:true, own:true, type:"fee", move:"ventfeerique", hp:42, speed:160, evo:"évolue N.10 et N.22, Togetic et Togekiss volent",
+            blurb:"Éclos de l'Œuf confié par l'assistant du Prof. Orme. Sérénité : les effets secondaires de ses capacités (apeurer, charmer) se produisent deux fois plus souvent. Vent Féérique souffle des étincelles qui peuvent apeurer l'ennemi. Togetic et Togekiss survolent l'eau, les murs et la boue." },
 };
+const flyP = P => ((P.line === "feu" || P.line === "draco") && P.stage === 2) || (P.line === "togepi" && P.stage >= 1); // Dracaufeu, Dracolosse, Togetic et Togekiss volent
 const EVO_LEVELS = [10, 22];
 const BOSS_SPD = { bossPersian:1.1, bossTauros:1.2, bossArcanin:1.2 }; // les autres boss : +30 %
 const EEVEE = { // évolutions d'Évoli : type, capacité offerte, bonus

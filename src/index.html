@@ -6,6 +6,12 @@
 <style>
 <!-- @include css/style.css -->
 <!-- @include css/fork-menu.css -->
+<!-- @include css/decor-menu.css -->
+<!-- @include css/fiche-starter.css -->
+<!-- @include css/route-niveaux.css -->
+<!-- @include css/fork-pick.css -->
+<!-- @include css/fork-hud.css -->
+<!-- @include css/fork-pause.css -->
 </style>
 <div class="rotateMsg" id="rotateMsg"><div class="phone">📱</div><div>Tourne ton téléphone<br>pour jouer en paysage</div></div>
 
@@ -27,12 +33,12 @@
 <!-- Fork : menu d'accueil -->
 <div class="overlay forkHome" id="home">
   <div class="sheet">
-    <h1 class="homeLogo">Pokémon <br>Survivor</h1>
+    <h1 class="homeLogo" aria-label="Pokémon Survivor"><span class="logoArc" aria-hidden="true"><span style="--k:-3">P</span><span style="--k:-2">o</span><span style="--k:-1">k</span><span style="--k:0">é</span><span style="--k:1">m</span><span style="--k:2">o</span><span style="--k:3">n</span></span><span class="logoBan" aria-hidden="true">SURVIVOR</span></h1>
     <nav class="homeMenu" aria-label="Menu principal">
       <button class="homeBtn main" id="homeSolo" type="button"><span>👤</span>Solo</button>
       <button class="homeBtn" id="homeMulti" type="button"><span>👥</span>Multijoueur</button>
-      <button class="homeBtn" id="shopBtn" type="button"><span>🏪</span>Magasin</button>
-      <button class="homeBtn" id="dexBtn" type="button"><span>📖</span>Pokédex</button>
+      <button class="homeBtn" id="shopBtn" type="button"><span><img class="shopIco" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAUCAYAAACJfM0wAAABb0lEQVR42q2VsUsCURzHPxe1Kbif5HKRtreE4WZg6KDQ5iaBY1OjOPYXCNLmJthwllBLiNFQjSaGLolCUzS4OdgQ73ln7x1n9p3e/d67z/vd7/d99wwcCoXjc9bQ1/jBEGPDCb29uwKgNw2wF5iuPD5KZiXcWIauKwE3QuH4PFWy+U+1yhk2AV67H9pF741TZTySqyrjn70ngB+wF3QybAMQTdcA6DfzAJhWQgsH2PAL7Tfz9Jt5ucFk2NZ+jcz48WL314TZwJWpaSUACMYKciPVu9G0oxQH52/anUWWy9kL6d7V1jiSq2JaCSbDtqsEfmvs2TwBd5XIuvR0hQssLKJSMFbwtJUn+PAkQ6ucUS5IlWzlnC4uEnGV4vrlXo4Hoxln2aR8LlZqHO+HuXkeUykumiea6nSO1seD0Yyd7S3fR1g01vOArAp1OkXrir9Al12jBDtr6keqv2Knbi/AnbqttZVY6Dcub5B1ryOdvgH8X6CLc3OApgAAAABJRU5ErkJggg=="></span>Magasin</button>
+      <button class="homeBtn" id="dexBtn" type="button"><span><img class="dexIco" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAARCAYAAADZsVyDAAABVklEQVR42rWUv0vDQBzFPylBSg1i49IhOjie4OhkpVCH4iD+A06Km+Css4Kbs+jUrVNxkAgWpHZyFJrBSaFDp+rQikNJHOTSpMklEfFBuF/f77t333sXDUAYpkcGOMOBRkZowjA92xIUOk0APtd3lMG1npOZPAdQ6DR5yy1QrY/9DRaX537ahgvAYWMJ2xKZT6cJw/Tary9U62MAWrt6omqpPK1kOsDdygatbhvZV+F01Od8pgSAbYmkjT0doFw0fZXloqmWMuqHhpW8Gwl5+MoBoMsJWds4qEojSeKgBwdrm9uRgKf7G2Xy3sVtZO76aGviiv+A/pdkqS6VOOnYcZh+VPOXQz4OjDBxmnezXKokDdVYmv74atX/0h5DJe/6lgv2Q4rjDC9Jaz0ndj1ot2nrRS7vbP95MrCEkjSTKx7fB8qAk9lS7HpSDoD22/+xMExPtklx39u9gd2uhAL7AAAAAElFTkSuQmCC"></span>Pokédex</button>
       <button class="homeBtn" id="achBtn" type="button"><span>🏆</span>Succès</button>
       <button class="homeBtn" id="homeSettings" type="button"><span>⚙️</span>Paramètres</button>
       <button class="homeBtn small" id="homeLegal" type="button">Mentions légales</button>
@@ -47,6 +53,7 @@
     <h2>Paramètres</h2>
     <div class="setList">
       <div class="setRow"><span>Volume</span><div class="volCtl"><button class="lvbtn volMute" id="muteBtn2" type="button" aria-label="Couper ou remettre le son">🔊</button><input type="range" class="volRange" id="volRange2" min="0" max="100" step="5" aria-label="Volume"><b class="volPct"></b></div></div>
+      <label class="setRow"><span>Thème menu</span><select class="setSelect" id="menuTheme"><option value="lugiapsy">Lugiapsy</option><option value="neo">Neocrizis</option></select></label>
       <label class="setRow"><span>Auto-validation de la Super Potion</span><input type="checkbox" id="autoPot3"></label>
       <div class="setRow"><span>Plein écran</span><button class="lvbtn dexbtn fsBtn" id="fsBtn" type="button" hidden title="Plein écran">⛶ Plein écran</button></div>
       <div class="setRow"><span>Progression sur tous tes appareils</span><button class="lvbtn dexbtn" id="cloudBtn" type="button" hidden title="Se connecter avec Google pour retrouver ta progression sur tous tes ordinateurs">☁️ Sauvegarde</button></div>
@@ -66,30 +73,48 @@
       <p><b>Sprites</b> : <a href="https://sprites.pmdcollab.org/" target="_blank" rel="noopener">PMD Sprite Repository</a> (SpriteCollab), licence CC BY-NC 4.0. Originaux de Spike Chunsoft pour Pokémon Donjon Mystère, avec retouches de la communauté. Détail des auteurs : <a href="https://github.com/neocrizis/Pokemon-survivor/blob/main/CREDITS.md" target="_blank" rel="noopener">CREDITS.md</a>.</p>
       <p><b>Musiques et bruitages</b> : originaux, synthétisés par le jeu.</p>
       <p><b>Données</b> : ta progression est enregistrée dans ton navigateur. La sauvegarde en ligne (facultative) passe par une connexion Google. Le jeu en ligne relie directement les navigateurs des joueurs (PeerJS / WebRTC).</p>
-      <p><b>Jeu original</b> : <a href="https://github.com/neocrizis/Pokemon-survivor" target="_blank" rel="noopener">Neocrizis</a> · <b>Interface (fork)</b> : <a href="https://github.com/Lugiapsy/Pokemon-survivor" target="_blank" rel="noopener">Lugiapsy</a></p>
+      <p><b>Jeu original</b> : <a href="https://github.com/neocrizis/Pokemon-survivor" target="_blank" rel="noopener">Neocrizis</a></p>
     </div>
     <button class="btn" id="legalClose" type="button">Retour</button>
   </div>
 </div>
 
+<!-- Fork : sélection du Pokémon (Solo) -->
+<div class="overlay" id="pick" hidden>
+  <div class="pkTop"><button class="pkBtn red" id="pickBack" type="button">← Retour</button></div>
+  <div class="pkLayout">
+    <aside class="pkPanel pkStats"><h3>Statistiques</h3><div id="pickStats"></div><div class="pkFoot" id="pickSlots"></div></aside>
+    <main class="pkPanel pkCenter">
+      <h1>Sélection du Pokémon</h1>
+      <div class="pkGrid" id="pickGrid"></div>
+      <div class="pkDesc"><div id="pickPic"></div><div id="pickTxt"></div></div>
+    </main>
+    <aside class="pkSide">
+      <div class="pkFilter" id="pickFilter"></div>
+      <div class="pkPanel pkRegions" id="pickRegions"></div>
+      <button class="pkBtn gold pkGo" id="pickGo" type="button">Confirmer</button>
+    </aside>
+  </div>
+</div>
+
 <div class="overlay" id="start" hidden>
   <div class="sheet">
-    <button class="lvbtn homeBack" id="startBack" type="button">← Menu</button>
-    <h1 id="gameTitle">Pokémon<br>Survivor</h1><div id="shinyHint" hidden>✦ Code secret : ton starter sera chromatique ✦</div>
+    <button class="lvbtn homeBack" id="startBack" type="button">← Retour</button>
+    <h1 id="gameTitle" aria-label="Pokémon Survivor"><span class="logoArc" aria-hidden="true"><span style="--k:-3">P</span><span style="--k:-2">o</span><span style="--k:-1">k</span><span style="--k:0">é</span><span style="--k:1">m</span><span style="--k:2">o</span><span style="--k:3">n</span></span><span class="logoBan" aria-hidden="true">SURVIVOR</span></h1><div id="shinyHint" hidden>✦ Code secret : ton starter sera chromatique ✦</div>
     <div class="levels" id="levelPick" role="group" aria-label="Choix du niveau"></div>
     <div class="levels"><button class="lvbtn dexbtn" id="carBtn" type="button">🏛 Panthéon</button><button class="lvbtn nuzbtn" id="nuzBtn" type="button" aria-pressed="false" title="Pas de Rappel, pas de soin au sol (Baies, Potions). Même gain de Pokédollars.">💀 Nuzlocke</button><button class="lvbtn dexbtn" id="netBtn" type="button" aria-pressed="false" title="Jouer à plusieurs sur des ordinateurs différents, avec un code de salon">🌐 En ligne</button><button class="lvbtn dexbtn" id="mpBtn" type="button" aria-pressed="false" title="Multijoueur local : J1 au clavier, les autres à la manette">👥 1 joueur</button></div>
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v141)</small></div>
-      <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v174)</small></div>
+      <button class="lvbtn netGo" id="netGo" type="button" hidden>Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
     <div class="sCar" id="sCar">
       <div class="sTabs" id="sTabs" role="tablist" aria-label="Starters"></div>
       <div class="sRow">
+        <button class="sArrow" id="sLeft" type="button" aria-label="Starter précédent"></button>
         <button class="sSide" id="sPrev" type="button" aria-label="Starter précédent"><canvas width="150" height="112"></canvas><b></b></button>
-        <button class="sArrow" id="sLeft" type="button" aria-label="Starter précédent">◀</button>
         <div class="sMid">
           <div class="sStage"><div class="sAura" id="sAura"></div><div class="sPed"></div><canvas id="sBig" width="280" height="210"></canvas></div>
           <h3 class="sName"><span id="sName"></span> <span class="chip" id="sChip"></span></h3>
@@ -98,11 +123,11 @@
             <div class="pkbox"><div class="pkh"><span>Stats</span><span id="sEvo"></span></div><div id="sStats"></div><div class="tal" id="sTal"></div></div>
             <div class="pkbox"><div class="pkh"><span>Attaques</span><span id="sMvN"></span></div><div class="mvs" id="sMoves"></div></div>
           </div>
-          <button class="btn sGo" id="sGo" type="button">▶ Choisir</button>
+          <button class="btn sGo playIco" id="sGo" type="button">Choisir</button>
           <div class="sDots" id="sDots"></div>
         </div>
-        <button class="sArrow" id="sRight" type="button" aria-label="Starter suivant">▶</button>
         <button class="sSide" id="sNext" type="button" aria-label="Starter suivant"><canvas width="150" height="112"></canvas><b></b></button>
+        <button class="sArrow" id="sRight" type="button" aria-label="Starter suivant"></button>
       </div>
     </div>
   </div>
@@ -211,6 +236,7 @@
 <script>
 <!-- @include assets/sprites.js -->
 <!-- @include assets/fork-sprites.js -->
+<!-- @include assets/fork-pick-assets.js -->
 </script>
 <script>
 (() => {
@@ -249,6 +275,12 @@
 <!-- @include js/31-en-ligne.js -->
 <!-- @include js/32-maj-et-cloud.js -->
 <!-- @include js/33-fork-menu.js -->
-<!-- @include js/34-fork-debug.js -->
+<!-- @include js/35-decor-menu.js -->
+<!-- @include js/36-fiche-starter.js -->
+<!-- @include js/37-route-niveaux.js -->
+<!-- @include js/38-fork-pick.js -->
+<!-- @include js/39-fork-debug.js -->
+<!-- @include js/40-fork-hud.js -->
+<!-- @include js/41-fork-pause.js -->
 })();
 </script>

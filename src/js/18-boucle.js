@@ -1,4 +1,17 @@
 /* ---------- Boucle ---------- */
+// en ligne, chaque joueur a sa propre caméra, centrée sur lui (sur le même écran, la caméra reste commune)
+const SPLIT = () => NET.role === "host" && NET.started && S.players.length > 1;
+function camClamp(cx0, cy0) {
+  if (LEVEL.league) { const A = arena(), hx = W / ZOOM / 2, hy = H / ZOOM / 2, mx = ARENA_WALL + 20;
+    cx0 = hx * 2 >= A.x1 - A.x0 + mx * 2 ? 0 : Math.max(A.x0 - mx + hx, Math.min(A.x1 + mx - hx, cx0));
+    cy0 = hy * 2 >= A.y1 - A.y0 + mx * 2.6 ? START_Y : Math.max(A.y0 - mx * 1.6 + hy, Math.min(A.y1 + mx - hy, cy0)); }
+  return { x:cx0, y:cy0 };
+}
+const camFor = p => camClamp(p.x, p.y);
+function spawnNear() { // autour de qui faire apparaître : la caméra commune, ou en ligne un joueur debout au hasard
+  if (!SPLIT()) return S.cam || S.P;
+  const up = S.players.filter(p => !p.down && !p.choosing); return up.length ? up[Math.random() * up.length | 0] : S.cam;
+}
 function update(dt) {
   let P = S.P;
   S.t += dt; msgCool -= dt;
@@ -39,7 +52,7 @@ function update(dt) {
   const ml = Math.hypot(mx, my); P.moving = ml > 0;
   if (ml > 1) { mx /= ml; my /= ml; }
   const slow = (tallGrassAt(P.x, P.y) ? .85 : 1) * (P.inSludge ? .75 : 1);
-  if (LEVEL.ice && !((P.line === "feu" || P.line === "draco") && P.stage === 2)) { // Île Écume : on glisse sur la glace (sauf en volant)
+  if (LEVEL.ice && !flyP(P)) { // Île Écume : on glisse sur la glace (sauf en volant)
     const k = Math.min(1, dt * 2.4); P.ivx = (P.ivx || 0) + (mx * speed() * slow - (P.ivx || 0)) * k; P.ivy = (P.ivy || 0) + (my * speed() * slow - (P.ivy || 0)) * k;
     P.x += P.ivx * dt; P.y += P.ivy * dt;
     if (Math.hypot(P.ivx, P.ivy) > 90 && Math.random() < dt * 14) emit(P.x, P.y + P.r * .7, 1, "glace", { sp:25, life:.45, r:2 });
@@ -55,7 +68,7 @@ function update(dt) {
   P.aiming = !!(ax || ay);
   P.tc = !P.aiming && (C.kb ? TOUCH : !!C.tc); // joueur sur téléphone (sans stick de visée) : Pistolet à O vise tout seul
   if (P.aiming) { const l = Math.hypot(ax, ay); P.fx = ax / l; P.fy = ay / l; P.aimA = Math.atan2(ay, ax); P.flip = ax < 0; }
-  const flying = (P.line === "feu" || P.line === "draco") && P.stage === 2; // Dracaufeu et Dracolosse volent
+  const flying = flyP(P); // Dracaufeu, Dracolosse, Togetic et Togekiss volent
   if (P.dashT > 0) { P.dashT -= dt; P.x += P.dvx * dt; P.y += P.dvy * dt; S.ghosts.push({ x:P.x, y:P.y, life:.22, dir:dirOf(P.dvx, P.dvy), o:P }); }
   if (P.kbx || P.kby) { P.x += P.kbx * dt; P.y += P.kby * dt; const k = Math.pow(.03, dt); P.kbx *= k; P.kby *= k; if (Math.abs(P.kbx) + Math.abs(P.kby) < 10) P.kbx = P.kby = 0; }
   if (LEVEL.rocket) around(P.x, P.y, c => { for (const sp of c.spinners || []) if (Math.abs(P.x - sp.x) < 26 && Math.abs(P.y - sp.y) < 26) { P.x += sp.dx * 380 * dt; P.y += sp.dy * 380 * dt; } }, 0);
@@ -75,14 +88,11 @@ function update(dt) {
   }
   for (const sl of S.sludge) sl.life -= dt;
   S.sludge = S.sludge.filter(sl => sl.life > 0);
-  { // caméra commune : centre des joueurs debout, et personne ne sort de l'écran
-    const up = S.players.filter(p => !p.down), list = up.length ? up : S.players;
+  { // caméra commune : centre des joueurs debout, et personne ne sort de l'écran (en ligne : chacun a sa caméra, voir camFor)
+    const up = S.players.filter(p => !p.down), list = SPLIT() ? [S.players[0]] : up.length ? up : S.players;
     let cx0 = 0, cy0 = 0; for (const p of list) { cx0 += p.x; cy0 += p.y; } cx0 /= list.length; cy0 /= list.length;
-    if (S.players.length > 1) { const hx = W / ZOOM / 2 - 40, hy = H / ZOOM / 2 - 50; for (const p of S.players) { p.x = Math.max(cx0 - hx, Math.min(cx0 + hx, p.x)); p.y = Math.max(cy0 - hy, Math.min(cy0 + hy, p.y)); } }
-    if (LEVEL.league) { const A = arena(), hx = W / ZOOM / 2, hy = H / ZOOM / 2, mx = ARENA_WALL + 20;
-      cx0 = hx * 2 >= A.x1 - A.x0 + mx * 2 ? 0 : Math.max(A.x0 - mx + hx, Math.min(A.x1 + mx - hx, cx0));
-      cy0 = hy * 2 >= A.y1 - A.y0 + mx * 2.6 ? START_Y : Math.max(A.y0 - mx * 1.6 + hy, Math.min(A.y1 + mx - hy, cy0)); }
-    S.cam = { x:cx0, y:cy0 };
+    if (S.players.length > 1 && !SPLIT()) { const hx = W / ZOOM / 2 - 40, hy = H / ZOOM / 2 - 50; for (const p of S.players) { p.x = Math.max(cx0 - hx, Math.min(cx0 + hx, p.x)); p.y = Math.max(cy0 - hy, Math.min(cy0 + hy, p.y)); } }
+    S.cam = camClamp(cx0, cy0); // Ligue : la caméra reste dans la salle
   }
   P = S.P = nearP(S.cam.x, S.cam.y);
 
@@ -97,13 +107,13 @@ function update(dt) {
   if (S.t >= S.nextRing && (!LEVEL.league || S.lgPh === "wild")) {
     S.nextRing += LEVEL.league ? 1e9 : 120; // Ligue : une nuée par salle
     const kind = LEVEL.rings[Math.max(0, Math.min(LEVEL.rings.length - 1, Math.floor(S.t / 120) - 1))];
-    for (let i = 0; i < 28; i++) { const a = i / 28 * Math.PI*2; spawnFoe(kind, S.cam.x + Math.cos(a)*420, S.cam.y + Math.sin(a)*420); }
+    const rc = spawnNear(); for (let i = 0; i < 28; i++) { const a = i / 28 * Math.PI*2; spawnFoe(kind, rc.x + Math.cos(a)*420, rc.y + Math.sin(a)*420); }
     banner(`Une nuée de ${FOES[kind].name} vous encercle !`);
   }
   if ((S.propT = (S.propT ?? 3) - dt) <= 0) {
     S.propT = 2.5;
-    if (S.foes.filter(f => f.prop).length < 5) for (let tries = 0; tries < 6; tries++) {
-      const a = Math.random() * Math.PI * 2, d = 650 + Math.random() * 400, x = S.cam.x + Math.cos(a) * d, y = S.cam.y + Math.sin(a) * d;
+    const pc = spawnNear(); if (S.foes.filter(f => f.prop).length < 5 * (SPLIT() ? S.players.length : 1)) for (let tries = 0; tries < 6; tries++) {
+      const a = Math.random() * Math.PI * 2, d = 650 + Math.random() * 400, x = pc.x + Math.cos(a) * d, y = pc.y + Math.sin(a) * d;
       if (solidsNear(x, y).some(o => (x - o.x) ** 2 + (y - o.y) ** 2 < (o.r + 34) ** 2)) continue;
       const pr = spawnFoe(LEVEL.prop || (LEVEL.cave ? "crackrock" : "berrytree"), x, y); pr.prop = true; pr.hp = pr.maxHp = 1; break;
     }
@@ -112,6 +122,7 @@ function update(dt) {
   while (S.seq?.length && S.t >= S.seq[0][0]) banner(S.seq.shift()[1]);
   if (S.celebi) { S.P = nearP(S.celebi.x, S.celebi.y); updateCelebi(dt); S.P = P; }
   if (S.mother) updateMother(dt);
+  if (S.orme) updateOrme(dt);
   if (LEVEL.safari) updateSafari(dt);
   if (LEVEL.manor) { for (const pl of S.players) if (!pl.down) { S.P = pl; updateManor(dt); } S.P = P; }
   const nb = LEVEL.bosses[S.bossIdx];
@@ -134,6 +145,8 @@ function update(dt) {
     if (f.d.evo && f.hp > 0 && S.t >= f.d.evoAt && (f.evoT = (f.evoT ?? f.d.evoT) - dt) <= 0) evolveFoe(f, f.d.evo); // Rhinocorne → Rhinoféros → Rhinastoc
     const dx = P.x - f.x, dy = P.y - f.y, l = Math.hypot(dx, dy) || 1;
     let ax = dx / l, ay = dy / l;
+    if (f.orme && S.orme?.on) { const ox = S.orme.x - f.x, oy = S.orme.y - f.y, ol = Math.hypot(ox, oy) || 1; ax = ox / ol; ay = oy / ol; } // ils foncent sur l'assistant du Prof. Orme
+    if (f.charmT > S.t) { ax = -ax; ay = -ay; } // charmé par Togepi : s'éloigne
     if (f.d.erratic) { const w = Math.sin(S.t * 4 + f.ph) * .9; const c = Math.cos(w), s = Math.sin(w); [ax, ay] = [ax*c - ay*s, ax*s + ay*c]; }
     let sp = f.d.speed * CURSE() * (1 + Math.min(S.t / 600, 1) * .25) * (f.hurt > 0 && !f.d.boss ? .4 : 1) * (f.slowT > 0 ? f.slowMul : 1) * (f.d.boss ? BOSS_SPD[f.kind] || 1.3 : 1); // boss plus rapides
     if ((f.d.dash || f.d.bird) && !(f.sleepT > 0)) {
@@ -254,7 +267,7 @@ function update(dt) {
     const k = ((f.x / CELL) | 0) + "," + ((f.y / CELL) | 0);
     if (!f.d.boss && !f.d.solid) (grid.get(k) || grid.set(k, []).get(k)).push(f);
     // contact
-    if (l < f.r + P.r - 3 && P.inv <= 0 && !(f.sleepT > 0) && !f.under && !f.jump && !(f.appear > 0) && !(f.vanish > 0) && !(f.missT > S.t)) {
+    if (l < f.r + P.r - 3 && P.inv <= 0 && !(f.sleepT > 0) && !f.under && !f.jump && !(f.appear > 0) && !(f.vanish > 0) && !(f.missT > S.t) && !(f.charmT > S.t)) {
       if (f.blindT > S.t && Math.random() < (f.d.boss ? .5 : 1) * (f.blindMiss || .4)) { f.missT = S.t + .6; maybeMsg(f, "Raté !", "#c9c9c9"); } // Brouillard
       else {
         if (P.line === "pika" && !f.d.boss) f.stunT = Math.max(f.stunT || 0, 1); // Statik : paralyse l'ennemi qui le touche

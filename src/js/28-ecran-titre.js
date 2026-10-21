@@ -1,5 +1,5 @@
 /* ---------- Écran titre ---------- */
-const starterOrder = ["plante", "feu", "eau", "miaouss", "pika", "evoli", "draco", "mew", "germignon", "heri", "kaiminus"];
+const starterOrder = ["plante", "feu", "eau", "miaouss", "pika", "evoli", "draco", "mew", "germignon", "heri", "kaiminus", "togepi"];
 const levelBtns = [];
 $("lgBtn").addEventListener("click", nextRoom);
 const levelOpen = i => i === 0 || !!achs[LEVELS[i].jFirst ? "win9" : "win" + i]; // un niveau se débloque en terminant le précédent (Johto : après la Caverne Azurée)
@@ -7,6 +7,7 @@ const lvLabel = lv => lv.label || lv.num;
 let REGION = "kanto";
 function setLevel(i) {
   if (!levelOpen(i)) { $("levelTag").textContent = `🔒 Termine ${LEVELS[i].jFirst ? "la Caverne Azurée" : LEVELS[i - 1].name} pour débloquer ${LEVELS[i].name}`; sfx("hurt"); return; }
+  setTimeout(refreshSides); // décor et panneaux des côtés (35-decor-menu.js)
   REGION = LEVELS[i].region || "kanto";
   if (LEVEL !== LEVELS[i]) { LEVEL = LEVELS[i]; chunkData.clear(); nearCache.clear(); liveChunks.clear(); motes.length = 0; }
   $("levelTag").textContent = `${REGION === "johto" ? "Johto · " : ""}Niveau ${lvLabel(LEVEL)} · ${LEVEL.name}`;
@@ -33,7 +34,8 @@ LEVELS.forEach((lv, i) => {
 const TALENTS = { plante:["Engrais", "récupère 0,4 PV par seconde."], feu:["Brasier", "+10 % de dégâts."], eau:["Torrent", "capacités rechargées 8 % plus vite."],
   pika:["Statik", "un ennemi qui le touche est paralysé 1 s."], evoli:["Adaptabilité", "+10 % d'expérience."], draco:["Multiécaille", "−10 % de dégâts reçus."],
   mew:["Fabuleux", "+10 % de dégâts et de bons PV."], miaouss:["Technicien", "+10 % de coups critiques."], germignon:["Feuille Garde", "une aura soigne les alliés proches et ralentit les ennemis."],
-  heri:["Torche", "courir rend ses attaques Feu jusqu'à 40 % plus fortes."], kaiminus:["Sans Limite", "+15 % de dégâts au contact, chaque coup le soigne un peu."] };
+  heri:["Torche", "courir rend ses attaques Feu jusqu'à 40 % plus fortes."], kaiminus:["Sans Limite", "+15 % de dégâts au contact, chaque coup le soigne un peu."],
+  togepi:["Sérénité", "les effets secondaires (apeurer, charmer) se produisent deux fois plus souvent."] };
 const lineMoves = line => { // capacités que ce starter peut apprendre (même règle que buildChoices, tous stades confondus)
   const L = LINES[line], out = [];
   for (const [id, m] of Object.entries(MOVES)) {
@@ -65,7 +67,7 @@ function renderCar() {
   $("sTabs").innerHTML = `<span class="lbl">Starters</span>` + (groups.length > 1 ? groups.map(([n, ls]) => `<button type="button" role="tab" data-g="${ls[0]}" aria-selected="${ls.includes(line)}">${n}<i>${ls.length}</i></button>`).join("") : "") + `<span class="cnt">${i + 1} / ${v.length}</span>`;
   $("sTabs").querySelectorAll("[data-g]").forEach(b => b.addEventListener("click", () => carGo(b.dataset.g)));
   $("sName").textContent = lock ? "???" : L.names[0]; $("sChip").textContent = TYPE_NAMES[L.type]; $("sChip").style.background = col;
-  const mu = LEVEL.matchup[line] || (L.own && LEVEL.matchup[L.type]) || ["Variable", "Métronome peut tirer n'importe quel type : chaque partie est une surprise."];
+  const mu = LEVEL.matchup[line] || (L.own && LEVEL.matchup[L.type]) || (line === "mew" ? ["Variable", "Métronome peut tirer n'importe quel type : chaque partie est une surprise."] : ["Neutre", "Pas d'avantage ni de faiblesse marqués dans ce niveau."]);
   $("sMu").innerHTML = `<b>${mu[0]}</b> ${LEVEL.where}. ${mu[1]}`;
   $("sLock").hidden = !lock; $("sLock").textContent = lock ? `🔒 Succès « ${lock.name} » : ${lock.desc}` : "";
   $("sEvo").textContent = "N.1";
@@ -79,7 +81,7 @@ function renderCar() {
   $("sMoves").innerHTML = mv.map(([id, m, alt]) => { const d = m.desc(1).split(/(?<=\.) /)[0].replace(/\.$/, "");
     const tg = id === L.move ? `<span class="tg">Départ</span>` : m.rare ? `<span class="tg r">Rare N.${m.rare.minLvl}</span>` : alt ? `<span class="tg a">${L.names[m.alt.stage]}</span>` : m.tier ? `<span class="tg r" title="Proposé après Métronome ${m.tier - 1}">après M.${m.tier - 1}</span>` : "<span></span>";
     return `<div class="mv"><span class="ty" style="background:${TYPE_COLORS[m.type] || "#888"}">${TYPE_NAMES[m.type] || m.type}</span><div><b>${m.name}</b><small>${d}</small></div>${m.tier === 1 ? "<span></span>" : tg}</div>`; }).join("");
-  $("sGo").disabled = !!lock; $("sGo").textContent = lock ? "🔒 Verrouillé" : `▶ Choisir ${L.names[0]}`;
+  $("sGo").disabled = !!lock; $("sGo").classList.toggle("playIco", !lock); $("sGo").textContent = lock ? "🔒 Verrouillé" : `Choisir ${L.names[0]}`;
   $("sBig").parentElement.classList.toggle("lk", !!lock);
   const side = (el, l) => { el.querySelector("b").textContent = isUnlocked(l) ? LINES[l].names[0] : "???"; el.classList.toggle("lk", !isUnlocked(l)); el.dataset.l = l; };
   side($("sPrev"), v[(i - 1 + v.length) % v.length]); side($("sNext"), v[(i + 1) % v.length]);
@@ -103,22 +105,57 @@ $("sBig").addEventListener("click", () => chooseStarter());
 { let sx = null; const st = $("sCar"); // mobile : glisser pour changer de starter
   st.addEventListener("pointerdown", e => { sx = e.clientX; });
   st.addEventListener("pointerup", e => { if (sx !== null && Math.abs(e.clientX - sx) > 50) carMove(e.clientX < sx ? 1 : -1); sx = null; }); }
+// Poké Ball du choix du starter : la même que celle des boss (pixel art), pas un dessin vectoriel
+const MASTER_BALL = new Image(); MASTER_BALL.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA/0lEQVRYw+2WvQ3CMBCFPYpXSElJS5kxaClTsgIjZARWcOkVUjJCWpNncdbZnJUilyAkP+kpCrm872Hlz5impqZ/lLU2SD4M+jzNoncrg8CXdckSPDtuHnolEBRcyAD+HKI5HDN8Tq0Egsp/f1iBr6VfQteWP5tdrFaA4JOfs22tBBXYtArxiv8ESfBaiXSORoFb5xNgrUCcZfBr57YXQEjtvi+NAtwqBS59n5XAPrkGJjhmVApwjyPutxC32Jeg3Cq34jDcUyBXCePGOSoPIoTgYoMQWq6ABMY8jqs+jnkJMn6TrArnJRBcgxJ4F3j5SiZQ6UO+C372QdLU1LSX3jXfmasWIVy0AAAAAElFTkSuQmCC"; // Master Ball de PokéSprite (même cadrage que la Poké Ball des boss)
+function ballSprite(master) { return master && MASTER_BALL.complete && MASTER_BALL.naturalWidth ? MASTER_BALL : PICKS.chest.img; }
 function drawBall(g, x, y, R, master, open, now) {
-  g.save(); g.translate(x, y); g.lineWidth = R * .14; g.strokeStyle = "#1a1a1a";
-  const top = master ? "#7a3fc8" : "#e8382c";
-  g.save(); g.rotate(-open * 1.1); g.translate(0, -open * R * .5); // moitié haute qui bascule à l'ouverture
-  g.beginPath(); g.arc(0, 0, R, Math.PI, 0); g.closePath(); g.fillStyle = top; g.fill(); g.stroke();
-  g.fillStyle = "rgba(255,255,255,.35)"; g.beginPath(); g.ellipse(-R * .42, -R * .55, R * .22, R * .12, -.6, 0, 7); g.fill();
-  if (master) { // bosses roses et « M »
-    g.fillStyle = "#f05ab4"; for (const s of [-1, 1]) { g.beginPath(); g.ellipse(s * R * .58, -R * .52, R * .2, R * .16, s * .5, 0, 7); g.fill(); g.stroke(); }
-    g.fillStyle = "#fff"; g.font = `bold ${R * .55}px "Pixelify Sans", sans-serif`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("M", 0, -R * .52);
+  const img = ballSprite(master), s = 3 / .7, cut = 17; // 3 px d'écran par pixel du sprite (la scène est dessinée à 0,7)
+  g.save(); g.imageSmoothingEnabled = false; g.globalAlpha *= 1 - Math.max(0, open - .6) / .4; // la balle s'efface pendant que le Pokémon sort
+  g.drawImage(img, 0, cut, 32, 32 - cut, x - 16 * s, y + (cut - 16) * s, 32 * s, (32 - cut) * s); // moitié basse
+  g.translate(x + 8 * s, y + (cut - 16) * s); g.rotate(open * .5); g.translate(0, -open * R * .6); // le couvercle se soulève en basculant vers l'arrière
+  g.drawImage(img, 0, 0, 32, cut, -24 * s, -cut * s, 32 * s, cut * s);
+  g.restore();
+}
+// Choix du starter, façon capture des jeux Game Boy Advance : la balle est lancée sur le Pokémon,
+// il devient blanc et est aspiré dedans (la balle ne s'ouvre jamais), elle tombe, tremble trois fois, puis « clic » et étoiles
+const BALL_TMP = document.createElement("canvas");
+function pixStar(g, x, y, s, a, col) { g.globalAlpha = a; g.fillStyle = col; g.fillRect(x - s / 2, y - s * 1.5, s, s * 3); g.fillRect(x - s * 1.5, y - s / 2, s * 3, s); g.fillStyle = "#fff"; g.fillRect(x - s / 2, y - s / 2, s, s); g.globalAlpha = 1; }
+function drawBallAnim(g, t, line, MX, MY, MR, now) {
+  const m = ballAnim.master, bx = 140, by = 149, R = 24, /* posée au milieu du cercle de sol (.sPed : y 148 à 186) */ hy = MY - 40, fc = m ? "200,140,255" : "255,255,255";
+  const ball = (x, y, rot = 0) => { g.save(); g.translate(x, y); g.rotate(rot); g.scale(.7, .7); drawBall(g, 0, 0, R / .7, m, 0, now); g.restore(); };
+  if (t < 1.05) { // le Pokémon : normal, puis blanc et aspiré vers la balle
+    const w = Math.min(1, Math.max(0, (t - .5) / .2)), e = Math.min(1, Math.max(0, (t - .62) / .38)), sc = 1 - e * e;
+    if (sc > .01) {
+      const c = BALL_TMP, dpr = g.getTransform().a;
+      if (c.width !== g.canvas.width) { c.width = g.canvas.width; c.height = g.canvas.height; }
+      const tg = c.getContext("2d"); tg.setTransform(dpr, 0, 0, dpr, 0, 0); tg.globalCompositeOperation = "source-over"; tg.clearRect(0, 0, 280, 210);
+      tg.save(); tg.translate(MX, MY + (hy - MY) * e); tg.scale(sc, sc); tg.translate(-MX, -MY); drawMon(tg, line, MX, MY, MR, false, now / 1000, 0, 1, e === 0); tg.restore();
+      if (w > 0) { tg.setTransform(1, 0, 0, 1, 0, 0); tg.globalCompositeOperation = "source-atop"; tg.fillStyle = `rgba(${m ? "235,215,255" : "255,255,255"},${w})`; tg.fillRect(0, 0, c.width, c.height); }
+      g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(c, 0, 0); g.restore();
+    }
   }
-  g.restore();
-  g.beginPath(); g.arc(0, 0, R, 0, Math.PI); g.closePath(); g.fillStyle = "#f4f4f0"; g.fill(); g.stroke();
-  g.fillStyle = "#1a1a1a"; g.fillRect(-R, -R * .07, R * 2, R * .14);
-  g.beginPath(); g.arc(0, 0, R * .3, 0, 7); g.fillStyle = "#f4f4f0"; g.fill(); g.stroke();
-  g.beginPath(); g.arc(0, 0, R * .14, 0, 7); g.fillStyle = (now / 120 | 0) % 2 && !open ? "#ffe680" : "#fff"; g.fill();
-  g.restore();
+  if (t < .5) { // lancer : arc depuis la gauche jusqu'au Pokémon, la balle tourne sur elle-même
+    const k = t / .5, x = -20 + (MX + 20) * k, y = hy - Math.sin(k * Math.PI) * 70 + (1 - k) * 30;
+    ball(x, y, k * Math.PI * 4);
+  } else if (t < 1.05) { // elle reste en l'air devant le Pokémon, dans la lumière qui l'aspire
+    const k = (t - .5) / .55; ball(MX, hy + Math.sin(k * Math.PI * 6) * 1.5);
+    if (!ballAnim.hit) { ballAnim.hit = true; sfx("evo"); }
+    g.save(); g.globalCompositeOperation = "lighter"; g.translate(MX, hy);
+    const a = Math.sin(Math.min(1, k * 1.2) * Math.PI);
+    for (let i = 0; i < 8; i++) { g.rotate(Math.PI / 4 + k * .3); g.fillStyle = `rgba(${fc},${.45 * a})`; g.fillRect(-1.5, 0, 3, 20 + 70 * a); }
+    const fl = g.createRadialGradient(0, 0, 0, 0, 0, 20 + 70 * a); fl.addColorStop(0, `rgba(${fc},${.9 * a})`); fl.addColorStop(1, `rgba(${fc},0)`); g.fillStyle = fl; g.fillRect(-150, -150, 300, 300); g.restore();
+  } else if (t < 1.35) { // la balle tombe au sol et rebondit
+    const k = (t - 1.05) / .3, y = k < .7 ? hy + (by - hy) * (k / .7) ** 2 : by - Math.sin((k - .7) / .3 * Math.PI) * 10; ball(MX, y);
+  } else if (t < 2.45) { // trois secousses, avec une pause entre chacune
+    const u = (t - 1.35) / .37, n = Math.floor(u), f = u - n, rot = f < .55 ? Math.sin(f / .55 * Math.PI * 2) * .32 : 0;
+    if (n !== ballAnim.wob && n < 3) { ballAnim.wob = n; sfx("chest"); }
+    g.save(); g.translate(bx, by + 27); g.rotate(rot); g.translate(-bx, -by - 27); ball(bx, by); g.restore();
+  } else { // clic : étoiles qui jaillissent
+    if (!ballAnim.click) { ballAnim.click = true; sfx("ach"); }
+    const k = Math.min(1, (t - 2.45) / .4); ball(bx, by);
+    for (const [dx, dy, c] of [[-1, -1, "#ffe066"], [0, -1.3, "#ffffff"], [1, -1, "#9ad8ff"]]) pixStar(g, bx + dx * 34 * k, by - 10 + dy * 30 * k, 3, 1 - k * k, m ? "#e0a8ff" : c);
+    if (t > 3.05) { const l = ballAnim.line; ballAnim = null; pickStarter(l); }
+  }
 }
 function drawPreviews(now) {
   if (state === "menu") {
@@ -128,21 +165,7 @@ function drawPreviews(now) {
     const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, 280, 210);
     const line = ballAnim ? ballAnim.line : carLine, sp = sheetFor(line, 0), MX = 140, MY = sp ? 142 : 140, MR = sp ? 28 : 46; // ×4
     if (!ballAnim) drawMon(g, line, MX, sp ? MY : MY + Math.sin(now / 300) * 3, MR, false, now / 1000, 0, 1, true);
-    else {
-      const t = (now - ballAnim.t0) / 1000, gy = 236, R = 34; g.save(); g.scale(.7, .7); // la Poké Ball est dessinée dans l'ancien repère 400×300
-      if (t < .45) { const k = t / .45, y = 20 + (gy - 20) * k * k - (k > .8 ? Math.sin((k - .8) / .2 * Math.PI) * 18 : 0); drawBall(g, 200, y, R, ballAnim.master, 0, now); }
-      else if (t < 1.25) { const k = (t - .45) / .8, wob = Math.sin(k * Math.PI * 3) * (1 - k) * .45; g.save(); g.translate(200, gy + R); g.rotate(wob); drawBall(g, 0, -R, R, ballAnim.master, 0, now); g.restore(); }
-      else {
-        if (!ballAnim.opened) { ballAnim.opened = true; sfx("evo"); }
-        const k = Math.min(1, (t - 1.25) / .45);
-        drawBall(g, 200, gy, R, ballAnim.master, Math.min(1, k * 2), now);
-        g.save(); g.globalCompositeOperation = "lighter"; const fl = g.createRadialGradient(200, gy - 40, 0, 200, gy - 40, 40 + 160 * k);
-        const fc = ballAnim.master ? "200,140,255" : "255,255,255"; fl.addColorStop(0, `rgba(${fc},${.9 * (1 - k)})`); fl.addColorStop(1, `rgba(${fc},0)`); g.fillStyle = fl; g.fillRect(0, 0, 400, 300); g.restore();
-        g.restore(); g.save(); g.globalAlpha = k; g.translate(MX, MY); g.scale(.3 + .7 * k, .3 + .7 * k); g.translate(-MX, -MY); drawMon(g, line, MX, MY, MR, false, now / 1000, 0, 1, true); g.restore();
-        if (t > 2.05) { const l = ballAnim.line; ballAnim = null; pickStarter(l); }
-      }
-      if (ballAnim && !ballAnim.opened) g.restore();
-    }
+    else drawBallAnim(g, (now - ballAnim.t0) / 1000, line, MX, MY, MR, now);
     for (const id of ["sPrev", "sNext"]) {
       const el = $(id), l = el.dataset.l; if (!l) continue; const cc = el.querySelector("canvas"), gg = cc.getContext("2d"), sp2 = sheetFor(l, 0);
       if (cc.width !== 150 * dpr) { cc.width = 150 * dpr; cc.height = 112 * dpr; }

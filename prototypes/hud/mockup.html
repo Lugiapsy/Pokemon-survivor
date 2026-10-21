@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Maquette HUD</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Press+Start+2P&family=Rubik:wght@400;600;800&display=swap">
+<style>
+:root { --ink:#f4f1e4; --dim:#b9c4b0; --gold:#f6c845; --display:"Pixelify Sans", monospace; --num:"Press Start 2P", monospace; --body:"Rubik", sans-serif; }
+html, body { margin:0; width:1600px; height:900px; overflow:hidden; background:#000; font-variant-ligatures:none; }
+body { position:relative; color:var(--ink); font-family:var(--body); background:url(fond.png) 0 0 / 1600px 900px no-repeat; }
+canvas { image-rendering:pixelated; display:block; }
+.abs { position:absolute; }
+.shadow { text-shadow:0 2px 0 rgba(0,0,0,.6), 0 0 6px rgba(0,0,0,.5); }
+/* cases d'icônes */
+.row { display:flex; gap:6px; }
+.slot { position:relative; width:46px; height:46px; border-radius:6px; background:rgba(10,16,12,.72); border:2px solid #6a5a34; box-shadow:inset 0 0 0 1px rgba(0,0,0,.6); display:grid; place-items:center; }
+.slot.move { background:linear-gradient(160deg, var(--t, #2f6a3a), rgba(10,16,12,.85)); }
+.slot img, .slot canvas { width:36px; height:36px; image-rendering:pixelated; }
+.pips { position:absolute; left:50%; bottom:-7px; transform:translateX(-50%); display:flex; gap:2px; }
+.pips i { width:5px; height:5px; background:#2a2a2a; border:1px solid #000; } .pips i.on { background:var(--gold); }
+.lvb { position:absolute; right:-5px; bottom:-5px; font:8px var(--num); color:#1a1a1a; background:var(--gold); border:1px solid #000; border-radius:3px; padding:2px 3px 1px; }
+.hpUnder { position:absolute; left:772px; top:480px; width:58px; height:6px; background:#3a0d0d; border:1px solid #000; }
+.hpUnder i { display:block; height:100%; width:82%; background:#e2413a; }
+.mini { width:150px; height:150px; background:rgba(10,20,14,.7); border:2px solid rgba(255,255,255,.25); position:absolute; overflow:hidden; }
+.mini i { position:absolute; width:5px; height:5px; border-radius:50%; background:#e2513f; } .mini b { position:absolute; left:72px; top:72px; width:7px; height:7px; border-radius:50%; background:#5aa9ff; box-shadow:0 0 0 2px #fff; }
+.mini .path { position:absolute; left:-20px; top:40px; width:200px; height:26px; background:rgba(200,170,110,.35); transform:rotate(18deg); }
+/* ---- A : Vampire+ ---- */
+.A .xp { left:0; right:0; top:0; height:26px; background:#141c3a; border:3px solid #c9a24a; box-sizing:border-box; }
+.A .xp i { display:block; height:100%; width:62%; background:linear-gradient(#5ec3ff, #2a72d8); }
+.A .xp span { position:absolute; right:12px; top:2px; font:12px var(--num); line-height:18px; }
+.A .slots { left:14px; top:38px; display:flex; flex-direction:column; gap:14px; }
+.A .timer { left:0; right:0; top:34px; text-align:center; font:34px var(--num); }
+.A .timer small { display:block; margin-top:8px; font:600 14px var(--body); color:var(--dim); letter-spacing:.12em; text-transform:uppercase; }
+.A .count { right:20px; top:40px; display:flex; flex-direction:column; align-items:flex-end; gap:8px; font:14px var(--num); }
+.A .count span { display:flex; gap:8px; align-items:center; } .A .count em { font-style:normal; font-size:18px; }
+.A .mini { right:20px; top:110px; }
+/* ---- B : Holocure ---- */
+.B .xp { left:0; right:0; top:0; height:8px; background:rgba(0,0,0,.6); } .B .xp i { display:block; height:100%; width:62%; background:linear-gradient(90deg, #5ec3ff, #b4e6ff); }
+.B .pf { left:16px; top:20px; width:96px; height:96px; border:3px solid #fff; border-radius:4px; box-shadow:0 4px 0 rgba(0,0,0,.4); overflow:hidden; background:#7fc0a0; }
+.B .pf img { width:100%; height:100%; image-rendering:pixelated; }
+.B .name { left:124px; top:20px; font:700 22px var(--display); } .B .name b { font:11px var(--num); color:var(--gold); margin-left:8px; }
+.B .hp { left:124px; top:52px; display:flex; align-items:center; gap:10px; }
+.B .hp .lbl { font:700 16px var(--display); background:#fff; color:#1a1a1a; padding:1px 8px; border-radius:3px; }
+.B .hp .bar { width:330px; height:16px; background:#1a2a1a; border:2px solid #fff; } .B .hp .bar i { display:block; height:100%; width:82%; background:linear-gradient(#7af07a, #2fbf4a); }
+.B .hp .v { font:12px var(--num); }
+.B .frame { left:124px; top:86px; padding:12px 14px 16px; display:flex; flex-direction:column; gap:14px; }
+.B .frame::before, .B .frame::after { content:""; position:absolute; width:18px; height:18px; border:3px solid #fff; }
+.B .frame::before { left:0; top:0; border-right:0; border-bottom:0; } .B .frame::after { right:0; bottom:0; border-left:0; border-top:0; }
+.B .stage { left:0; right:0; top:22px; text-align:center; } .B .stage small { display:block; font:700 15px var(--display); letter-spacing:.3em; text-transform:uppercase; }
+.B .stage span { font:30px var(--num); }
+.B .lv { right:0; top:0; padding:14px 22px 12px 34px; background:linear-gradient(90deg, #26364c, #1a2638); clip-path:polygon(18px 0, 100% 0, 100% 100%, 0 100%); font:22px var(--num); }
+.B .count { right:24px; top:184px; display:flex; flex-direction:column; gap:10px; font:14px var(--num); }
+.B .count span { display:flex; align-items:center; gap:10px; } .B .count em { font-style:normal; font-size:20px; }
+.B .mini { right:24px; top:20px; border-radius:6px; }
+/* ---- C : Temtem / Megabonk ---- */
+.C .tab { left:50%; top:6px; transform:translateX(-50%); padding:6px 26px; background:#25344f; border-radius:10px 10px 0 0; font:18px var(--num); clip-path:polygon(12px 0, calc(100% - 12px) 0, 100% 100%, 0 100%); }
+.C .xp { left:260px; right:260px; top:40px; height:22px; background:#25344f; border-radius:4px; border:2px solid #3e5478; box-sizing:border-box; }
+.C .xp i { display:block; height:100%; width:62%; background:linear-gradient(90deg, #3d6fd8, #69a8ff); border-radius:2px; }
+.C .xp span { position:absolute; left:10px; top:1px; font:800 16px var(--body); }
+.C .slots { left:0; right:0; top:72px; display:flex; justify-content:center; gap:40px; }
+.C .slot { width:50px; height:40px; border-radius:6px; border:2px solid #3e5478; background:#1b2538; } .C .slot.move { background:linear-gradient(160deg, var(--t), #1b2538); }
+.C .slot img, .C .slot canvas { width:32px; height:32px; }
+.C .lvb { background:#69a8ff; color:#0b1a33; }
+.C .hpW { left:756px; top:478px; display:flex; align-items:center; gap:4px; }
+.C .hpW .ic { width:24px; height:24px; border-radius:50%; overflow:hidden; border:2px solid #fff; background:#7fc0a0; } .C .hpW .ic img { width:100%; height:100%; image-rendering:pixelated; }
+.C .hpW .bar { width:64px; height:8px; background:#1a2a1a; border:1px solid #000; border-radius:4px; overflow:hidden; } .C .hpW .bar i { display:block; height:100%; width:82%; background:linear-gradient(90deg, #c8e64a, #6fd23a); }
+.C .stage { left:18px; top:16px; padding:8px 14px; background:rgba(20,28,44,.8); border-left:4px solid #69a8ff; border-radius:4px; }
+.C .stage small { display:block; font:600 12px var(--body); color:#9fb8e0; letter-spacing:.12em; text-transform:uppercase; } .C .stage b { font:700 20px var(--display); }
+.C .stage .hp2 { font:11px var(--num); margin-top:6px; color:#c8e64a; }
+.C .mini { right:24px; top:20px; border-radius:50%; border:3px solid #3e5478; }
+.C .nesw { right:24px; top:20px; width:156px; height:156px; font:700 13px var(--display); }
+.C .nesw span { position:absolute; }
+.C .chips { right:24px; bottom:22px; display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+.C .chips span { display:flex; align-items:center; gap:10px; padding:6px 12px; background:#25344f; border-radius:6px; font:800 18px var(--body); clip-path:polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px); }
+.C .chips em { font-style:normal; }
+</style>
+</head>
+<body>
+<script src="../selection/icons.js"></script>
+<script src="hud-assets.js"></script>
+<script src="move-icons.js"></script>
+<script>
+const V = (new URLSearchParams(location.search).get("v") || "a").toUpperCase();
+document.body.className = V;
+// Herbizarre N.10 à 1:46, 274 K.O. ; capacités et objets avec leur niveau (sur 5)
+const MOVES = [["tranchherbe", 5, "#2f6a3a"], ["fouetlianes", 3, "#2f6a3a"], ["poudretoxik", 2, "#5a2f6e"], ["lancesoleil", 4, "#2f6a3a"], ["dansepetale", 1, "#2f6a3a"], ["vampigraine", 2, "#2f6a3a"]];
+const ITEMS = [["depipe", 1], ["pvplus", 3], ["loupe", 2], ["restes", 2], ["veste", 1], ["carbone", 4]];
+const MAXLV = { depipe:2, rappel:2 }; // niveaux max des objets du jeu (5 par défaut)
+const el = (html, cls = "") => { const d = document.createElement("div"); d.className = "abs " + cls; d.innerHTML = html; document.body.appendChild(d); return d; };
+function slot(kind, id, lv, t, style = "pips") {
+  const s = document.createElement("div"); s.className = "slot " + kind; if (t) s.style.setProperty("--t", t);
+  if (kind === "move") s.appendChild(moveIcon(id, 48)); else s.insertAdjacentHTML("beforeend", `<img src="${ICONS[id]}" alt="">`);
+  s.insertAdjacentHTML("beforeend", style === "pips" ? `<span class="pips">${Array.from({ length:MAXLV[id] || 5 }, (_, i) => i + 1).map(k => `<i class="${k <= lv ? "on" : ""}"></i>`).join("")}</span>` : `<span class="lvb">${lv}</span>`);
+  return s;
+}
+const row = (list, kind, style) => { const r = document.createElement("div"); r.className = "row"; list.forEach(([id, lv, t]) => r.appendChild(slot(kind, id, lv, t, style))); return r; };
+const mini = cls => { const m = el(`<div class="path"></div>` + Array.from({ length: 34 }, (_, i) => `<i style="left:${(i * 53) % 140 + 4}px;top:${(i * 37) % 140 + 4}px"></i>`).join("") + "<b></b>", "mini " + cls); return m; };
+
+if (V === "A") { // Vampire+ : XP pleine largeur, 2 rangées d'icônes, chrono, compteurs, PV sous le Pokémon
+  el(`<i></i><span class="shadow">NIV. 10</span>`, "xp");
+  const s = el("", "slots"); s.append(row(MOVES, "move"), row(ITEMS, "item"));
+  el(`01:46<small>Forêt de Jade</small>`, "timer shadow");
+  el(`<span class="shadow">274 <em>💀</em></span><span class="shadow">150 <em>₽</em></span>`, "count");
+  mini(""); el("<i></i>", "hpUnder");
+}
+if (V === "B") { // Holocure : portrait, PV en grand, icônes encadrées, nom du stage, LV en coin
+  el("<i></i>", "xp");
+  el(`<img src="${PORTRAIT_HERBIZARRE}" alt="">`, "pf");
+  el(`Herbizarre<b>N.10</b>`, "name shadow");
+  el(`<span class="lbl">PV</span><div class="bar"><i></i></div><span class="v shadow">61 / 74</span>`, "hp");
+  const f = el("", "frame"); f.append(row(MOVES, "move"), row(ITEMS, "item"));
+  el(`<small class="shadow">Forêt de Jade</small><span class="shadow">01 : 46</span>`, "stage");
+  mini(""); // mini-carte tout en haut à droite, K.O. juste dessous (plus de LV en coin ni de Pokédollars)
+  el(`<span class="shadow"><em>💀</em>274</span>`, "count");
+  el("<i></i>", "hpUnder");
+}
+if (V === "C") { // Temtem / Megabonk : chrono + XP au centre, icônes de part et d'autre, PV sous le Pokémon avec portrait
+  el(`01:46`, "tab");
+  el(`<i></i><span>10</span>`, "xp");
+  const s = el("", "slots"); s.append(row(MOVES, "move", "badge"), row(ITEMS, "item", "badge"));
+  el(`<small>Chapitre 1</small><b>Forêt de Jade</b><div class="hp2">PV 61 / 74</div>`, "stage");
+  el(`<div class="ic"><img src="${PORTRAIT_HERBIZARRE}" alt=""></div><div class="bar"><i></i></div>`, "hpW");
+  mini(""); el(`<span style="left:72px;top:2px">N</span><span style="right:6px;top:68px">E</span><span style="left:74px;bottom:2px">S</span><span style="left:6px;top:68px">O</span>`, "nesw shadow");
+  el(`<span>274 <em>💀</em></span><span>150 <em>₽</em></span>`, "chips");
+}
+</script>
+</body>
+</html>

@@ -371,6 +371,7 @@ const LEVELS = [
         table(m, o) {
           o.push(["fantominus", 3], ["abo", 2.2], ["smogo", 1.2], ["tadmorv", 1.2]);
           o.push(["spectrum", 1.2], ["nosferalto", 1.6 + m / 8], ["arbok", 1.4 + m / 8]);
+          if (m > 1) o.push(["smogogo", .8 + m / 10], ["grotadmorv", .6 + m / 12]); // les évolutions de Smogo et Tadmorv arrivent après la première minute
         } },
       { mapName:"Salle de Peter", member:"Peter", mtype:"Dragon", theme:"peter", ice:false, plant:false, lava:false, wild:90, boss:"lgDraco", windy:true,
         tip:"Des bourrasques balaient la salle !", rings:["lgmini"],
@@ -417,8 +418,10 @@ const LEVELS = [
               pika:["Neutre", "L'Électrik foudroie les Hoothoot et les Noarfang (Vol), mais les Chétiflor lui résistent."],
               evoli:["Variable", "Normal au départ, puis le type de ton évolution au N.10. Pyroli est idéal contre les Chétiflor."],
               draco:["Neutre", "Le Dragon n'a pas d'avantage ici, mais il résiste aux Fouet Lianes des Chétiflor géants."],
-              mew:["Variable", "Métronome peut tirer n'importe quel type : chaque partie est une surprise."] },
+              mew:["Variable", "Métronome peut tirer n'importe quel type : chaque partie est une surprise."],
+              fee:["Neutre", "La Fée et l'Aurasphère glissent sur la lignée de Chétiflor (Poison), mais Lame d'Air (Vol) la tranche sans peine."] },
     rings:["chetiflor", "rattata", "hoothoot", "fantominus"],
+    event:{ kind:"orme", from:220, to:250, chance:1/3 }, // l'assistant du Prof. Orme et l'Œuf de Togepi
     bosses:[{ at:170, kind:"bossChetiflor" }, { at:300, kind:"bossBoustiflor" }, { at:450, kind:"bossEmpiflor" }],
     table(m, o) {
       o.push(["chetiflor", m < 3 ? 3.4 : 1], ["rattata", m < 3 ? 2.4 : .8], ["hoothoot", m < 4 ? 2 : 1]);

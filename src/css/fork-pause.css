@@ -1,0 +1,51 @@
+/* ---------- Fork (Lugiapsy) : menu pause (voir js/41-fork-pause.js) ---------- */
+#fpause { position:fixed; inset:0; z-index:20; overflow-y:auto; font-variant-ligatures:none; color:var(--ink);
+  background:rgba(5,10,7,.5); -webkit-backdrop-filter:blur(5px) brightness(.75); backdrop-filter:blur(5px) brightness(.75); }
+#fpause[hidden] { display:none; }
+#fpause .fpRow { min-height:100%; box-sizing:border-box; display:flex; justify-content:center; align-items:flex-start; gap:40px;
+  padding:calc(40px + env(safe-area-inset-top, 0px)) max(30px, env(safe-area-inset-right, 0px)) 40px max(30px, env(safe-area-inset-left, 0px)); }
+/* panneau PAUSE : bleu foncé, cadre doré, boutons de la sélection du Pokémon */
+#fpause .fpPanel { flex:none; width:300px; margin-top:90px; background:#25344a; border:3px solid #c9a24a; border-radius:6px; box-sizing:border-box;
+  box-shadow:inset 0 0 0 2px #10182a, 0 8px 0 rgba(0,0,0,.35), 0 10px 40px rgba(0,0,0,.5); padding:26px 30px 34px; display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center; }
+#fpause .fpPanel h1 { margin:0 0 6px; font:700 46px var(--display); letter-spacing:.06em; color:var(--ink); text-shadow:none; }
+#fpause .fpStage { margin:-10px 0 8px; font:600 14px var(--body); color:var(--ink-dim); letter-spacing:.12em; text-transform:uppercase; }
+#fpause .fpBtns { display:flex; flex-direction:column; align-items:center; gap:14px; }
+#fpause .fpBtns[hidden] { display:none; }
+#fpause .fpBtn { width:220px; font:700 20px var(--display); letter-spacing:.06em; border-radius:8px; padding:10px 0; border:3px solid; box-shadow:inset 0 -4px 0 rgba(0,0,0,.25); color:var(--ink); cursor:pointer; }
+#fpause .fpBtn:hover { filter:brightness(1.12); }
+#fpause .fpBtn.gold { background:var(--accent); color:#1a1a1a; border-color:#fff1b8; } #fpause .fpBtn.green { background:#3e9a4a; border-color:#a6f0a0; }
+#fpause .fpBtn.blue { background:#2448c8; border-color:#9fb8ff; } #fpause .fpBtn.grey { background:#9aa0a8; color:#1d2230; border-color:#5e6470; }
+#fpause .fpBtn.red { background:#c8402a; border-color:#ffb08a; }
+#fpause .fpBtn.on { box-shadow:inset 0 -4px 0 rgba(0,0,0,.25), 0 0 0 3px #fff; }
+#fpause .fpBtn:focus-visible, #fpause .fpBtn.padfocus { outline:3px solid var(--ink); outline-offset:3px; }
+#fpause #fpOptSlot .pauseOpt { margin-top:4px; } #fpause #fpOptSlot .setList { width:100%; } #fpause #fpOptSlot .setRow { flex-direction:column; align-items:flex-start; gap:6px; }
+/* zone Statistiques (gauche) : cadre bleu foncé à contour doré, stats sur une colonne */
+#fpause .fpStats { flex:none; width:440px; box-sizing:border-box; padding:18px 22px; background:rgba(16,24,40,.9); border:3px solid #c9a24a; border-radius:6px; box-shadow:inset 0 0 0 2px #10182a, 0 10px 40px rgba(0,0,0,.5); text-align:left; }
+#fpause .fpStats[hidden], #fpause .fpCaps[hidden] { display:none; }
+#fpause .fpHead { display:grid; grid-template-columns:120px 1fr; gap:16px; align-items:center; }
+#fpause .fpPf { width:120px; height:120px; border:4px solid #fff; border-radius:6px; overflow:hidden; box-shadow:0 5px 0 rgba(0,0,0,.4); background:#6a9a80; } #fpause .fpPf img { width:100%; height:100%; image-rendering:pixelated; display:block; }
+#fpause .fpHead b { display:block; font:700 30px var(--display); } #fpause .fpHead span { font:11px var(--num); color:var(--accent); }
+#fpause .fpHp { display:flex; align-items:center; gap:8px; margin-top:10px; } #fpause .fpHp span { font:10px var(--num); color:var(--ink); white-space:nowrap; }
+#fpause .fpHp i { display:block; width:140px; height:14px; border:2px solid #fff; background:linear-gradient(90deg, var(--hp) var(--p), #1a2a1a var(--p)); }
+#fpause .fpSt { margin-top:20px; } #fpause .fpGrp + .fpGrp { margin-top:10px; }
+#fpause .fpLine { display:grid; grid-template-columns:24px 1fr auto; gap:8px; align-items:center; padding:4px 0; border-bottom:2px solid rgba(255,255,255,.35); font:500 16px var(--body); }
+#fpause .fpLine img { width:22px; height:22px; image-rendering:pixelated; } #fpause .fpLine .em { width:22px; text-align:center; font-size:15px; }
+#fpause .fpLine .v { font:600 15px var(--body); white-space:nowrap; } #fpause .fpLine .v small { color:#7ee07a; margin-left:4px; font-weight:600; }
+#fpause .fpLine.up .v { color:var(--accent); } #fpause .fpLine.off { color:#8a948a; } #fpause .fpLine.off .v { color:#6a746a; }
+/* zone Capacités (droite) : chaque niveau, acquis en blanc, à venir en gris */
+#fpause .fpCaps { flex:0 1 720px; min-width:0; box-sizing:border-box; padding:18px 22px; background:rgba(12,24,38,.92); border:3px solid #bfe6ff; border-radius:6px; text-align:left; }
+#fpause .fpCaps h3 { margin:0 0 12px; font:700 20px var(--display); color:#bfe6ff; letter-spacing:.06em; }
+#fpause .fpMoves { display:grid; grid-template-columns:1fr 1fr; gap:12px 22px; }
+#fpause .fpMv { display:grid; grid-template-columns:44px 1fr; gap:10px; align-items:start; }
+#fpause .fpMv .ic { width:44px; height:44px; border-radius:6px; display:grid; place-items:center; border:2px solid #6a5a34; background:linear-gradient(160deg, var(--t), rgba(10,16,12,.9)); box-sizing:border-box; }
+#fpause .fpMv .ic img { width:32px; height:32px; image-rendering:pixelated; }
+#fpause .fpMv h4 { margin:0 0 3px; font:700 16px var(--body); display:flex; align-items:center; gap:8px; } #fpause .fpMv h4 em { font:9px var(--num); font-style:normal; color:var(--accent); }
+#fpause .fpMv ol { margin:0; padding:0; list-style:none; font:500 12.5px/1.35 var(--body); }
+#fpause .fpMv li { display:grid; grid-template-columns:30px 1fr; color:#6f7a70; } #fpause .fpMv li b { font:8px/16px var(--num); color:#6f7a70; }
+#fpause .fpMv li.on { color:#fff; } #fpause .fpMv li.on b { color:var(--accent); }
+#fpause .fpItems { display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:14px; padding-top:10px; border-top:2px solid rgba(191,230,255,.35); }
+#fpause .fpIt { display:flex; align-items:center; gap:7px; font:500 13px var(--body); } #fpause .fpIt img { width:28px; height:28px; image-rendering:pixelated; } #fpause .fpIt em { font:8px var(--num); color:var(--accent); font-style:normal; }
+/* écrans étroits : les zones passent sous le panneau, défilement vertical */
+@media (max-width:1100px) { #fpause .fpRow { flex-wrap:wrap; align-items:flex-start; } #fpause .fpPanel { order:-1; margin-top:0; } #fpause .fpStats, #fpause .fpCaps { flex:1 1 100%; width:auto; max-width:760px; } }
+@media (max-width:600px) { #fpause .fpMoves { grid-template-columns:1fr; } #fpause .fpPanel { width:100%; max-width:300px; } }
+@media (max-height:520px) and (min-width:700px) { #fpause .fpPanel { padding:14px 20px 18px; gap:8px; } #fpause .fpPanel h1 { font-size:30px; } #fpause .fpBtn { padding:6px 0; font-size:16px; } }

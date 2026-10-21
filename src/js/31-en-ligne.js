@@ -6,7 +6,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v141";
+const NET_VER = "v174";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -47,7 +47,7 @@ function netLobby() {
     netMsg(`Salon <span class="netCodeBig">${NET.code}</span><br>Donne ce code à tes amis, ou ce lien : <input id="netLinkOut" readonly value="${netEsc(netLink())}"><br>${rows}<br>Niveau : <b>${netEsc(LEVEL.name)}</b> (c'est toi qui le choisis en haut)${NET.diag ? `<br><small style="opacity:.75">Réseau : ${netEsc(NET.diag)}</small>` : ""}`);
     $("netLinkOut").addEventListener("focus", e => e.target.select());
     const ready = !!NET.picks[0] && NET.conns.length > 0 && NET.conns.every(g => g.line);
-    $("netGo").disabled = !ready; $("netGo").textContent = !NET.conns.length ? "En attente d'un autre joueur…" : ready ? "▶ Lancer la partie" : "En attente des starters…";
+    $("netGo").disabled = !ready; $("netGo").textContent = !NET.conns.length ? "En attente d'un autre joueur…" : ready ? "Lancer la partie" : "En attente des starters…"; $("netGo").classList.toggle("playIco", !!(NET.conns.length && ready));
     netAll({ t:"lobby", level:LEVEL.name, list });
   } else if (NET.role === "guest") {
     const L = NET.lobby, rows = (L && Array.isArray(L.list) ? L.list : []).map(r => `<b>J${(r.idx | 0) + 1}${(r.idx | 0) === NET.idx ? " (toi)" : ""}</b> : ${netName(r.line) || "choisit…"}`).join(" · ");
@@ -185,11 +185,11 @@ function netRep(k, v) {
   }
   return v;
 }
-function netSnap() {
-  const c = S.cam, near = o => !o || typeof o.x !== "number" || (Math.abs(o.x - c.x) < 1400 && Math.abs(o.y - c.y) < 1000);
+function netSnap(c = S.cam) {
+  const near = o => !o || typeof o.x !== "number" || (Math.abs(o.x - c.x) < 1400 && Math.abs(o.y - c.y) < 1000);
   const out = {};
   for (const k in S) { if (NET_SKIP.has(k)) continue; const v = S[k]; out[k] = Array.isArray(v) ? v.filter(near) : v; }
-  out.players = S.players; out.texts = (out.texts || []).slice(-60);
+  out.cam = c; out.players = S.players; out.texts = (out.texts || []).slice(-60);
   // Pokémon : [espèce, x, y, direction + 8 si retourné, id, PV en %, extras]
   out.fz = S.foes.filter(f => f.hp > 0 && Math.abs(f.x - c.x) < 1050 && Math.abs(f.y - c.y) < 700).map(f => {
     const a = [FOE_KEYS.indexOf(f.kind), Math.round(f.x), Math.round(f.y), (f.dir || 0) + (f.flip ? 8 : 0), f.id || 0, Math.max(0, Math.min(100, Math.round(f.hp / f.maxHp * 100)))];
@@ -244,7 +244,7 @@ function netInput() {
 function netFrame(now, dt) {
   chooseTimer();
   if (NET.role === "host" && NET.started && S && NET.conns.length) {
-    NET.sendT -= dt; if (NET.sendT <= 0) { NET.sendT = 1 / 15; netAll("S" + netSnap()); } // 15 fois par seconde
+    NET.sendT -= dt; if (NET.sendT <= 0) { NET.sendT = 1 / 15; for (const g of NET.conns) { const p = S.players[g.idx]; netTo(g, "S" + netSnap(p ? camFor(p) : S.cam)); } } // chacun reçoit ce qui entoure sa caméra // 15 fois par seconde
     if ((NET.dexT = (NET.dexT || 0) - dt) <= 0) { NET.dexT = 2; netDexFlush(); }
   }
   if (NET.role === "guest" && NET.started) {
@@ -336,6 +336,7 @@ function netGuestEnd(m) {
   for (const id of ["levelup", "chest"]) $(id).hidden = true;
   $("endTitle").textContent = String(m.title || "Fin de la partie"); $("endSub").textContent = String(m.sub || "");
   $("endStats").innerHTML = (S && S.players ? statsHtml() : "") + (NET.achMsgs?.length ? `<div class="achEnd">${NET.achMsgs.map(netEsc).join("<br>")}</div>` : "");
+  if (m.win && S?.orme?.ok) eggHatch((NET.achMsgs || []).some(x => String(x).includes("Togepi")));
   const me = S && S.players && S.players[NET.idx];
   $("endDmg").innerHTML = me ? teamHtml() + `<h3 class="dmgFor">Tes dégâts (${pTag(me)}${(S.P = me, pName())})</h3>` + dmgTableHtml(me) : "";
   $("end").hidden = false; $("boss").hidden = true; $("againBtn").focus({ preventScroll:true });

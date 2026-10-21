@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototype A · Vampire</title>
+<link rel="stylesheet" href="common.css">
+<style>
+body { background:radial-gradient(ellipse at 50% 0%, #2c4a36 0%, #13221a 55%, #0a120d 100%); min-height:100vh; }
+.top { display:flex; align-items:center; padding:14px 24px; }
+.vbtn { font:700 15px var(--display); border-radius:8px; padding:9px 22px; border:3px solid; box-shadow:inset 0 -4px 0 rgba(0,0,0,.25); }
+.vbtn.red { background:#c8402a; border-color:#ffb08a; } .vbtn.gold { background:var(--accent); color:#1a1a1a; border-color:#fff1b8; }
+.vbtn:hover { filter:brightness(1.12); }
+.layout { display:grid; grid-template-columns:310px minmax(0, 700px) 240px; gap:22px; justify-content:center; padding:4px 24px 70px; }
+.panel { background:#25344a; border:3px solid #c9a24a; border-radius:6px; box-shadow:inset 0 0 0 2px #10182a, 0 8px 0 rgba(0,0,0,.35); }
+.statsPanel { padding:12px 14px; align-self:start; background:#9aa0a8; color:#1d2230; border-color:#5e6470; }
+.statsPanel h3 { margin:0 0 8px; font:700 17px var(--display); }
+.grp + .grp { margin-top:9px; padding-top:9px; border-top:2px solid #848a95; }
+.srow { display:grid; grid-template-columns:22px 1fr auto; gap:7px; align-items:center; font:600 15px var(--display); padding:2px 0; }
+.srow img, .srow .em { width:22px; height:22px; image-rendering:pixelated; font-size:16px; text-align:center; }
+.srow .v em { font:700 11px var(--display); font-style:normal; color:#1d2230; background:#ffe066; border-radius:3px; padding:0 4px; margin-right:5px; text-shadow:none; vertical-align:2px; }
+.sim { display:flex; gap:6px; align-items:center; margin:-2px 0 10px; font:600 13px var(--display); }
+.sim select { flex:1; font:600 13px var(--display); background:#d6dae0; border:2px solid #5e6470; border-radius:4px; padding:2px 4px; }
+.srow .v { white-space:nowrap; font:9px var(--num); color:#e8f0ff; text-shadow:0 1px 0 #1d2230, 1px 0 0 #1d2230, -1px 0 0 #1d2230, 0 -1px 0 #1d2230; }
+.srow.up .v { color:#ffe066; }
+.statsPanel .foot { margin-top:10px; padding-top:9px; border-top:2px solid #5e6470; font:700 15px var(--display); text-align:center; }
+.center { padding:14px 16px 0; }
+.center h1 { margin:0 0 14px; text-align:center; font:700 clamp(26px, 3vw, 38px) var(--display); letter-spacing:.02em; }
+.grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; max-height:430px; overflow-y:auto; padding:4px; }
+.empty { grid-column:1 / -1; text-align:center; padding:40px 0; font:700 18px var(--display); color:var(--ink-dim); }
+.cell { position:relative; height:132px; background:#8a909b; border:3px solid #c9a24a; border-radius:4px; outline:none; overflow:hidden; color:#1d2230; transition:transform .08s; }
+.cell .nm { position:absolute; left:8px; top:5px; font:700 16px var(--display); z-index:2; }
+.cell .pt { position:absolute; left:50%; top:32px; width:80px; height:80px; transform:translateX(-50%); image-rendering:pixelated; border:2px solid #353a48; border-radius:4px; box-shadow:0 3px 0 rgba(0,0,0,.25); }
+.cell.sel .pt { border-color:#fff; }
+.cell .chip { position:absolute; right:6px; bottom:6px; z-index:2; font-size:10px; }
+.q { position:absolute; inset:14px 0 0; display:grid; place-items:center; font:700 58px var(--display); color:#353a48; text-shadow:0 3px 0 rgba(255,255,255,.12); }
+.cell.lk { background:#5b6170; } .cell.lk .nm { color:#353a48; }
+.cell.sel { border-color:#fff; box-shadow:0 0 0 3px var(--accent), 0 0 22px rgba(246,200,69,.5); transform:translateY(-2px); background:#a3a9b3; }
+.cell.lk.sel { background:#6b7180; }
+.cell { cursor:pointer; } .cell:not(.sel):hover { border-color:#e8d08a; }
+#descPic { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.skins { display:flex; gap:5px; } .skins i { width:9px; height:9px; background:#c7ccd3; border:2px solid #5e6470; } .skins i.on { background:#ffe066; border-color:#1d2230; }
+#descPic canvas.multi { cursor:pointer; } /* clic sur le Pokémon animé : skin suivant */
+.desc .skinName { font:600 12px var(--display); color:#3d4352; }
+.desc { display:grid; grid-template-columns:110px 1fr; gap:14px; align-items:center; margin:12px -16px 0; padding:12px 16px; background:#9aa0a8; color:#1d2230; border-top:3px solid #c9a24a; min-height:132px; }
+.desc .q { position:static; font-size:64px; color:#5b6170; }
+.desc h2 { margin:0 0 4px; font:700 20px var(--display); display:flex; gap:8px; align-items:center; }
+.desc p { margin:2px 0; font:500 15px var(--display); line-height:1.35; }
+.desc .mv b { color:#7a1f10; }
+.side { display:flex; flex-direction:column; gap:16px; }
+.filter { background:#2448c8; border:3px solid #9fb8ff; border-radius:6px; text-align:center; font:700 17px var(--display); padding:8px; }
+.regions { padding:12px 14px; background:#9aa0a8; color:#1d2230; border-color:#5e6470; }
+.regions label { display:flex; align-items:center; gap:10px; font:700 17px var(--display); padding:5px 0; cursor:pointer; }
+.regions label.soon { opacity:.5; cursor:default; }
+.regions input { width:18px; height:18px; accent-color:#3a2840; }
+.regions small { margin-left:auto; font:500 12px var(--display); }
+.confirm { margin-top:auto; font-size:20px; padding:14px; letter-spacing:.08em; } /* « fi » de Confirmer bien séparés */
+@media (max-width:1250px) { .layout { grid-template-columns:1fr; max-width:760px; margin:0 auto; } .statsPanel { order:2; } .side { order:3; } }
+@media (max-width:600px) { .grid { grid-template-columns:repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<div class="top"><button class="vbtn red" id="back" type="button">← Retour</button></div>
+<div class="layout">
+  <aside class="panel statsPanel"><h3>Statistiques</h3><label class="sim">Achats :<select id="sim"><option value="aucun">aucun</option><option value="un" selected>1 niveau de chaque</option><option value="max">tout au maximum</option></select></label><div id="stats"></div><div class="foot" id="slots"></div></aside>
+  <main class="panel center">
+    <h1>Sélection du Pokémon</h1>
+    <div class="grid" id="grid"></div>
+    <div class="desc"><div id="descPic"></div><div id="descTxt"></div></div>
+  </main>
+  <aside class="side">
+    <div class="filter" id="filterTag"></div>
+    <div class="panel regions" id="regions"></div>
+    <button class="vbtn gold confirm" id="go" type="button">Confirmer</button>
+  </aside>
+</div>
+<nav class="proto-nav"><a href="index.html">Prototypes</a><a class="on" href="a-vampire.html">A</a><a href="b-temtem.html">B</a><a href="c-vitrine.html">C</a></nav>
+<script src="../../src/assets/sprites.js"></script>
+<script src="../../src/assets/fork-sprites.js"></script>
+<script src="icons.js"></script>
+<script src="portraits.js"></script>
+<script src="common.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+// Régions : on peut cocher / décocher librement (Hoenn, Sinnoh… s'ajouteront ici avec les prochaines générations)
+const REGIONS = [["kanto", "Kanto"], ["johto", "Johto"]];
+const regionOn = { kanto:true, johto:true };
+$("regions").innerHTML = REGIONS.map(([k, n, soon]) => `<label class="${soon ? "soon" : ""}"><input type="checkbox" data-r="${k}" ${regionOn[k] ? "checked" : ""} ${soon ? "disabled" : ""}> ${n}${soon ? "<small>bientôt</small>" : ""}</label>`).join("");
+$("regions").addEventListener("change", e => { regionOn[e.target.dataset.r] = e.target.checked; build(); });
+let list = [], cur = STARTERS[0];
+const SKIN = {}; // skin choisi par Pokémon (index dans s.skins)
+const skinOf = s => (s.skins || [{ n:"Classique", dex:s.dex[0] }])[SKIN[s.id] || 0];
+function build() {
+  const on = REGIONS.filter(([k]) => regionOn[k]).map(r => r[1]);
+  $("filterTag").textContent = on.length ? `Région${on.length > 1 ? "s" : ""} : ${on.join(", ")}` : "Aucune région";
+  $("grid").innerHTML = "";
+  list = STARTERS.filter(s => regionOn[s.region || "kanto"]);
+  if (!list.length) { $("grid").innerHTML = `<div class="empty">Coche au moins une région.</div>`; return; }
+  const cells = list.map(s => {
+    const lk = isLocked(s), c = document.createElement("div"); c.className = "cell" + (lk ? " lk" : "");
+    c.innerHTML = `<span class="nm">${lk ? "???" : s.names[0]}</span>` + (lk ? `<span class="q">?</span>` : `<img class="pt" src="${PORTRAITS[s.dex[0]]}" alt=""><span class="chip" style="--c:${TYPE_COLORS[s.type]}">${TYPE_NAMES[s.type]}</span>`);
+    $("grid").appendChild(c); return c;
+  });
+  gridNav(cells, { onFocus:i => show(list[i]), onConfirm:i => pick(list[i]), onBack:() => toast("← Retour au menu d'accueil") });
+}
+function show(s) {
+  cur = s; const lk = isLocked(s);
+  const sh = SHOP_SIM[$("sim").value];
+  $("stats").innerHTML = statsFull(s, sh).map(g => `<div class="grp">${g.map(x => `<div class="srow${x.up && !lk ? " up" : ""}" title="${x.buy ? `${x.buy} niveau${x.buy > 1 ? "x" : ""} acheté${x.buy > 1 ? "s" : ""} au Marchand` : ""}">${x.item ? `<img src="${ICONS[x.item]}" alt="">` : `<span class="em">${x.ic}</span>`}<span>${x.n}</span><span class="v">${lk ? "?" : (x.buy ? `<em>×${x.buy}</em>` : "") + x.v}</span></div>`).join("")}</div>`).join("");
+  $("slots").innerHTML = `Capacités max : ${maxMoves(sh)}` + (sh.slot ? ` <small>(+${sh.slot} achetée${sh.slot > 1 ? "s" : ""})</small>` : "");
+  $("descPic").innerHTML = lk ? `<div class="q">?</div>` : "";
+  if (!lk) {
+    const cv = canvasFor($("descPic"), 110, 96, (g, t) => drawMon(g, skinOf(s).dex, 55, 88, 2, Math.floor(t / 1.5) % 8, t, true));
+    if (s.skins) { // plusieurs skins : un clic sur le Pokémon animé passe au suivant ; petits carrés jaunes et nom du skin dessous
+      cv.classList.add("multi"); cv.title = "Clique pour changer de skin";
+      cv.addEventListener("click", () => { SKIN[s.id] = ((SKIN[s.id] || 0) + 1) % s.skins.length; show(s); });
+      $("descPic").insertAdjacentHTML("beforeend", `<div class="skins">${s.skins.map((k, i) => `<i class="${(SKIN[s.id] || 0) === i ? "on" : ""}"></i>`).join("")}</div><span class="skinName">${skinOf(s).n}</span>`);
+    }
+  }
+  $("descTxt").innerHTML = lk
+    ? `<h2>???</h2><p>🔒 Succès « ${s.lock[0]} » : ${s.lock[1]}</p>`
+    : `<h2>${s.names[0]} <span class="chip" style="--c:${TYPE_COLORS[s.type]}">${TYPE_NAMES[s.type]}</span></h2>
+       <p class="mv"><b>${s.move}</b> : ${s.moveDesc}</p><p><b>${s.talent[0]}</b> : ${s.talent[1]}</p><p>Évolution : ${evoText(s)}</p>`;
+  $("go").textContent = lk ? "Verrouillé" : "Confirmer";
+}
+function pick(s) { // Confirmer (ou Entrée / A) : dans le jeu, on passerait au choix de la carte
+  if (isLocked(s)) return toast(`🔒 ${s.lock[0]} : ${s.lock[1]}`);
+  toast(`Prototype : partie lancée avec <b>${s.names[0]}</b>${s.skins ? ` (skin ${skinOf(s).n})` : ""}`);
+}
+$("go").addEventListener("click", () => pick(cur));
+$("sim").addEventListener("change", () => show(cur));
+$("back").addEventListener("click", () => toast("← Retour au menu d'accueil"));
+build();
+</script>
+</body>
+</html>

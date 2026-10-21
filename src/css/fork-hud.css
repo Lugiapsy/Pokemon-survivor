@@ -1,0 +1,41 @@
+/* ---------- Fork (Lugiapsy) : interface en partie façon Holocure (classe body.forkHud, voir js/40-fork-hud.js) ---------- */
+body.forkHud .hud .who, body.forkHud .hud .timer, body.forkHud .hud .score > span:first-child { display:none; }
+body.forkHud .hud .score { grid-column:3; } /* mini-carte tout en haut à droite */
+body.forkHud:not(.forkTouch) #pauseBtn { display:none; } /* bouton Pause seulement sur écran tactile */
+body.forkHud .xpbar { top:0; bottom:auto; height:6px; } body.forkHud .xpbar > i { height:6px; }
+body.forkHud .hud { padding-top:calc(14px + env(safe-area-inset-top, 0px)); }
+#fhud { position:fixed; inset:0; pointer-events:none; font-variant-ligatures:none; } /* juste après #hud : les écrans (montée de niveau, pause…) passent dessus */
+#fhud[hidden], .hud[hidden] + #fhud { display:none; } /* jamais visible hors partie */
+#fhud .fhPf { position:absolute; left:max(14px, env(safe-area-inset-left, 0px)); top:calc(14px + env(safe-area-inset-top, 0px)); width:84px; height:84px;
+  border:3px solid #fff; border-radius:4px; box-shadow:0 4px 0 rgba(0,0,0,.4); overflow:hidden; background:#6a9a80; }
+#fhud .fhPf img { width:100%; height:100%; image-rendering:pixelated; display:block; }
+#fhud .fhName { position:absolute; left:calc(max(14px, env(safe-area-inset-left, 0px)) + 98px); top:calc(12px + env(safe-area-inset-top, 0px));
+  font:700 20px var(--display); text-shadow:0 2px 0 rgba(0,0,0,.6), 0 0 6px rgba(0,0,0,.5); white-space:nowrap; }
+#fhud .fhName b { font:10px var(--num); color:var(--accent); margin-left:8px; vertical-align:2px; }
+#fhud .fhHp { position:absolute; left:calc(max(14px, env(safe-area-inset-left, 0px)) + 98px); top:calc(42px + env(safe-area-inset-top, 0px)); display:flex; align-items:center; gap:8px; }
+#fhud .fhHp .lbl { font:700 14px var(--display); background:#fff; color:#1a1a1a; padding:0 7px; border-radius:3px; }
+#fhud .fhHp .bar { width:min(300px, 34vw); height:14px; background:#1a2a1a; border:2px solid #fff; border-radius:0; }
+#fhud .fhHp .bar > i { display:block; height:100%; transition:width .15s; }
+#fhud .fhHp .v { font:11px var(--num); text-shadow:0 2px 0 rgba(0,0,0,.7); white-space:nowrap; }
+#fhud .fhFrame { position:absolute; left:calc(max(14px, env(safe-area-inset-left, 0px)) + 98px); top:calc(70px + env(safe-area-inset-top, 0px)); padding:10px 12px 14px; display:flex; flex-direction:column; gap:12px; }
+#fhud .fhFrame::before, #fhud .fhFrame::after { content:""; position:absolute; width:14px; height:14px; border:3px solid #fff; }
+#fhud .fhFrame::before { left:0; top:0; border-right:0; border-bottom:0; } #fhud .fhFrame::after { right:0; bottom:0; border-left:0; border-top:0; }
+#fhud .fhRow { display:flex; flex-wrap:wrap; gap:5px; min-height:40px; max-width:280px; }
+#fhud .fhSlot { position:relative; width:40px; height:40px; border-radius:6px; background:rgba(10,16,12,.72); border:2px solid #6a5a34; box-shadow:inset 0 0 0 1px rgba(0,0,0,.6); display:grid; place-items:center; box-sizing:border-box; }
+#fhud .fhSlot.mv { background:linear-gradient(160deg, var(--t), rgba(10,16,12,.85)); }
+#fhud .fhSlot img { width:32px; height:32px; image-rendering:pixelated; }
+#fhud .fhPips { position:absolute; left:50%; bottom:-6px; transform:translateX(-50%); display:flex; gap:2px; }
+#fhud .fhPips i { width:5px; height:5px; background:#2a2a2a; border:1px solid #000; } #fhud .fhPips i.on { background:var(--accent); }
+#fhud .fhStage { position:absolute; left:0; right:0; top:calc(14px + env(safe-area-inset-top, 0px)); text-align:center; text-shadow:0 2px 0 rgba(0,0,0,.6), 0 0 6px rgba(0,0,0,.5); }
+#fhud .fhStage small { display:block; font:700 13px var(--display); letter-spacing:.3em; text-transform:uppercase; }
+#fhud .fhStage span { font:24px var(--num); font-variant-numeric:tabular-nums; }
+.fhKo { display:none; align-items:center; gap:8px; font:13px var(--num); color:var(--ink); text-shadow:0 2px 0 rgba(0,0,0,.7); }
+body.forkHud .fhKo { display:flex; } .fhKo span { font-size:17px; }
+@media (max-width:900px), (max-height:520px) { /* téléphone : tout en plus petit */
+  #fhud .fhPf { width:56px; height:56px; } #fhud .fhName, #fhud .fhHp, #fhud .fhFrame { left:calc(max(10px, env(safe-area-inset-left, 0px)) + 66px); }
+  #fhud .fhName { font-size:15px; top:calc(8px + env(safe-area-inset-top, 0px)); } #fhud .fhHp { top:calc(30px + env(safe-area-inset-top, 0px)); } #fhud .fhHp .bar { height:10px; width:min(150px, 20vw); } #fhud .fhHp .v { font-size:9px; }
+  #fhud .fhFrame { top:calc(50px + env(safe-area-inset-top, 0px)); padding:7px 8px 10px; gap:9px; }
+  #fhud .fhRow { min-height:28px; max-width:200px; gap:4px; } #fhud .fhSlot { width:28px; height:28px; border-radius:4px; } #fhud .fhSlot img { width:22px; height:22px; }
+  #fhud .fhPips { bottom:-5px; gap:1px; } #fhud .fhPips i { width:3px; height:3px; }
+  #fhud .fhStage small { font-size:10px; } #fhud .fhStage span { font-size:16px; }
+}

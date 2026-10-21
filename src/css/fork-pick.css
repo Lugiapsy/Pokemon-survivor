@@ -1,0 +1,58 @@
+/* ---------- Fork (Lugiapsy) : sélection du Pokémon (Solo), style Vampire Survivors ---------- */
+#pick { display:block; place-items:initial; padding:0; overflow-y:auto; font-variant-ligatures:none;
+  background:radial-gradient(ellipse at 50% 0%, #2c4a36 0%, #13221a 55%, #0a120d 100%); }
+#pick canvas { image-rendering:pixelated; display:block; }
+#pick .pkTop { display:flex; align-items:center; padding:calc(14px + env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-right, 0px)) 14px max(24px, env(safe-area-inset-left, 0px)); }
+#pick .pkBtn { font:700 15px var(--display); color:var(--ink); border-radius:8px; padding:9px 22px; border:3px solid; box-shadow:inset 0 -4px 0 rgba(0,0,0,.25); cursor:pointer; }
+#pick .pkBtn.red { background:#c8402a; border-color:#ffb08a; } #pick .pkBtn.gold { background:var(--accent); color:#1a1a1a; border-color:#fff1b8; }
+#pick .pkBtn:hover { filter:brightness(1.12); } #pick .pkBtn:disabled { filter:grayscale(.6) brightness(.85); cursor:default; }
+#pick .pkBtn:focus-visible, #pick .pkBtn.padfocus { outline:3px solid var(--ink); outline-offset:2px; }
+#pick .pkLayout { display:grid; grid-template-columns:310px minmax(0, 700px) 240px; gap:22px; justify-content:center; padding:4px 24px 40px; }
+#pick .pkPanel { background:#25344a; border:3px solid #c9a24a; border-radius:6px; box-shadow:inset 0 0 0 2px #10182a, 0 8px 0 rgba(0,0,0,.35); }
+#pick .pkStats { padding:12px 14px; align-self:start; background:#9aa0a8; color:#1d2230; border-color:#5e6470; text-align:left; }
+#pick .pkStats h3 { margin:0 0 8px; font:700 17px var(--display); }
+#pick .pkGrp + .pkGrp { margin-top:9px; padding-top:9px; border-top:2px solid #848a95; }
+#pick .pkRow { display:grid; grid-template-columns:22px 1fr auto; gap:7px; align-items:center; font:600 15px var(--display); padding:2px 0; }
+#pick .pkRow img, #pick .pkRow .em { width:22px; height:22px; image-rendering:pixelated; font-size:16px; text-align:center; }
+#pick .pkRow .v { white-space:nowrap; font:9px var(--num); color:#e8f0ff; text-shadow:0 1px 0 #1d2230, 1px 0 0 #1d2230, -1px 0 0 #1d2230, 0 -1px 0 #1d2230; }
+#pick .pkRow.up .v { color:#ffe066; }
+#pick .pkRow .v em { font:700 11px var(--display); font-style:normal; color:#1d2230; background:#ffe066; border-radius:3px; padding:0 4px; margin-right:5px; text-shadow:none; vertical-align:2px; }
+#pick .pkFoot { margin-top:10px; padding-top:9px; border-top:2px solid #5e6470; font:700 15px var(--display); text-align:center; }
+#pick .pkCenter { padding:14px 16px 0; }
+#pick .pkCenter h1 { margin:0 0 14px; text-align:center; font:700 clamp(26px, 3vw, 38px) var(--display); letter-spacing:.02em; color:var(--ink); text-shadow:none; }
+#pick .pkGrid { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; max-height:430px; overflow-y:auto; padding:4px; }
+#pick .pkEmpty { grid-column:1 / -1; text-align:center; padding:40px 0; font:700 18px var(--display); color:var(--ink-dim); }
+#pick .pkCell { position:relative; height:132px; padding:0; background:#8a909b; border:3px solid #c9a24a; border-radius:4px; outline:none; overflow:hidden; color:#1d2230; cursor:pointer; transition:transform .08s; }
+#pick .pkCell .nm { position:absolute; left:8px; top:5px; font:700 16px var(--display); z-index:2; }
+#pick .pkCell .pt { position:absolute; left:50%; top:32px; width:80px; height:80px; transform:translateX(-50%); image-rendering:pixelated; border:2px solid #353a48; border-radius:4px; box-shadow:0 3px 0 rgba(0,0,0,.25); }
+#pick .pkCell .chip { position:absolute; right:6px; bottom:6px; z-index:2; font-size:10px; color:#1a1a1a; background:var(--c); }
+#pick .pkQ { position:absolute; inset:14px 0 0; display:grid; place-items:center; font:700 58px var(--display); color:#353a48; text-shadow:0 3px 0 rgba(255,255,255,.12); }
+#pick .pkCell.lk { background:#5b6170; } #pick .pkCell.lk .nm { color:#353a48; }
+#pick .pkCell:not(.sel):hover { border-color:#e8d08a; }
+#pick .pkCell.sel { border-color:#fff; box-shadow:0 0 0 3px var(--accent), 0 0 22px rgba(246,200,69,.5); transform:translateY(-2px); background:#a3a9b3; }
+#pick .pkCell.sel .pt { border-color:#fff; } #pick .pkCell.lk.sel { background:#6b7180; }
+#pick .pkCell.padfocus { outline:3px solid var(--ink); outline-offset:2px; }
+#pick .pkDesc { display:grid; grid-template-columns:110px 1fr; gap:14px; align-items:center; margin:12px -16px 0; padding:12px 16px; background:#9aa0a8; color:#1d2230; border-top:3px solid #c9a24a; min-height:132px; text-align:left; }
+#pick .pkDesc .pkQ { position:static; font-size:64px; color:#5b6170; }
+#pick .pkDesc h2 { margin:0 0 4px; font:700 20px var(--display); display:flex; gap:8px; align-items:center; color:#1d2230; text-shadow:none; }
+#pick .pkDesc p { margin:2px 0; font:500 15px var(--display); line-height:1.35; }
+#pick .pkDesc .pkMv b { color:#7a1f10; }
+#pick #pickPic { display:flex; flex-direction:column; align-items:center; gap:4px; }
+#pick #pickPic canvas.multi { cursor:pointer; }
+#pick .pkSkins { display:flex; gap:5px; } #pick .pkSkins i { width:9px; height:9px; background:#c7ccd3; border:2px solid #5e6470; } #pick .pkSkins i.on { background:#ffe066; border-color:#1d2230; }
+#pick .pkSkinName { font:600 12px var(--display); color:#3d4352; }
+#pick .pkSide { display:flex; flex-direction:column; gap:16px; }
+#pick .pkFilter { background:#2448c8; border:3px solid #9fb8ff; border-radius:6px; text-align:center; font:700 17px var(--display); padding:8px; }
+#pick .pkRegions { padding:12px 14px; background:#9aa0a8; color:#1d2230; border-color:#5e6470; }
+#pick .pkRegions label { display:flex; align-items:center; gap:10px; font:700 17px var(--display); padding:5px 0; cursor:pointer; }
+#pick .pkRegions input { width:18px; height:18px; accent-color:#3a2840; }
+#pick .pkGo { margin-top:auto; font-size:20px; padding:14px; letter-spacing:.08em; } /* « fi » de Confirmer bien séparés */
+@media (max-width:1250px) { #pick .pkLayout { grid-template-columns:1fr; max-width:760px; margin:0 auto; } #pick .pkStats { order:2; } #pick .pkSide { order:3; } #pick .pkGo { margin-top:0; } }
+@media (max-width:600px) { #pick .pkGrid { grid-template-columns:repeat(2, 1fr); } }
+@media (max-height:520px) and (min-width:700px) { #pick .pkLayout { grid-template-columns:240px minmax(0, 1fr) 200px; gap:12px; } #pick .pkStats { order:0; } #pick .pkSide { order:0; } #pick .pkCell { height:104px; } #pick .pkCell .pt { width:56px; height:56px; top:28px; } }
+
+/* Écran du niveau ouvert depuis la sélection : plus de carrousel, un bouton « Jouer avec … » */
+.pickLaunch { display:none; flex-direction:column; align-items:center; gap:10px; margin:6px 0 4px; }
+body.pickFlow .pickLaunch { display:flex; } body.pickFlow #sCar { display:none !important; }
+.pickLaunchBtn { display:flex; align-items:center; gap:14px; font-size:20px; padding:10px 26px 10px 12px; letter-spacing:.04em; font-variant-ligatures:none; }
+.pickLaunchBtn img { width:48px; height:48px; image-rendering:pixelated; border:2px solid #1a1a1a; border-radius:4px; }

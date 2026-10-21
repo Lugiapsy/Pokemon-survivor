@@ -18,6 +18,13 @@ Bouton **👥 1 joueur** sur l'écran titre (jusqu'à 4) : J1 au clavier et à l
 ## Sauvegarde
 La progression est gardée dans le navigateur, propre à chaque adresse : celle de ce fork est séparée de celle de la version officielle. La sauvegarde Google (Firebase) est configurée pour le site de Raphaël et peut refuser la connexion depuis ce fork.
 
+## Modifier le code
+Le code source est découpé dans `src/` (`src/index.html`, `src/css/`, `src/js/`). Après une modification, reconstruire `index.html` (le fichier servi par GitHub Pages) :
+
+    python tools/build.py
+
+`tools/split.py` refait le découpage à partir d'un `index.html` complet. L'interface (menu d'accueil, Paramètres, Mentions légales…) vient du fork de [Lugiapsy](https://github.com/Lugiapsy/Pokemon-survivor), détail dans [CHANGELOG-FORK.md](CHANGELOG-FORK.md).
+
 ## Licence
 Projet de fan, non commercial. Pokémon © Nintendo / Creatures / GAME FREAK.
 Sprites : PMD Sprite Repository (SpriteCollab), CC BY-NC 4.0, voir [CREDITS.md](CREDITS.md).

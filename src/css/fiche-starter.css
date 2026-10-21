@@ -1,0 +1,38 @@
+/* Fiche du starter modernisée : hexagone des stats, évolution en images, icônes de type */
+#sStats { display:flex; justify-content:center; }
+#sRadar { width:300px; height:222px; max-width:100%; }
+.talB { display:flex; flex-direction:column; gap:1px; background:#fff3dc; border-radius:8px; padding:5px 9px; border-left:4px solid var(--c); }
+.talB b { font:800 13px var(--body); color:#c8402a; } .talB span { font:12px var(--body); color:#4a4434; }
+#sTal.tal { background:none; padding:0; display:flex; flex-direction:column; gap:6px; }
+.evoRow { display:flex; align-items:center; justify-content:center; gap:2px; }
+.evoSt { display:flex; flex-direction:column; align-items:center; min-width:0; }
+.evoSt canvas { width:72px; height:60px; image-rendering:pixelated; }
+.evoSt b { font:800 11px var(--body); color:#2a2a2a; line-height:1.1; } .evoSt small { font:700 10px var(--body); color:#8a7f60; }
+.evoAr { font:900 22px var(--body); color:#b0a580; font-style:normal; margin-top:-22px; }
+.evoRow.many .evoSt canvas { width:52px; height:44px; } .evoRow.many .evoSt b { font-size:9px; }
+.evoNo { font:600 11px var(--body); color:#6a6455; padding:4px 0; }
+.mv { grid-template-columns:30px 1fr auto; }
+.tyi { width:26px; height:26px; border-radius:50%; background:var(--t); display:grid; place-items:center; box-shadow:inset 0 -2px 0 rgba(0,0,0,.18), 0 1px 0 rgba(0,0,0,.15); }
+.tyi svg { width:15px; height:15px; fill:#fff; filter:drop-shadow(0 1px 0 rgba(0,0,0,.25)); }
+/* Évoli : quatre évolutions au choix, en carré, avec leur type et leur bonus */
+.evoEv { display:grid; grid-template-columns:auto auto 1fr; align-items:center; gap:4px; }
+.evoCh { display:flex; flex-direction:column; align-items:center; } .evoCh .evoAr { margin:0; } .evoCh small { font:700 9px var(--body); color:#8a7f60; text-align:center; line-height:1.1; }
+.evoGrid { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
+.evoCard { display:flex; align-items:center; gap:3px; background:#fff; border:2px solid #e2dbc4; border-left:4px solid var(--t); border-radius:8px; padding:1px 4px 1px 0; min-width:0; }
+.evoCard canvas { width:40px; height:35px; image-rendering:pixelated; flex:none; }
+.evoCard > div { min-width:0; display:flex; flex-direction:column; }
+.evoCard b { font:800 11px var(--body); color:#2a2a2a; display:flex; align-items:center; gap:3px; } .evoCard b .tyi { width:14px; height:14px; } .evoCard b .tyi svg { width:9px; height:9px; }
+.evoCard small { font:600 9px var(--body); color:#6a6455; line-height:1.15; }
+.evoCard { cursor:pointer; transition:transform .1s, box-shadow .1s; } .evoCard:hover { transform:translateY(-1px); box-shadow:0 2px 0 rgba(0,0,0,.12); }
+.evoCard.on { background:#fff8e0; border-color:var(--t); box-shadow:0 0 0 2px var(--t); }
+.pkbox.form .pkh { background:var(--fc); }
+.mvBack { font:700 11px var(--body); padding:1px 8px; border-radius:99px; border:0; background:rgba(255,255,255,.85); color:#2a2a2a; cursor:pointer; margin-right:4px; text-transform:none; letter-spacing:0; }
+.evoEv { grid-template-columns:52px 30px 1fr; gap:2px; } .evoEv .evoSt canvas { width:52px; height:44px; } .evoEv .evoSt b { font-size:10px; }
+.evoCh small { font-size:8px; }
+.evoCard b .tyi { display:none; } .evoCard { padding:2px 4px 2px 0; }
+.evoCard small { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+/* plus de 4 évolutions (formes à venir) : 4 par ligne, sprite et nom seulement, le bonus passe en infobulle */
+.evoGrid.many { grid-template-columns:repeat(4, 1fr); gap:3px; }
+.evoGrid.many .evoCard { flex-direction:column; gap:0; padding:1px 0 2px; border-left-width:2px; border-bottom:3px solid var(--t); }
+.evoGrid.many .evoCard canvas { width:36px; height:31px; } .evoGrid.many .evoCard small { display:none; } .evoGrid.many .evoCard b { font-size:9px; }
+.evoGrid.many .evoCard > div { align-items:center; }

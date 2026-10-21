@@ -7,6 +7,42 @@ Fork de [neocrizis/Pokemon-survivor](https://github.com/neocrizis/Pokemon-surviv
 
 ---
 
+## MAJ-003 · Fork 03 (base : v174 de Neo)
+
+### Mises à jour de Neo intégrées (v142 → v174)
+- Neo avait repris MAJ-001 et MAJ-002 : fusion directe de son dépôt (même structure `src/`).
+- Nouvel écran du niveau (carte de route Kanto / Johto, fiche du starter, capture à la Poké Ball), nouveau logo, décors vivants, Togepi jouable.
+- Il a retiré les mentions du fork chez lui : elles sont remises ici depuis un fichier propre au fork (« Fork NN » à côté de la version, « Fork : Lugiapsy » dans les Mentions légales).
+
+### Thème menu (Paramètres)
+- **Lugiapsy** (par défaut) : les écrans du fork ci-dessous. **Neocrizis** : écrans de Neo.
+
+### Sélection du Pokémon (Solo, style Vampire Survivors)
+- Grille de portraits PMD, « ? » pour les Pokémon verrouillés avec le succès à obtenir.
+- 16 statistiques avec l'icône de l'objet correspondant, calculées avec les vrais achats du Marchand (badge ×N).
+- Filtre Kanto / Johto ; skins de Pichu (Classique / Troizépi) en cliquant sur le Pokémon animé (visuel seulement).
+- Confirmer → écran du niveau **sans carrousel** : on choisit le niveau, puis « ▶ Jouer avec … » ; bouton « ← Retour », « Changer de Pokémon ».
+
+### Interface en partie (style Holocure)
+- Portrait qui suit les évolutions, nom + niveau, grande barre de PV.
+- Icônes pixel art 16×16 des 59 capacités (fond de la couleur du type) et icônes des objets, avec des carrés de niveau selon le max réel (Dé Pipé 2).
+- Nom du niveau + chrono au centre, mini-carte en haut à droite et K.O. dessous, XP fine en haut, bouton Pause seulement sur écran tactile.
+
+### Menu pause
+- Fond de jeu flouté et assombri, panneau PAUSE bleu foncé à cadre doré : Reprendre, Capacités, Statistiques, Options, Quitter.
+- Capacités : chaque niveau de chaque capacité (acquis en blanc, à venir en gris) + objets. Statistiques : portrait, PV, stats en cours de partie. Le panneau glisse pour leur faire de la place.
+
+### Corrections
+- L'interface du fork ne reste plus affichée derrière les menus après une partie.
+
+### Pour les futures versions de Neo
+- `CLAUDE.md` : consignes lues par Claude Code (nouvelle capacité → icône, nouveau Pokémon → portraits).
+- `tools/build.py` signale les capacités sans icône et les portraits manquants.
+- Fichiers propres au fork : `38-fork-pick.js`, `39-fork-debug.js`, `40-fork-hud.js`, `41-fork-pause.js`, `fork-pick.css`, `fork-hud.css`, `fork-pause.css`, `fork-pick-assets.js`.
+- Prototypes et maquettes : `prototypes/selection/` et `prototypes/hud/`.
+
+---
+
 ## MAJ-002 · Fork 02 (base : v141 de Neo)
 
 ### Mises à jour de Neo intégrées (v136 → v141)
@@ -74,4 +110,3 @@ Fork de [neocrizis/Pokemon-survivor](https://github.com/neocrizis/Pokemon-surviv
 
 ### Notes pour l'intégration chez Neo
 - Modifications dans ses fichiers, à reprendre : retours vers l'accueil (`closeAch`, `closeShop`, `closeDex`), texte du bouton Magasin (`refreshMoneyTag`), liste des écrans à la manette (`overlayButtons`), volume (`AU.vol`, 4 lignes dans les sons), `hideDex` sur 5 Pokémon, `openDex` (catégories, tri, échelle commune), `DEX.pichuspiky`.
-- `src/js/34-fork-debug.js` est un outil de test du fork : ne pas l'envoyer à Neo.

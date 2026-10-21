@@ -27,7 +27,7 @@ function updateMap7(dt) {
   if (S.falls.length > 60) S.falls.splice(0, S.falls.length - 60);
   for (const q of S.players) {
     if (q.down || q.choosing || q.left) continue;
-    S.P = q; const fly = (q.line === "feu" || q.line === "draco") && q.stage === 2;
+    S.P = q; const fly = flyP(q);
     if (q.burnT > 0) { // brûlure : petits dégâts réguliers
       q.burnT -= dt; if (Math.random() < dt * 12) emit(q.x + (Math.random() - .5) * q.r, q.y - q.r * .2, 1, "feu", { sp:30, life:.45, up:60, r:2.4 });
       q.brT = (q.brT || 0) - dt; if (q.brT <= 0) { q.brT = .5; if (q.inv <= 0 && hurtP(4 * scl)) return true; }

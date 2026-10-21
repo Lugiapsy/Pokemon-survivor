@@ -54,6 +54,7 @@ const ACHS = [
   { id:"win8",    name:"Maître de la Ligue", desc:"Battre le Conseil 4 et le Champion de la Ligue Indigo.", reward:200 },
   { id:"win9",    name:"Pokémon fabuleux",   desc:"Vaincre Mewtwo au fond de la Caverne Azurée.",       reward:100, unlock:["mew", "germignon", "heri", "kaiminus"], secret:true },
   { id:"win10",   name:"Tour Chétiflor gravie", desc:"Terminer la Tour Chétiflor, premier niveau de Johto.", reward:100, secret:true },
+  { id:"togepi",  name:"Œuf de Togepi",      desc:"Protéger l'assistant du Prof. Orme dans la Tour Chétiflor, puis terminer le niveau.", reward:100, unlock:"togepi", secret:true },
   { id:"mewtwo",  name:"Pokémon génétique",  desc:"Repousser Mewtwo dans le Manoir Pokémon.",       reward:100 },
   { id:"legend",  name:"Légende vivante",    desc:"Vaincre Artikodin, Électhor ou Sulfura dans le niveau Oiseau Légendaire.", reward:100 },
   { id:"draco",   name:"Chasseur de dragon", desc:"Attraper le Minidraco pendant la chasse du Parc Safari.", reward:50, unlock:"draco" },
@@ -96,7 +97,7 @@ function achCheck(win) {
 }
 function openAch() {
   $("achSub").textContent = `${ACHS.filter(a => achs[a.id]).length} / ${ACHS.length} succès · ${achMoney().toLocaleString("fr-FR")} ₽ gagnés`;
-  $("achList").innerHTML = ACHS.filter(a => !a.secret || (a.id === "win10" ? achs.win9 : achs.win8)).map(a => `<div class="shopRow ${achs[a.id] ? "done" : "todo"}"><div><b>${achs[a.id] ? "🏆" : "🔒"} ${a.name}</b><small>${a.desc}${a.unlock ? ` Débloque ${unlockNames(a)}.` : ""}</small></div><span class="reward">${a.reward} ₽</span></div>`).join("");
+  $("achList").innerHTML = ACHS.filter(a => !a.secret || (a.id === "win10" || a.id === "togepi" ? achs.win9 : achs.win8)).map(a => `<div class="shopRow ${achs[a.id] ? "done" : "todo"}"><div><b>${achs[a.id] ? "🏆" : "🔒"} ${a.name}</b><small>${a.desc}${a.unlock ? ` Débloque ${unlockNames(a)}.` : ""}</small></div><span class="reward">${a.reward} ₽</span></div>`).join("");
   state = "ach"; $("start").hidden = true; $("ach").hidden = false; $("achClose").focus({ preventScroll:true });
 }
 function closeAch() { $("ach").hidden = true; $("home").hidden = false; state = "home"; }
@@ -165,7 +166,8 @@ function openShop() {
   if (state !== "shop") { state = "shop"; $("start").hidden = true; $("shop").hidden = false; $("shopClose").focus({ preventScroll:true }); }
 }
 function closeShop() { $("shop").hidden = true; $("home").hidden = false; state = "home"; refreshMoneyTag(); }
-const refreshMoneyTag = () => { $("shopBtn").innerHTML = `<span>🏪</span>Magasin <small class="homeMoney">${money().toLocaleString("fr-FR")} ₽</small>`; };
+const SHOP_ICO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAUCAYAAACJfM0wAAABb0lEQVR42q2VsUsCURzHPxe1Kbif5HKRtreE4WZg6KDQ5iaBY1OjOPYXCNLmJthwllBLiNFQjSaGLolCUzS4OdgQ73ln7x1n9p3e/d67z/vd7/d99wwcCoXjc9bQ1/jBEGPDCb29uwKgNw2wF5iuPD5KZiXcWIauKwE3QuH4PFWy+U+1yhk2AV67H9pF741TZTySqyrjn70ngB+wF3QybAMQTdcA6DfzAJhWQgsH2PAL7Tfz9Jt5ucFk2NZ+jcz48WL314TZwJWpaSUACMYKciPVu9G0oxQH52/anUWWy9kL6d7V1jiSq2JaCSbDtqsEfmvs2TwBd5XIuvR0hQssLKJSMFbwtJUn+PAkQ6ucUS5IlWzlnC4uEnGV4vrlXo4Hoxln2aR8LlZqHO+HuXkeUykumiea6nSO1seD0Yyd7S3fR1g01vOArAp1OkXrir9Al12jBDtr6keqv2Knbi/AnbqttZVY6Dcub5B1ryOdvgH8X6CLc3OApgAAAABJRU5ErkJggg=="; // Boutique Pokémon en pixel art (22 × 20)
+const refreshMoneyTag = () => { $("shopBtn").innerHTML = `<span><img class="shopIco" alt="" src="${SHOP_ICO}"></span>Magasin <small class="homeMoney">${money().toLocaleString("fr-FR")} ₽</small>`; };
 function dexCount(f) {
   const k = f.kind, n = (dexKills[k] || 0) + 1; dexKills[k] = n; dexDirty = true;
   if (typeof NET !== "undefined" && NET.role === "host" && NET.started) (NET.dexQ ||= {})[k] = (NET.dexQ[k] || 0) + 1; // envoyé aux invités

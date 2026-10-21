@@ -7,8 +7,7 @@ function netUpdateCheck() {
     location.replace(location.pathname + "?v=" + encodeURIComponent(v) + location.hash); return true;
   }).catch(() => false);
 }
-const FORK_VER = "02"; // version du fork de Lugiapsy (interface), +1 à chaque mise à jour du fork
-$("verTag").textContent = "Version " + NET_VER.slice(1) + " · Fork " + FORK_VER; // affichée en bas de l'écran d'accueil
+$("verTag").textContent = "Version " + NET_VER.slice(1); // affichée en bas de l'écran d'accueil
 // Sauvegarde en ligne (GitHub Pages seulement) : connexion Google + Firestore (projet Firebase de Raphaël, formule gratuite).
 // Document saves/{uid} = { dex, shop, ach } en JSON. À la connexion, on fusionne la progression locale et celle du nuage
 // en gardant le plus avancé : K.O. du Pokédex au maximum, succès réunis, rangs du Marchand au maximum.

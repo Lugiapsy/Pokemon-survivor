@@ -25,11 +25,93 @@ function startEvent(kind) {
   } else if (kind === "journal") {
     S.journal = { n:0 }; journalNext();
     banner("Une page de journal traîne sur le sol… Il y en a d'autres dans le manoir : retrouve-les toutes !"); sfx("ach");
+  } else if (kind === "orme") { // Tour Chétiflor : l'assistant du Prof. Orme et son Œuf, encerclés
+    let x = P.x + 360, y = P.y;
+    for (let k = 0; k < 40; k++) { const a = Math.random() * Math.PI * 2, dd = 320 + Math.random() * 120; x = P.x + Math.cos(a) * dd; y = P.y + Math.sin(a) * dd;
+      if (!solidsNear(x, y).some(o => Math.hypot(o.x - x, o.y - y) < o.r + 40)) break; }
+    S.orme = { x, y, hp:ORME_HP, t:90, on:1, hit:0, ph:Math.random() * 6 };
+    for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2, d = 380 + (i % 3) * 110; ormeFoe(i % 2 ? "hoothoot" : "rattata", x + Math.cos(a) * d, y + Math.sin(a) * d); }
+    banner("« À l'aide ! » L'assistant du Prof. Orme transporte un Œuf, mais des Rattata et des Hoothoot l'encerclent. Protège-le pendant 1 min 30 !"); sfx("boss");
   } else if (kind === "mere") {
     const f = spawnFoe("mereossa", P.x + mx * 420, P.y + my * 420); S.mother = { t:300, f };
     banner(scopeOn() ? "« Partez… partez… » Le Scope Sylphe révèle le Spectre : c'est la Mère Ossatueur ! Apaise son esprit en le combattant."
                       : "« Partez… partez… » Un Spectre surgit ! Sans Scope Sylphe, impossible de le toucher : survis 5 minutes."); sfx("boss");
   }
+}
+// Tour Chétiflor : protéger l'assistant du Prof. Orme 1 min 30 ; trop de coups et l'Œuf se brise
+const ormeFoe = (kind, x, y) => { const f = spawnFoe(kind, x, y); f.orme = true; f.hp = f.maxHp = Math.min(f.maxHp, f.d.hp * 1.6); return f; }; // renforts moins coriaces que le reste de la tour
+const ORME_HP = 100, ORME_CRY = ["« À l'aide ! »", "« Pas l'Œuf ! »", "« Ouille ! »", "« Vite, par ici ! »"];
+function updateOrme(dt) {
+  const o = S.orme; o.hit = Math.max(0, o.hit - dt);
+  if (!o.on) { if (o.leave > 0) { o.leave -= dt; o.x += o.lx * 150 * dt; o.y += o.ly * 150 * dt; } return; }
+  o.t -= dt;
+  if ((o.spT = (o.spT ?? 1.2) - dt) <= 0) { // renforts : des Rattata et des Hoothoot de plus en plus nombreux
+    o.spT = Math.max(1, 1.8 - (90 - o.t) / 110) / (1 + .5 * (S.players.length - 1));
+    const a = Math.random() * Math.PI * 2, kind = o.t < 45 && Math.random() < .3 ? (Math.random() < .5 ? "rattatac" : "noarfang") : Math.random() < .5 ? "rattata" : "hoothoot";
+    ormeFoe(kind, o.x + Math.cos(a) * 520, o.y + Math.sin(a) * 520);
+  }
+  for (const f of S.foes) {
+    if (!f.orme || f.hp <= 0 || f.under || f.sleepT > 0 || f.charmT > S.t || f.ormeT > S.t || (f.x - o.x) ** 2 + (f.y - o.y) ** 2 > (f.r + 16) ** 2) continue;
+    const v = 3; f.ormeT = S.t + 1.5; o.hp -= v; o.hit = .3;
+    S.texts.push({ x:o.x + (Math.random() - .5) * 20, y:o.y - 46, txt:"-" + v, col:"#ff8a7a", life:.7 });
+    if (Math.random() < .3) S.texts.push({ x:o.x, y:o.y - 62, txt:ORME_CRY[Math.random() * ORME_CRY.length | 0], col:"#ffe0a0", life:1, label:true });
+  }
+  if (o.hp > 0 && o.t > 0) return;
+  const away = Math.random() * Math.PI * 2; o.on = 0; o.leave = 3; o.lx = Math.cos(away); o.ly = Math.sin(away);
+  for (const f of S.foes) f.orme = false;
+  if (o.hp <= 0) { o.hp = 0; o.fail = 1; banner("Oh non ! L'assistant a pris trop de coups : l'Œuf s'est brisé… Il repart en courant prévenir le Prof. Orme."); sfx("lose"); }
+  else {
+    o.ok = 1; sfx("evo"); S.fxs.push({ x:o.x, y:o.y, r:0, max:120, life:.5, col:"rgba(255,240,180," }); emit(o.x, o.y, 24, "fee", { sp:200, life:.6, r:3 });
+    banner("« Merci ! » L'assistant te confie l'Œuf du Prof. Orme. Termine la Tour Chétiflor : il pourrait bien éclore !");
+  }
+}
+function drawOrme(t) { // l'assistant du Prof. Orme : blouse blanche, l'Œuf dans les bras
+  const o = S.orme; if (!o || (!o.on && !(o.leave > 0))) return;
+  const a = o.on ? 1 : Math.min(1, o.leave), run = !o.on || o.hit > 0, sx = o.hit > 0 ? Math.sin(t * 60) * 2 : 0, x = o.x + sx, y = o.y, st = run ? Math.sin(t * 18) * 3 : 0;
+  cx.save(); cx.globalAlpha = a;
+  if (o.on) { cx.save(); cx.globalCompositeOperation = "lighter"; glow(x, y - 6, 44, o.hit > 0 ? "255,90,80" : "255,236,160", .35); cx.restore(); }
+  ell(cx, x, y + 19, 13, 4.5, "rgba(0,0,0,.32)");
+  cx.fillStyle = "#3a4466"; cx.fillRect(x - 6, y + 6 - st * .3, 5, 13 + st * .3); cx.fillRect(x + 1, y + 6 + st * .3, 5, 13 - st * .3); // pantalon
+  cx.fillStyle = "#2a2a30"; cx.fillRect(x - 7, y + 17, 6, 3); cx.fillRect(x + 1, y + 17, 6, 3);
+  poly(cx, [x - 10, y - 12, x + 10, y - 12, x + 12, y + 9, x - 12, y + 9], "#f4f4f0"); cx.strokeStyle = "#9aa0a8"; cx.lineWidth = 1.2; cx.stroke(); // blouse
+  cx.strokeStyle = "#b8bec6"; cx.beginPath(); cx.moveTo(x, y - 10); cx.lineTo(x, y + 8); cx.stroke();
+  circ(cx, x, y - 19, 8, "#f2c9a0"); // tête
+  cx.fillStyle = "#6a4426"; cx.beginPath(); cx.arc(x, y - 21, 8.5, Math.PI * 1.02, Math.PI * 1.98); cx.fill(); cx.fillRect(x - 8.5, y - 22, 3, 6); cx.fillRect(x + 5.5, y - 22, 3, 6);
+  cx.strokeStyle = "#333"; cx.lineWidth = 1; cx.strokeRect(x - 6, y - 20, 4.5, 3.5); cx.strokeRect(x + 1.5, y - 20, 4.5, 3.5); // lunettes
+  if (o.on || o.ok) { // l'Œuf (le Prof. Orme le lui a confié)
+    ell(cx, x, y - 2, 7, 8.5, "#fff6de"); cx.strokeStyle = "#5a4a3a"; cx.lineWidth = 1; cx.beginPath(); cx.ellipse(x, y - 2, 7, 8.5, 0, 0, Math.PI * 2); cx.stroke();
+    poly(cx, [x - 5, y - 5, x - 1, y - 7, x - 2, y - 2], "#e8564e"); poly(cx, [x + 2, y + 1, x + 6, y - 1, x + 4, y + 4], "#5a8ee8"); poly(cx, [x - 4, y + 3, x - 1, y + 2, x - 2, y + 5], "#e8564e");
+  }
+  circ(cx, x - 9, y - 1, 3, "#f2c9a0"); circ(cx, x + 9, y - 1, 3, "#f2c9a0"); // mains autour de l'Œuf
+  if (o.on) { // jauge de l'Œuf et temps restant
+    const w = 54, k = Math.max(0, o.hp / ORME_HP), by = y - 42;
+    cx.fillStyle = "rgba(0,0,0,.6)"; cx.fillRect(x - w / 2 - 2, by - 2, w + 4, 9);
+    cx.fillStyle = k > .5 ? "#7fe08a" : k > .25 ? "#f6c845" : "#e2513f"; cx.fillRect(x - w / 2, by, w * k, 5);
+    cx.font = "700 13px 'Pixelify Sans', monospace"; cx.textAlign = "center"; cx.lineWidth = 3; cx.strokeStyle = "rgba(0,0,0,.75)";
+    const txt = "Œuf · " + fmt(Math.max(0, o.t)); cx.strokeText(txt, x, by - 6); cx.fillStyle = "#fff3c8"; cx.fillText(txt, x, by - 6);
+  }
+  cx.restore();
+}
+function eggHatch(fresh) { // écran de victoire : l'Œuf éclot, Togepi rejoint l'équipe
+  $("endStats").insertAdjacentHTML("afterbegin", `<div class="hof hatch"><canvas id="hatchCv" width="160" height="160"></canvas><div><b class="hofT" id="hatchT">Oh ? L'Œuf bouge !</b><small id="hatchSub">…</small></div></div>`);
+  const cv = $("hatchCv"), g = cv.getContext("2d"), t0 = performance.now(), egg = SPR.egg;
+  const step = now => {
+    if (!cv.isConnected) return;
+    const t = (now - t0) / 1000; g.clearRect(0, 0, 160, 160);
+    g.fillStyle = "rgba(246,200,69,.14)"; g.beginPath(); g.arc(80, 80, 74, 0, Math.PI * 2); g.fill();
+    if (t < 2.4) { // il remue de plus en plus fort
+      const w = Math.sin(t * (8 + t * 8)) * .32 * Math.min(1, t * .8);
+      g.save(); g.translate(80, 112); g.rotate(w); if (egg && egg.img.complete) drawSprite(g, egg, 0, -36, 34, 0, 0, false); g.restore();
+    } else {
+      if (!step.done) { step.done = true; $("hatchT").textContent = "Togepi a rejoint ton équipe !";
+        $("hatchSub").textContent = fresh ? "Choisis-le parmi les starters de Johto. Sérénité : ses effets secondaires se produisent deux fois plus souvent." : "Un autre Togepi est né ! Il est déjà dans ton équipe."; }
+      drawMon(g, "togepi", 80, 80, 26, false, t, 0, 0, true);
+      for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2 + t, rr = 46 + Math.sin(t * 3 + k) * 6; g.fillStyle = k % 2 ? "#ff9ac8" : "#fff3a0"; g.beginPath(); g.arc(80 + Math.cos(a) * rr, 80 + Math.sin(a) * rr, 2.5, 0, Math.PI * 2); g.fill(); }
+      const fl = 1 - (t - 2.4) / .5; if (fl > 0) { g.fillStyle = `rgba(255,255,255,${fl})`; g.beginPath(); g.arc(80, 80, 80, 0, Math.PI * 2); g.fill(); }
+    }
+    requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
 }
 // Spectre de la Mère Ossatueur : poursuit le joueur 5 min, lance des Ball'Ombre, puis s'apaise
 function mewChoc(f, n) {

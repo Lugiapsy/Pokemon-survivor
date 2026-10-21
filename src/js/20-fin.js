@@ -33,7 +33,7 @@ function statsHtml() {
   return `<div><b>${fmt(S.t)}</b>temps</div><div><b>${S.kills}</b>K.O.</div><div><b>N.${S.P.lvl}</b>${pName()}</div><div><b>${NET.role === "guest" ? NET.earned : S.earned || 0} ₽</b>Pokédollars</div>` + (S.nuz ? `<div><b>💀</b>Nuzlocke</div>` : "");
 }
 function endGame(win) {
-  achCheck(win); state = "end"; dexSave(); playTrack(null); sfx(win ? "win" : "lose");
+  achCheck(win); if (win && S.orme?.ok) teamAch("togepi"); state = "end"; dexSave(); playTrack(null); sfx(win ? "win" : "lose");
   careerRecord(NET.role === "host" ? [S.players[0]] : S.players, win);
   const lv = LEVEL;
   if (win && LEVELS[lv.num]) setLevel(lv.num);
@@ -41,6 +41,7 @@ function endGame(win) {
   $("endSub").textContent = win ? `${pName()} ${lv.win}` : S.quit ? "Tu rentres au Centre Pokémon. Tes K.O. comptent quand même dans le Pokédex." : "Tu t'es précipité au Centre Pokémon le plus proche. Retente ta chance.";
   $("endStats").innerHTML = statsHtml() + (S.achMsgs?.length ? `<div class="achEnd">${S.achMsgs.join("<br>")}</div>` : "");
   if (win && lv.league) hallOfFame();
+  if (win && S.orme?.ok) eggHatch((S.achMsgs || []).some(m => m.includes("Togepi")));
   $("endDmg").innerHTML = teamHtml() + (S.players.length > 1 ? `<h3 class="dmgFor">Tes dégâts (${pTag(S.players[0])}${(S.P = S.players[0], pName())})</h3>` : "") + dmgTableHtml(S.players[0]);
   $("end").hidden = false; $("boss").hidden = true; $("netWait").hidden = true; $("levelup").hidden = true; $("chest").hidden = true; $("lgInter").hidden = true;
   if (NET.role === "host") { netDexFlush(); netAll("S" + netSnap()); netAll({ t:"end", win, title:$("endTitle").textContent, sub:$("endSub").textContent }); }
