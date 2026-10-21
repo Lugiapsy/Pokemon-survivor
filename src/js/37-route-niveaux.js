@@ -28,7 +28,7 @@ function renderRoute() {
   ks.forEach((k, j) => {
     const lv = LEVELS[k], x = n > 1 ? 8 + j * 84 / (n - 1) : 50, y = j % 2 ? 66 : 38; pts.push(`${x},${y}`);
     const b = document.createElement("button"); b.type = "button";
-    b.className = `rtNode${j % 2 ? " low" : ""}${k === cur ? " sel" : ""}${rtDone(k) ? " done" : ""}${levelOpen(k) ? "" : " lock"}${lv.league || lv.secret ? " rtBig" : ""}`;
+    b.className = `rtNode${j % 2 ? " low" : ""}${k === cur ? " sel" : ""}${rtDone(k) ? " done" : ""}${levelOpen(k) ? "" : " lock"}`;
     b.style.left = x + "%"; b.style.top = y + "%"; b.setAttribute("aria-label", `Niveau ${lvLabel(lv)} : ${lv.name}${levelOpen(k) ? "" : " (verrouillé)"}`);
     b.innerHTML = `<span class="dot">${levelOpen(k) ? lvLabel(lv) : "🔒"}</span><span class="lbl">${lv.name}</span>`;
     b.addEventListener("click", () => { rtMsg = ""; setLevel(k); });
