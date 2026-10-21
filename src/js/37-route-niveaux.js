@@ -7,7 +7,7 @@ const rtDone = k => !!achs["win" + LEVELS[k].num];
 const rtRegs = document.createElement("div"); rtRegs.className = "rtRegs"; rtRegs.setAttribute("role", "group"); rtRegs.setAttribute("aria-label", "Choix de la région");
 const rtRoute = document.createElement("div"); rtRoute.className = "rtRoute"; rtRoute.setAttribute("role", "group"); rtRoute.setAttribute("aria-label", "Choix du niveau");
 const rtCard = document.createElement("div"); rtCard.className = "rtCard";
-rtCard.innerHTML = `<b class="rtNum"></b><div class="rtBody"><b class="rtName"></b><div class="rtIntro"></div><div class="rtTags"></div></div><div class="rtBoss" aria-label="Boss du niveau"></div>`;
+rtCard.innerHTML = `<b class="rtNum"></b><div class="rtBody"><b class="rtName"></b><div class="rtIntro"></div><div class="rtTags"></div></div>`;
 $("levelPick").before(rtRegs, rtRoute, rtCard); $("levelPick").hidden = true;
 rtCard.querySelector(".rtIntro").appendChild($("levelIntro"));
 $("levelTag").classList.add("rtTagHidden");
@@ -44,21 +44,7 @@ function renderRoute() {
   rtCard.querySelector(".rtName").textContent = LEVEL.name;
   const tags = [rtDone(cur) ? "✔ Terminé" : "Pas encore terminé"];
   if (LEVEL.league) tags.push("5 salles, sans chrono"); if (LEVEL.secret) tags.push("✦ Niveau secret");
-  rtBossDraw();
   rtCard.querySelector(".rtTags").innerHTML = tags.map(t => `<span>${t}</span>`).join("") + (rtMsg ? `<span class="warn">${rtMsg}</span>` : "");
-}
-function rtBossDraw() { // mini-sprites des boss du niveau (silhouette tant qu'ils ne sont pas vaincus)
-  const box = rtCard.querySelector(".rtBoss"), { boss } = panelKinds();
-  box.innerHTML = boss.length ? `<small>Boss</small><span class="rtBossRow"></span>` : ""; let miss = false;
-  for (const k of boss) {
-    const c = document.createElement("canvas"); c.width = c.height = 80; const seen = (dexKills[k] || 0) > 0;
-    c.title = seen ? (FOES[k].name || k).replace(" géant", "") : "???"; box.querySelector(".rtBossRow").appendChild(c);
-    const sh = sheetFor(FOES[k].sprite || k, 0); if (!sh) { miss = true; continue; }
-    const bx = sheetBox(sh), sc = Math.min(72 / bx.w, 72 / bx.h), g = c.getContext("2d"); g.imageSmoothingEnabled = false;
-    g.drawImage(sh.img, bx.x0, bx.y0, bx.w, bx.h, Math.round(40 - bx.w * sc / 2), Math.round(76 - bx.h * sc), Math.round(bx.w * sc), Math.round(bx.h * sc));
-    if (!seen) { g.globalCompositeOperation = "source-in"; g.fillStyle = "rgba(6,8,10,.8)"; g.fillRect(0, 0, 80, 80); }
-  }
-  if (miss) setTimeout(() => { if (box.isConnected) rtBossDraw(); }, 500); // planches pas encore chargées
 }
 const _setLevelRoute = setLevel;
 setLevel = i => { const open = levelOpen(i); _setLevelRoute(i); rtMsg = open ? "" : $("levelTag").textContent; renderRoute(); };

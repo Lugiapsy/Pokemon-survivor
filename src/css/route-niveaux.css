@@ -39,10 +39,6 @@
 .rtIntro .lede { margin: 4px 0 0; max-width: none; text-align: left; font-size: 14px; }
 .rtTags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
 .rtTags span { font: 600 11px var(--body); padding: 3px 9px; border-radius: 9px; background: #0d1611; border: 1px solid var(--panel-edge); color: var(--ink-dim); }
-.rtBoss { flex: none; margin-left: auto; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.rtBoss small { font: 700 10px var(--body); letter-spacing: .12em; text-transform: uppercase; color: #ff9a8a; }
-.rtBossRow { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; max-width: 240px; }
-.rtBossRow canvas { width: 40px; height: 40px; border-radius: 10px; background: radial-gradient(circle at 50% 70%, rgba(226,81,63,.28), rgba(0,0,0,.25) 70%); border: 2px solid #4a2a26; }
 .rtTags span.warn { color: #ffb4a8; border-color: #e2513f; }
 @media (max-width: 760px) { .rtNode .lbl { display: none; } .rtNode.sel .lbl { display: block; } }
 @media (orientation: landscape) and (max-height: 520px) {
@@ -50,5 +46,5 @@
   .rtInfo b { font-size: 15px; } .rtInfo small { font-size: 10px; } .rtBar { width: 120px; height: 4px; } .rtChap { font-size: 8px; top: -8px; }
   .rtRoute { height: 104px; } .rtNode .dot { width: 28px; height: 28px; font-size: 12px; border-width: 2px; } .rtNode.sel .dot { width: 38px; height: 38px; font-size: 15px; }
   .rtNode .lbl { font-size: 9px; bottom: 20px; } .rtNode.low .lbl { top: 20px; } .rtNode.sel .lbl { font-size: 10px; bottom: 25px; } .rtNode.sel.low .lbl { top: 25px; }
-  .rtCard { padding: 8px 12px; gap: 10px; } .rtBossRow canvas { width: 30px; height: 30px; } .rtNum { font-size: 22px; } .rtName { font-size: 15px; } .rtIntro .lede { font-size: 12px; } .rtTags { margin-top: 4px; }
+  .rtCard { padding: 8px 12px; gap: 10px; } .rtNum { font-size: 22px; } .rtName { font-size: 15px; } .rtIntro .lede { font-size: 12px; } .rtTags { margin-top: 4px; }
 }
