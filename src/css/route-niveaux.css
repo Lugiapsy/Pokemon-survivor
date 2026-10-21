@@ -26,7 +26,7 @@
 .rtNode .lbl { position: absolute; left: 0; bottom: 28px; transform: translateX(-50%); font: 600 11px var(--body); color: var(--ink-dim); white-space: nowrap; pointer-events: none; }
 .rtNode.low .lbl { bottom: auto; top: 28px; }
 .rtNode.done .dot { background: #3d8a4e; border-color: #7fe08c; }
-.rtNode.boss .dot { border-color: #e2513f; }
+.rtNode.rtBig .dot { border-color: #e2513f; }
 .rtNode.lock .dot { background: #1a2a20; border-color: #33473a; color: #5b7363; font-size: 14px; }
 .rtNode.lock { cursor: not-allowed; }
 .rtNode.soon { cursor: default; opacity: .55; } .rtNode.soon .dot { background: transparent; border-style: dashed; border-color: #4f7a5c; color: var(--ink-dim); } .rtNode.soon:hover .dot { transform: translate(-50%, -50%); }
