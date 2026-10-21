@@ -111,6 +111,17 @@ const MOVES = {
     desc: lv => ["Fait pousser un tapis de fleurs : les ennemis s'y enlisent (−40 % de vitesse) et s'y blessent, les alliés y récupèrent des PV.", "Tapis plus large.", "Dégâts +40 %.", "Un tapis toutes les 4,5 s.", "Les ennemis sont ralentis de 55 %."][lv-1] },
   tempeteflorale:{ name:"Tempête Florale", type:"plante", line:"germignon", rare:{ minLvl:8, w:.35 }, max:5,
     desc: lv => ["Une tempête de pétales frappe tous les ennemis à l'écran.", "Dégâts +15 %.", "Dégâts +40 %.", "Une tempête toutes les 7 s.", "Deux vagues de pétales."][lv-1] },
+  // ---- Togepi ----
+  ventfeerique:{ name:"Vent Féérique", type:"fee", line:"togepi", max:5,
+    desc: lv => ["Souffle des étincelles féeriques sur les ennemis les plus proches. 10 % de chances de les apeurer (immobiles 0,6 s).", "+1 étincelle.", "Dégâts +40 %.", "+1 étincelle, recharge plus rapide.", "Chaque étincelle transperce 2 ennemis."][lv-1] },
+  lamedair:    { name:"Lame d'Air", type:"vol", line:"togepi", max:5,
+    desc: lv => ["Toutes les 1,6 s, une lame d'air file droit devant et tranche tout sur son passage. 30 % de chances d'apeurer.", "+1 lame en éventail.", "Dégâts +40 %.", "Toutes les 1,2 s.", "+1 lame."][lv-1] },
+  aurasphere:  { name:"Aurasphère", type:"combat", line:"togepi", max:5,
+    desc: lv => ["Toutes les 2,6 s, une sphère d'aura poursuit l'ennemi le plus coriace et ne rate jamais.", "Sphère plus grosse qui explose à l'impact.", "Dégâts +40 %.", "Toutes les 2 s.", "Deux sphères."][lv-1] },
+  eclatmagique:{ name:"Éclat Magique", type:"fee", line:"togepi", max:5,
+    desc: lv => ["Toutes les 4 s, un éclat de lumière frappe les ennemis autour de toi. 20 % de chances de les charmer : ils s'éloignent sans attaquer 1,5 s.", "Éclat plus large.", "Dégâts +40 %.", "Toutes les 3 s.", "Charme de 2,5 s."][lv-1] },
+  metronome:   { name:"Métronome", type:"normal", line:"togepi", rare:{ minLvl:8, w:.35 }, max:5,
+    desc: lv => ["Toutes les 6 s, agite les doigts et emprunte au hasard l'attaque d'un autre starter.", "Attaques empruntées plus puissantes.", "Attaques encore plus puissantes.", "Change toutes les 5 s.", "Deux attaques à la fois."][lv-1] },
 };
 const ITEMS = {
   carbone:  { name:"Carbone", max:5, desc:"Attaque +12 % pour toutes les capacités." },

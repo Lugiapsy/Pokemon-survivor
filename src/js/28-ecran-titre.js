@@ -1,5 +1,5 @@
 /* ---------- Écran titre ---------- */
-const starterOrder = ["plante", "feu", "eau", "miaouss", "pika", "evoli", "draco", "mew", "germignon", "heri", "kaiminus"];
+const starterOrder = ["plante", "feu", "eau", "miaouss", "pika", "evoli", "draco", "mew", "germignon", "heri", "kaiminus", "togepi"];
 const levelBtns = [];
 $("lgBtn").addEventListener("click", nextRoom);
 const levelOpen = i => i === 0 || !!achs[LEVELS[i].jFirst ? "win9" : "win" + i]; // un niveau se débloque en terminant le précédent (Johto : après la Caverne Azurée)
@@ -34,7 +34,8 @@ LEVELS.forEach((lv, i) => {
 const TALENTS = { plante:["Engrais", "récupère 0,4 PV par seconde."], feu:["Brasier", "+10 % de dégâts."], eau:["Torrent", "capacités rechargées 8 % plus vite."],
   pika:["Statik", "un ennemi qui le touche est paralysé 1 s."], evoli:["Adaptabilité", "+10 % d'expérience."], draco:["Multiécaille", "−10 % de dégâts reçus."],
   mew:["Fabuleux", "+10 % de dégâts et de bons PV."], miaouss:["Technicien", "+10 % de coups critiques."], germignon:["Feuille Garde", "une aura soigne les alliés proches et ralentit les ennemis."],
-  heri:["Torche", "courir rend ses attaques Feu jusqu'à 40 % plus fortes."], kaiminus:["Sans Limite", "+15 % de dégâts au contact, chaque coup le soigne un peu."] };
+  heri:["Torche", "courir rend ses attaques Feu jusqu'à 40 % plus fortes."], kaiminus:["Sans Limite", "+15 % de dégâts au contact, chaque coup le soigne un peu."],
+  togepi:["Sérénité", "les effets secondaires (apeurer, charmer) se produisent deux fois plus souvent."] };
 const lineMoves = line => { // capacités que ce starter peut apprendre (même règle que buildChoices, tous stades confondus)
   const L = LINES[line], out = [];
   for (const [id, m] of Object.entries(MOVES)) {
@@ -66,7 +67,7 @@ function renderCar() {
   $("sTabs").innerHTML = `<span class="lbl">Starters</span>` + (groups.length > 1 ? groups.map(([n, ls]) => `<button type="button" role="tab" data-g="${ls[0]}" aria-selected="${ls.includes(line)}">${n}<i>${ls.length}</i></button>`).join("") : "") + `<span class="cnt">${i + 1} / ${v.length}</span>`;
   $("sTabs").querySelectorAll("[data-g]").forEach(b => b.addEventListener("click", () => carGo(b.dataset.g)));
   $("sName").textContent = lock ? "???" : L.names[0]; $("sChip").textContent = TYPE_NAMES[L.type]; $("sChip").style.background = col;
-  const mu = LEVEL.matchup[line] || (L.own && LEVEL.matchup[L.type]) || ["Variable", "Métronome peut tirer n'importe quel type : chaque partie est une surprise."];
+  const mu = LEVEL.matchup[line] || (L.own && LEVEL.matchup[L.type]) || (line === "mew" ? ["Variable", "Métronome peut tirer n'importe quel type : chaque partie est une surprise."] : ["Neutre", "Pas d'avantage ni de faiblesse marqués dans ce niveau."]);
   $("sMu").innerHTML = `<b>${mu[0]}</b> ${LEVEL.where}. ${mu[1]}`;
   $("sLock").hidden = !lock; $("sLock").textContent = lock ? `🔒 Succès « ${lock.name} » : ${lock.desc}` : "";
   $("sEvo").textContent = "N.1";

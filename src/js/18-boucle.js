@@ -52,7 +52,7 @@ function update(dt) {
   const ml = Math.hypot(mx, my); P.moving = ml > 0;
   if (ml > 1) { mx /= ml; my /= ml; }
   const slow = (tallGrassAt(P.x, P.y) ? .85 : 1) * (P.inSludge ? .75 : 1);
-  if (LEVEL.ice && !((P.line === "feu" || P.line === "draco") && P.stage === 2)) { // Île Écume : on glisse sur la glace (sauf en volant)
+  if (LEVEL.ice && !flyP(P)) { // Île Écume : on glisse sur la glace (sauf en volant)
     const k = Math.min(1, dt * 2.4); P.ivx = (P.ivx || 0) + (mx * speed() * slow - (P.ivx || 0)) * k; P.ivy = (P.ivy || 0) + (my * speed() * slow - (P.ivy || 0)) * k;
     P.x += P.ivx * dt; P.y += P.ivy * dt;
     if (Math.hypot(P.ivx, P.ivy) > 90 && Math.random() < dt * 14) emit(P.x, P.y + P.r * .7, 1, "glace", { sp:25, life:.45, r:2 });
@@ -68,7 +68,7 @@ function update(dt) {
   P.aiming = !!(ax || ay);
   P.tc = !P.aiming && (C.kb ? TOUCH : !!C.tc); // joueur sur téléphone (sans stick de visée) : Pistolet à O vise tout seul
   if (P.aiming) { const l = Math.hypot(ax, ay); P.fx = ax / l; P.fy = ay / l; P.aimA = Math.atan2(ay, ax); P.flip = ax < 0; }
-  const flying = (P.line === "feu" || P.line === "draco") && P.stage === 2; // Dracaufeu et Dracolosse volent
+  const flying = flyP(P); // Dracaufeu, Dracolosse, Togetic et Togekiss volent
   if (P.dashT > 0) { P.dashT -= dt; P.x += P.dvx * dt; P.y += P.dvy * dt; S.ghosts.push({ x:P.x, y:P.y, life:.22, dir:dirOf(P.dvx, P.dvy), o:P }); }
   if (P.kbx || P.kby) { P.x += P.kbx * dt; P.y += P.kby * dt; const k = Math.pow(.03, dt); P.kbx *= k; P.kby *= k; if (Math.abs(P.kbx) + Math.abs(P.kby) < 10) P.kbx = P.kby = 0; }
   if (LEVEL.rocket) around(P.x, P.y, c => { for (const sp of c.spinners || []) if (Math.abs(P.x - sp.x) < 26 && Math.abs(P.y - sp.y) < 26) { P.x += sp.dx * 380 * dt; P.y += sp.dy * 380 * dt; } }, 0);
@@ -122,6 +122,7 @@ function update(dt) {
   while (S.seq?.length && S.t >= S.seq[0][0]) banner(S.seq.shift()[1]);
   if (S.celebi) { S.P = nearP(S.celebi.x, S.celebi.y); updateCelebi(dt); S.P = P; }
   if (S.mother) updateMother(dt);
+  if (S.orme) updateOrme(dt);
   if (LEVEL.safari) updateSafari(dt);
   if (LEVEL.manor) { for (const pl of S.players) if (!pl.down) { S.P = pl; updateManor(dt); } S.P = P; }
   const nb = LEVEL.bosses[S.bossIdx];
@@ -144,6 +145,8 @@ function update(dt) {
     if (f.d.evo && f.hp > 0 && S.t >= f.d.evoAt && (f.evoT = (f.evoT ?? f.d.evoT) - dt) <= 0) evolveFoe(f, f.d.evo); // Rhinocorne → Rhinoféros → Rhinastoc
     const dx = P.x - f.x, dy = P.y - f.y, l = Math.hypot(dx, dy) || 1;
     let ax = dx / l, ay = dy / l;
+    if (f.orme && S.orme?.on) { const ox = S.orme.x - f.x, oy = S.orme.y - f.y, ol = Math.hypot(ox, oy) || 1; ax = ox / ol; ay = oy / ol; } // ils foncent sur l'assistant du Prof. Orme
+    if (f.charmT > S.t) { ax = -ax; ay = -ay; } // charmé par Togepi : s'éloigne
     if (f.d.erratic) { const w = Math.sin(S.t * 4 + f.ph) * .9; const c = Math.cos(w), s = Math.sin(w); [ax, ay] = [ax*c - ay*s, ax*s + ay*c]; }
     let sp = f.d.speed * CURSE() * (1 + Math.min(S.t / 600, 1) * .25) * (f.hurt > 0 && !f.d.boss ? .4 : 1) * (f.slowT > 0 ? f.slowMul : 1) * (f.d.boss ? BOSS_SPD[f.kind] || 1.3 : 1); // boss plus rapides
     if ((f.d.dash || f.d.bird) && !(f.sleepT > 0)) {
@@ -264,7 +267,7 @@ function update(dt) {
     const k = ((f.x / CELL) | 0) + "," + ((f.y / CELL) | 0);
     if (!f.d.boss && !f.d.solid) (grid.get(k) || grid.set(k, []).get(k)).push(f);
     // contact
-    if (l < f.r + P.r - 3 && P.inv <= 0 && !(f.sleepT > 0) && !f.under && !f.jump && !(f.appear > 0) && !(f.vanish > 0) && !(f.missT > S.t)) {
+    if (l < f.r + P.r - 3 && P.inv <= 0 && !(f.sleepT > 0) && !f.under && !f.jump && !(f.appear > 0) && !(f.vanish > 0) && !(f.missT > S.t) && !(f.charmT > S.t)) {
       if (f.blindT > S.t && Math.random() < (f.d.boss ? .5 : 1) * (f.blindMiss || .4)) { f.missT = S.t + .6; maybeMsg(f, "Raté !", "#c9c9c9"); } // Brouillard
       else {
         if (P.line === "pika" && !f.d.boss) f.stunT = Math.max(f.stunT || 0, 1); // Statik : paralyse l'ennemi qui le touche

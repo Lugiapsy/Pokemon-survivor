@@ -75,6 +75,10 @@ Les sprites originaux sont de Spike Chunsoft (Pokémon Donjon Mystère). Retouch
 | versions shiny (0152-0160) | starters de Johto chromatiques | contributeurs SpriteCollab indiqués dans le credits.txt de chaque dossier 0000/0001 |
 | 0069, 0070, 0071, 0163 | Chétiflor, Boustiflor, Empiflor, Hoothoot (Tour Chétiflor, Johto niveau 1) | CHUNSOFT |
 | 0161, 0162, 0164 | Fouinette, Fouinar, Noarfang (Tour Chétiflor) | CHUNSOFT + 1 à 2 contributeurs SpriteCollab |
+| 0175, 0468 | Togepi, Togekiss (joueur, Johto) | CHUNSOFT |
+| 0176 | Togetic (joueur, Johto) | CHUNSOFT + 1 contributeur SpriteCollab |
+| versions shiny (0175, 0176, 0468) | Togepi, Togetic, Togekiss chromatiques | contributeurs SpriteCollab indiqués dans le credits.txt de chaque dossier 0000/0001 |
+| 0000/0004 | Œuf (événement de la Tour Chétiflor), taches recolorées en rouge et bleu pour le jeu | 1 contributeur SpriteCollab |
 
 Les contributeurs sont identifiés par leur ID Discord dans `sprite/<n°>/credits.txt` du dépôt.
 

@@ -6,7 +6,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v173";
+const NET_VER = "v174";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -336,6 +336,7 @@ function netGuestEnd(m) {
   for (const id of ["levelup", "chest"]) $(id).hidden = true;
   $("endTitle").textContent = String(m.title || "Fin de la partie"); $("endSub").textContent = String(m.sub || "");
   $("endStats").innerHTML = (S && S.players ? statsHtml() : "") + (NET.achMsgs?.length ? `<div class="achEnd">${NET.achMsgs.map(netEsc).join("<br>")}</div>` : "");
+  if (m.win && S?.orme?.ok) eggHatch((NET.achMsgs || []).some(x => String(x).includes("Togepi")));
   const me = S && S.players && S.players[NET.idx];
   $("endDmg").innerHTML = me ? teamHtml() + `<h3 class="dmgFor">Tes dégâts (${pTag(me)}${(S.P = me, pName())})</h3>` + dmgTableHtml(me) : "";
   $("end").hidden = false; $("boss").hidden = true; $("againBtn").focus({ preventScroll:true });

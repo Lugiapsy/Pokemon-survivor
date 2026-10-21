@@ -32,7 +32,7 @@ function updateLeague(dt) {
     S.wind = S.wind || { t:4, on:0, a:0 };
     if (S.wind.on > 0) {
       S.wind.on -= dt; const vx = Math.cos(S.wind.a) * 95 * dt, vy = Math.sin(S.wind.a) * 95 * dt;
-      for (const q of S.players) if (!q.down && !q.choosing && !((q.line === "feu" || q.line === "draco") && q.stage === 2)) { q.x += vx; q.y += vy; }
+      for (const q of S.players) if (!q.down && !q.choosing && !flyP(q)) { q.x += vx; q.y += vy; }
       for (const f of S.foes) if (!f.d.boss && !f.prop) { f.x += vx * 1.3; f.y += vy * 1.3; }
     } else if ((S.wind.t -= dt) <= 0) { S.wind.t = 6 + Math.random() * 3; S.wind.on = 2.6; S.wind.a = Math.random() * Math.PI * 2; if (!S.saidWind) { S.saidWind = true; banner("Une bourrasque traverse la salle !"); } }
   }
