@@ -261,6 +261,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
 .mv > div { min-width:0; }
 .mv .tg { font:700 9px var(--body); padding:2px 6px; border-radius:99px; background:#f6c845; color:#2a2310; white-space:nowrap; } .mv .tg.r { background:#7a5cf0; color:#fff; } .mv .tg.a { background:#5a9ef0; color:#fff; }
 .mvs.many { display:grid; grid-template-columns:1fr 1fr; } .mvs.many small { display:none; }
+.playIco::before { content:""; display:inline-block; width:.62em; height:.72em; margin-right:.45em; background:currentColor; clip-path:polygon(0 0, 100% 50%, 0 100%); vertical-align:-.04em; } /* flèche ▶ dessinée en CSS (l'iPhone en faisait un emoji) */
 .sGo { margin-top:10px; } .sGo:disabled { opacity:.45; cursor:not-allowed; }
 .sDots { display:flex; gap:6px; justify-content:center; margin-top:6px; } .sDots i { width:9px; height:9px; border-radius:50%; background:var(--panel-edge); cursor:pointer; } .sDots i.on { background:var(--accent); width:24px; border-radius:6px; }
 .regLbl { font:600 11px var(--body); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-dim); align-self:center; }
@@ -534,8 +535,8 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v172)</small></div>
-      <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v173)</small></div>
+      <button class="lvbtn netGo" id="netGo" type="button" hidden>Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
     <div class="sCar" id="sCar">
@@ -551,7 +552,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
             <div class="pkbox"><div class="pkh"><span>Stats</span><span id="sEvo"></span></div><div id="sStats"></div><div class="tal" id="sTal"></div></div>
             <div class="pkbox"><div class="pkh"><span>Attaques</span><span id="sMvN"></span></div><div class="mvs" id="sMoves"></div></div>
           </div>
-          <button class="btn sGo" id="sGo" type="button">Choisir</button>
+          <button class="btn sGo playIco" id="sGo" type="button">Choisir</button>
           <div class="sDots" id="sDots"></div>
         </div>
         <button class="sSide" id="sNext" type="button" aria-label="Starter suivant"><canvas width="150" height="112"></canvas><b></b></button>
@@ -6227,7 +6228,7 @@ function renderCar() {
   $("sMoves").innerHTML = mv.map(([id, m, alt]) => { const d = m.desc(1).split(/(?<=\.) /)[0].replace(/\.$/, "");
     const tg = id === L.move ? `<span class="tg">Départ</span>` : m.rare ? `<span class="tg r">Rare N.${m.rare.minLvl}</span>` : alt ? `<span class="tg a">${L.names[m.alt.stage]}</span>` : m.tier ? `<span class="tg r" title="Proposé après Métronome ${m.tier - 1}">après M.${m.tier - 1}</span>` : "<span></span>";
     return `<div class="mv"><span class="ty" style="background:${TYPE_COLORS[m.type] || "#888"}">${TYPE_NAMES[m.type] || m.type}</span><div><b>${m.name}</b><small>${d}</small></div>${m.tier === 1 ? "<span></span>" : tg}</div>`; }).join("");
-  $("sGo").disabled = !!lock; $("sGo").textContent = lock ? "🔒 Verrouillé" : `Choisir ${L.names[0]}`;
+  $("sGo").disabled = !!lock; $("sGo").classList.toggle("playIco", !lock); $("sGo").textContent = lock ? "🔒 Verrouillé" : `Choisir ${L.names[0]}`;
   $("sBig").parentElement.classList.toggle("lk", !!lock);
   const side = (el, l) => { el.querySelector("b").textContent = isUnlocked(l) ? LINES[l].names[0] : "???"; el.classList.toggle("lk", !isUnlocked(l)); el.dataset.l = l; };
   side($("sPrev"), v[(i - 1 + v.length) % v.length]); side($("sNext"), v[(i + 1) % v.length]);
@@ -6450,7 +6451,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v172";
+const NET_VER = "v173";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();
@@ -6491,7 +6492,7 @@ function netLobby() {
     netMsg(`Salon <span class="netCodeBig">${NET.code}</span><br>Donne ce code à tes amis, ou ce lien : <input id="netLinkOut" readonly value="${netEsc(netLink())}"><br>${rows}<br>Niveau : <b>${netEsc(LEVEL.name)}</b> (c'est toi qui le choisis en haut)${NET.diag ? `<br><small style="opacity:.75">Réseau : ${netEsc(NET.diag)}</small>` : ""}`);
     $("netLinkOut").addEventListener("focus", e => e.target.select());
     const ready = !!NET.picks[0] && NET.conns.length > 0 && NET.conns.every(g => g.line);
-    $("netGo").disabled = !ready; $("netGo").textContent = !NET.conns.length ? "En attente d'un autre joueur…" : ready ? "▶ Lancer la partie" : "En attente des starters…";
+    $("netGo").disabled = !ready; $("netGo").textContent = !NET.conns.length ? "En attente d'un autre joueur…" : ready ? "Lancer la partie" : "En attente des starters…"; $("netGo").classList.toggle("playIco", !!(NET.conns.length && ready));
     netAll({ t:"lobby", level:LEVEL.name, list });
   } else if (NET.role === "guest") {
     const L = NET.lobby, rows = (L && Array.isArray(L.list) ? L.list : []).map(r => `<b>J${(r.idx | 0) + 1}${(r.idx | 0) === NET.idx ? " (toi)" : ""}</b> : ${netName(r.line) || "choisit…"}`).join(" · ");

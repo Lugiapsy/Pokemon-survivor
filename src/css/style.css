@@ -255,6 +255,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
 .mv > div { min-width:0; }
 .mv .tg { font:700 9px var(--body); padding:2px 6px; border-radius:99px; background:#f6c845; color:#2a2310; white-space:nowrap; } .mv .tg.r { background:#7a5cf0; color:#fff; } .mv .tg.a { background:#5a9ef0; color:#fff; }
 .mvs.many { display:grid; grid-template-columns:1fr 1fr; } .mvs.many small { display:none; }
+.playIco::before { content:""; display:inline-block; width:.62em; height:.72em; margin-right:.45em; background:currentColor; clip-path:polygon(0 0, 100% 50%, 0 100%); vertical-align:-.04em; } /* flèche ▶ dessinée en CSS (l'iPhone en faisait un emoji) */
 .sGo { margin-top:10px; } .sGo:disabled { opacity:.45; cursor:not-allowed; }
 .sDots { display:flex; gap:6px; justify-content:center; margin-top:6px; } .sDots i { width:9px; height:9px; border-radius:50%; background:var(--panel-edge); cursor:pointer; } .sDots i.on { background:var(--accent); width:24px; border-radius:6px; }
 .regLbl { font:600 11px var(--body); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-dim); align-self:center; }
