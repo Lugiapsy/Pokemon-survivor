@@ -16,6 +16,7 @@
   box-shadow: 0 4px 0 rgba(0,0,0,.35); transition: transform .08s, border-color .12s, background .12s; }
 .homeBtn span { font-size: 18px; width: 1.4em; text-align: center; }
 .homeBtn span .dexIco { display: block; width: 22px; height: 17px; margin: 0 auto; image-rendering: pixelated; } /* icône Pokédex en pixel art (22 × 17) */
+.homeBtn span .shopIco { display: block; width: 22px; height: 20px; margin: 0 auto; image-rendering: pixelated; } /* icône Boutique en pixel art (22 × 20) */
 .homeBtn:hover { border-color: var(--accent); background: #26402f; }
 .homeBtn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,.35); }
 .homeBtn:focus-visible, .homeBtn.padfocus { outline: 3px solid var(--ink); outline-offset: 2px; }

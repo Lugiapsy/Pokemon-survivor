@@ -291,6 +291,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
   box-shadow: 0 4px 0 rgba(0,0,0,.35); transition: transform .08s, border-color .12s, background .12s; }
 .homeBtn span { font-size: 18px; width: 1.4em; text-align: center; }
 .homeBtn span .dexIco { display: block; width: 22px; height: 17px; margin: 0 auto; image-rendering: pixelated; } /* icône Pokédex en pixel art (22 × 17) */
+.homeBtn span .shopIco { display: block; width: 22px; height: 20px; margin: 0 auto; image-rendering: pixelated; } /* icône Boutique en pixel art (22 × 20) */
 .homeBtn:hover { border-color: var(--accent); background: #26402f; }
 .homeBtn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,.35); }
 .homeBtn:focus-visible, .homeBtn.padfocus { outline: 3px solid var(--ink); outline-offset: 2px; }
@@ -414,7 +415,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <nav class="homeMenu" aria-label="Menu principal">
       <button class="homeBtn main" id="homeSolo" type="button"><span>👤</span>Solo</button>
       <button class="homeBtn" id="homeMulti" type="button"><span>👥</span>Multijoueur</button>
-      <button class="homeBtn" id="shopBtn" type="button"><span>🏪</span>Magasin</button>
+      <button class="homeBtn" id="shopBtn" type="button"><span><img class="shopIco" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAUCAYAAACJfM0wAAABb0lEQVR42q2VsUsCURzHPxe1Kbif5HKRtreE4WZg6KDQ5iaBY1OjOPYXCNLmJthwllBLiNFQjSaGLolCUzS4OdgQ73ln7x1n9p3e/d67z/vd7/d99wwcCoXjc9bQ1/jBEGPDCb29uwKgNw2wF5iuPD5KZiXcWIauKwE3QuH4PFWy+U+1yhk2AV67H9pF741TZTySqyrjn70ngB+wF3QybAMQTdcA6DfzAJhWQgsH2PAL7Tfz9Jt5ucFk2NZ+jcz48WL314TZwJWpaSUACMYKciPVu9G0oxQH52/anUWWy9kL6d7V1jiSq2JaCSbDtqsEfmvs2TwBd5XIuvR0hQssLKJSMFbwtJUn+PAkQ6ucUS5IlWzlnC4uEnGV4vrlXo4Hoxln2aR8LlZqHO+HuXkeUykumiea6nSO1seD0Yyd7S3fR1g01vOArAp1OkXrir9Al12jBDtr6keqv2Knbi/AnbqttZVY6Dcub5B1ryOdvgH8X6CLc3OApgAAAABJRU5ErkJggg=="></span>Magasin</button>
       <button class="homeBtn" id="dexBtn" type="button"><span><img class="dexIco" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAARCAYAAADZsVyDAAABVklEQVR42rWUv0vDQBzFPylBSg1i49IhOjie4OhkpVCH4iD+A06Km+Css4Kbs+jUrVNxkAgWpHZyFJrBSaFDp+rQikNJHOTSpMklEfFBuF/f77t333sXDUAYpkcGOMOBRkZowjA92xIUOk0APtd3lMG1npOZPAdQ6DR5yy1QrY/9DRaX537ahgvAYWMJ2xKZT6cJw/Tary9U62MAWrt6omqpPK1kOsDdygatbhvZV+F01Od8pgSAbYmkjT0doFw0fZXloqmWMuqHhpW8Gwl5+MoBoMsJWds4qEojSeKgBwdrm9uRgKf7G2Xy3sVtZO76aGviiv+A/pdkqS6VOOnYcZh+VPOXQz4OjDBxmnezXKokDdVYmv74atX/0h5DJe/6lgv2Q4rjDC9Jaz0ndj1ot2nrRS7vbP95MrCEkjSTKx7fB8qAk9lS7HpSDoD22/+xMExPtklx39u9gd2uhAL7AAAAAElFTkSuQmCC"></span>Pokédex</button>
       <button class="homeBtn" id="achBtn" type="button"><span>🏆</span>Succès</button>
       <button class="homeBtn" id="homeSettings" type="button"><span>⚙️</span>Paramètres</button>
@@ -464,7 +465,7 @@ h2 { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); margin: 0; 
     <span class="tag" id="levelTag">Niveau 1 · Forêt de Jade</span><span class="tag" id="mpTag" hidden></span>
     <div class="netBox" id="netBox" hidden>
       <div class="netRow"><button class="lvbtn" id="netHost" type="button">Créer un salon</button><span class="netOr">ou</span><input id="netCode" maxlength="5" placeholder="CODE" aria-label="Code du salon" autocomplete="off"><button class="lvbtn" id="netJoin" type="button">Rejoindre</button><button class="lvbtn" id="netQuit" type="button" hidden>Quitter le salon</button></div>
-      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v161)</small></div>
+      <div class="netInfo" id="netInfo">Un joueur crée le salon, les autres entrent son code (ou ouvrent son lien). Puis chacun choisit son starter ci-dessous. <small style="opacity:.6">(version v162)</small></div>
       <button class="lvbtn netGo" id="netGo" type="button" hidden>▶ Lancer la partie</button>
     </div><span class="tag nuzTag" id="nuzTag" hidden>💀 Nuzlocke : pas de Rappel ni de soin au sol</span>
     <p class="lede" id="levelIntro"></p>
@@ -775,7 +776,8 @@ function openShop() {
   if (state !== "shop") { state = "shop"; $("start").hidden = true; $("shop").hidden = false; $("shopClose").focus({ preventScroll:true }); }
 }
 function closeShop() { $("shop").hidden = true; $("home").hidden = false; state = "home"; refreshMoneyTag(); }
-const refreshMoneyTag = () => { $("shopBtn").innerHTML = `<span>🏪</span>Magasin <small class="homeMoney">${money().toLocaleString("fr-FR")} ₽</small>`; };
+const SHOP_ICO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAUCAYAAACJfM0wAAABb0lEQVR42q2VsUsCURzHPxe1Kbif5HKRtreE4WZg6KDQ5iaBY1OjOPYXCNLmJthwllBLiNFQjSaGLolCUzS4OdgQ73ln7x1n9p3e/d67z/vd7/d99wwcCoXjc9bQ1/jBEGPDCb29uwKgNw2wF5iuPD5KZiXcWIauKwE3QuH4PFWy+U+1yhk2AV67H9pF741TZTySqyrjn70ngB+wF3QybAMQTdcA6DfzAJhWQgsH2PAL7Tfz9Jt5ucFk2NZ+jcz48WL314TZwJWpaSUACMYKciPVu9G0oxQH52/anUWWy9kL6d7V1jiSq2JaCSbDtqsEfmvs2TwBd5XIuvR0hQssLKJSMFbwtJUn+PAkQ6ucUS5IlWzlnC4uEnGV4vrlXo4Hoxln2aR8LlZqHO+HuXkeUykumiea6nSO1seD0Yyd7S3fR1g01vOArAp1OkXrir9Al12jBDtr6keqv2Knbi/AnbqttZVY6Dcub5B1ryOdvgH8X6CLc3OApgAAAABJRU5ErkJggg=="; // Boutique Pokémon en pixel art (22 × 20)
+const refreshMoneyTag = () => { $("shopBtn").innerHTML = `<span><img class="shopIco" alt="" src="${SHOP_ICO}"></span>Magasin <small class="homeMoney">${money().toLocaleString("fr-FR")} ₽</small>`; };
 function dexCount(f) {
   const k = f.kind, n = (dexKills[k] || 0) + 1; dexKills[k] = n; dexDirty = true;
   if (typeof NET !== "undefined" && NET.role === "host" && NET.started) (NET.dexQ ||= {})[k] = (NET.dexQ[k] || 0) + 1; // envoyé aux invités
@@ -6379,7 +6381,7 @@ const NET_PFX = "pokesurv-";
 const NET_OPTS = { config:{ iceServers:[{ urls:"stun:stun.l.google.com:19302" }, { urls:"stun:stun1.l.google.com:19302" }, { urls:"stun:stun.cloudflare.com:3478" },
   // relais gratuit (Open Relay) : utilisé seulement si la liaison directe entre les deux box échoue
   { urls:["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"], username:"openrelayproject", credential:"openrelayproject" }] } };
-const NET_VER = "v161";
+const NET_VER = "v162";
 const netEsc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function netLib() {
   if (window.Peer) return Promise.resolve();

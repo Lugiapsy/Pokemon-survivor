@@ -165,7 +165,8 @@ function openShop() {
   if (state !== "shop") { state = "shop"; $("start").hidden = true; $("shop").hidden = false; $("shopClose").focus({ preventScroll:true }); }
 }
 function closeShop() { $("shop").hidden = true; $("home").hidden = false; state = "home"; refreshMoneyTag(); }
-const refreshMoneyTag = () => { $("shopBtn").innerHTML = `<span>🏪</span>Magasin <small class="homeMoney">${money().toLocaleString("fr-FR")} ₽</small>`; };
+const SHOP_ICO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAUCAYAAACJfM0wAAABb0lEQVR42q2VsUsCURzHPxe1Kbif5HKRtreE4WZg6KDQ5iaBY1OjOPYXCNLmJthwllBLiNFQjSaGLolCUzS4OdgQ73ln7x1n9p3e/d67z/vd7/d99wwcCoXjc9bQ1/jBEGPDCb29uwKgNw2wF5iuPD5KZiXcWIauKwE3QuH4PFWy+U+1yhk2AV67H9pF741TZTySqyrjn70ngB+wF3QybAMQTdcA6DfzAJhWQgsH2PAL7Tfz9Jt5ucFk2NZ+jcz48WL314TZwJWpaSUACMYKciPVu9G0oxQH52/anUWWy9kL6d7V1jiSq2JaCSbDtqsEfmvs2TwBd5XIuvR0hQssLKJSMFbwtJUn+PAkQ6ucUS5IlWzlnC4uEnGV4vrlXo4Hoxln2aR8LlZqHO+HuXkeUykumiea6nSO1seD0Yyd7S3fR1g01vOArAp1OkXrir9Al12jBDtr6keqv2Knbi/AnbqttZVY6Dcub5B1ryOdvgH8X6CLc3OApgAAAABJRU5ErkJggg=="; // Boutique Pokémon en pixel art (22 × 20)
+const refreshMoneyTag = () => { $("shopBtn").innerHTML = `<span><img class="shopIco" alt="" src="${SHOP_ICO}"></span>Magasin <small class="homeMoney">${money().toLocaleString("fr-FR")} ₽</small>`; };
 function dexCount(f) {
   const k = f.kind, n = (dexKills[k] || 0) + 1; dexKills[k] = n; dexDirty = true;
   if (typeof NET !== "undefined" && NET.role === "host" && NET.started) (NET.dexQ ||= {})[k] = (NET.dexQ[k] || 0) + 1; // envoyé aux invités
