@@ -28,6 +28,7 @@ Pas de nouvelle version de Neo dans cette mise à jour.
 
 ### Pour les futures versions de Neo
 - Nouveau fichier propre au fork : `fork-theme.css` (classe `body.thLugia`, posée par `38-fork-pick.js` selon le thème menu).
+- Dossier `prototypes/` retiré du dépôt (maquettes et captures, 15 Mo) : il reste en local, ignoré par git.
 
 ---
 
