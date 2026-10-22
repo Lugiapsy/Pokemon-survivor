@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A · Liste</title>
+<link rel="stylesheet" href="common.css">
+<style>
+/* A · Liste : régions en colonne à gauche, niveaux empilés au centre (Vampire Survivors), fiche à droite (Megabonk) */
+:root { --panel:#262a52; --panel2:#1c1f40; --gold:#d9b44a; --gold-dk:#8a6a1e; --row:#30356a; }
+body { background:radial-gradient(ellipse at 50% 0%, #4a1620 0%, #1a0b12 55%, #0c0710 100%); min-height:100vh; }
+.top { display:flex; align-items:center; gap:14px; padding:14px 20px; }
+.back { background:#c73a2a; border:2px solid #ffd66a; border-radius:8px; padding:8px 14px; font:700 15px var(--display); box-shadow:0 3px 0 #6b1810; }
+.top h1 { margin:0 auto; font:700 30px var(--display); letter-spacing:.04em; text-shadow:0 3px 0 #000; }
+.money { font:12px var(--num); background:#111; border:2px solid var(--gold); border-radius:6px; padding:8px 12px; color:var(--accent); }
+.wrap { display:grid; grid-template-columns:200px minmax(0, 1fr) 340px; gap:16px; padding:0 20px 70px; height:calc(100vh - 70px); min-height:560px; }
+.frame { background:var(--panel); border:3px solid var(--gold); border-radius:6px; box-shadow:inset 0 0 0 2px var(--gold-dk), 0 8px 30px rgba(0,0,0,.5); }
+/* Régions : rectangles verticaux */
+.regs { display:flex; flex-direction:column; gap:14px; }
+.reg { position:relative; flex:1; max-height:300px; padding:0; border:3px solid var(--gold-dk); border-radius:8px; overflow:hidden; background:#000; text-align:left; transition:.15s; }
+.reg img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:saturate(1.1); }
+.reg .mascot { position:absolute; left:50%; bottom:34px; transform:translateX(-50%); }
+.reg::after { content:""; position:absolute; inset:0; background:linear-gradient(transparent 30%, rgba(0,0,0,.85)); }
+.reg .lbl { position:absolute; left:0; right:0; bottom:8px; z-index:1; text-align:center; }
+.reg .lbl b { display:block; font:700 26px var(--display); text-shadow:0 2px 0 #000; }
+.reg .lbl small { font:600 12px var(--body); color:var(--ink-dim); }
+.reg .chap { position:absolute; top:8px; left:8px; z-index:1; font:9px var(--num); background:rgba(0,0,0,.7); padding:4px 6px; border-radius:4px; }
+.reg.on { border-color:var(--gold); box-shadow:0 0 0 3px #fff3, 0 0 24px rgba(246,200,69,.4); }
+.reg.sel { transform:translateX(4px); }
+.reg.locked img, .reg.locked canvas { filter:grayscale(1) brightness(.35); }
+.reg.locked .lbl small { color:#ffb4a8; }
+.reg .lk { position:absolute; inset:0; display:grid; place-items:center; font-size:40px; color:#ddd; z-index:1; padding-bottom:40px; }
+/* Liste des niveaux */
+.list { display:flex; flex-direction:column; padding:14px; min-height:0; }
+.list h2 { margin:0 0 12px; text-align:center; font:700 26px var(--display); }
+.rows { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:6px; scrollbar-color:var(--gold) transparent; }
+.row { display:grid; grid-template-columns:200px 1fr auto; gap:14px; align-items:stretch; padding:6px; border:2px solid transparent; border-radius:6px; background:var(--row); text-align:left; transition:background .12s; }
+.row .th { position:relative; height:108px; border:3px solid var(--gold); border-radius:4px; overflow:hidden; background:#000; }
+.row .th img { width:100%; height:100%; object-fit:cover; display:block; }
+.row .th b { position:absolute; top:4px; left:0; right:0; text-align:center; font:700 17px var(--display); color:#ffe27a; text-shadow:0 2px 0 #000, 0 0 6px #000; }
+.row .th i { position:absolute; right:6px; bottom:3px; font:700 18px var(--display); font-style:normal; color:#ffd23a; -webkit-text-stroke:1px #4a2a00; text-shadow:0 2px 0 #000; }
+.row .tx { font:14px/1.45 var(--body); color:#e8e8f4; padding:4px 0; }
+.row .tx small { display:block; margin-top:6px; font:600 12px var(--body); color:var(--accent); }
+.row .side { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; min-width:56px; font:600 11px var(--body); color:var(--ink-dim); }
+.row .side .tro { font-size:24px; }
+.row.sel { background:#4b5296; border-color:#ffe27a; }
+.row:hover { background:#3d4382; }
+.row.locked .th img { filter:grayscale(1) brightness(.3); }
+.row.locked .th b { color:#9a9aa8; }
+.row.locked .tx { color:#9ea0b8; }
+.row.locked .th::after { content:""; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e6e6e6'%3E%3Cpath d='M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1zm2 0h6V7a3 3 0 0 0-6 0z'/%3E%3C/svg%3E") center / 40px no-repeat; }
+.row.soon .th { border-style:dashed; border-color:#666; }
+/* Fiche */
+.card { display:flex; flex-direction:column; padding:14px; gap:10px; min-height:0; overflow-y:auto; }
+.card .pic { position:relative; height:150px; border:3px solid var(--gold); border-radius:4px; overflow:hidden; background:#000; flex-shrink:0; }
+.card .pic img { width:100%; height:100%; object-fit:cover; }
+.card .pic .ev { position:absolute; right:6px; bottom:6px; display:flex; gap:4px; }
+.card .pic .ev img { width:46px; height:30px; border:2px solid #fff; border-radius:3px; }
+.card h3 { margin:0; font:700 24px var(--display); color:#ffe27a; }
+.card .sub { font:600 13px var(--body); color:var(--accent); margin-top:-6px; }
+.stats { display:grid; grid-template-columns:1fr 1fr; gap:4px 12px; background:var(--panel2); border:2px solid #4a4f8a; border-radius:4px; padding:8px 10px; font:13px var(--body); }
+.stats span { color:var(--ink-dim); } .stats b { text-align:right; font-weight:600; }
+.card h4 { margin:2px 0 0; font:700 15px var(--display); color:#cfd3ff; letter-spacing:.05em; text-transform:uppercase; }
+.mons { display:flex; flex-wrap:wrap; gap:2px; background:var(--panel2); border-radius:4px; padding:4px; }
+.boss { display:flex; flex-wrap:wrap; gap:6px; }
+.boss .b { display:flex; align-items:center; gap:2px; background:#3a1630; border:1px solid #a04070; border-radius:4px; padding:0 8px 0 0; font:600 12px var(--body); }
+.event { font:13px/1.4 var(--body); background:#163a2c; border:1px solid #3aa070; border-radius:4px; padding:6px 8px; display:flex; gap:6px; align-items:center; }
+.go { margin-top:auto; padding:14px; border:3px solid #a6e08a; border-radius:8px; background:linear-gradient(#3e9a4a, #24702e); font:700 24px var(--display); letter-spacing:.06em; box-shadow:0 4px 0 #0f3a14; flex-shrink:0; }
+.go:disabled { filter:grayscale(1) brightness(.6); cursor:not-allowed; }
+.go small { display:block; font:600 12px var(--body); letter-spacing:0; }
+.need { font:600 13px var(--body); color:#ffb4a8; background:#3a1a1a; border:1px solid #a04040; border-radius:4px; padding:8px; }
+.keys { position:fixed; left:20px; bottom:14px; }
+@media (max-width: 1100px) { .wrap { grid-template-columns:150px 1fr 300px; } .row { grid-template-columns:150px 1fr; } .row .side { display:none; } .row .th { height:84px; } }
+@media (max-width: 800px) {
+  .wrap { grid-template-columns:1fr; height:auto; padding:0 16px 80px; }
+  .regs { flex-direction:row; } .reg { height:120px; flex:1; } .reg .mascot { display:none; } .reg .lk { padding-bottom:30px; font-size:28px; }
+  .rows { max-height:none; overflow:visible; } .row { grid-template-columns:120px 1fr; } .row .th { height:70px; } .row .th b { font-size:13px; } .row .tx { font-size:12px; }
+  .top h1 { font-size:20px; } .keys { display:none; }
+}
+</style>
+</head>
+<body>
+<div class="top"><button class="back" type="button">← Retour</button><h1>Choix de la carte</h1><span class="money">₽ 4 747</span></div>
+<div class="wrap">
+  <div class="regs" id="regs"></div>
+  <div class="list frame"><h2 id="regTitle"></h2><div class="rows" id="rows"></div></div>
+  <div class="card frame" id="card"></div>
+</div>
+<div class="keys"><span><kbd>↑↓</kbd>Niveau</span><span><kbd>←</kbd>Région</span><span><kbd>Entrée</kbd>Commencer</span><span><kbd>Échap</kbd>Retour</span></div>
+<script src="../../src/assets/sprites.js"></script>
+<script src="common.js"></script>
+<script>
+let REG = "kanto", lvNav;
+const regsEl = document.getElementById("regs"), rowsEl = document.getElementById("rows"), cardEl = document.getElementById("card");
+const regBtns = REGIONS.map(R => {
+  const b = document.createElement("button"); b.type = "button"; b.className = "reg" + (regOpen(R.id) ? "" : " locked");
+  const ls = regLevels(R.id), done = ls.filter(isDone).length;
+  b.innerHTML = `<img src="${R.img}" alt=""><span class="chap">${R.chap}</span>${regOpen(R.id) ? "" : `<span class="lk"><i class="lockIco"></i></span>`}
+    <span class="lbl"><b>${R.name}</b><small>${regOpen(R.id) ? `${done} / ${R.plan || ls.length} terminés` : "Termine la Caverne Azurée"}</small></span>`;
+  const m = document.createElement("span"); m.className = "mascot"; b.appendChild(m);
+  canvasFor(m, 96, 96, (g, t) => drawMon(g, R.mascot, 48, 92, 2, 0, t, regOpen(R.id), !regOpen(R.id)));
+  regsEl.appendChild(b); return b;
+});
+function regionNav() {
+  listNav(regBtns, { start:REGIONS.findIndex(R => R.id === REG),
+    onConfirm:i => { if (!regOpen(REGIONS[i].id)) return toast(`🔒 ${REGIONS[i].lock}`); showRegion(REGIONS[i].id); },
+    side:{ r:() => showRegion(REG), l:() => {} }, onBack:() => toast("← Retour au choix du Pokémon") });
+}
+regBtns.forEach((b, i) => b.addEventListener("click", () => { if (regOpen(REGIONS[i].id)) showRegion(REGIONS[i].id); else toast(`🔒 ${REGIONS[i].lock}`); }));
+function showRegion(r) {
+  REG = r; regBtns.forEach((b, i) => b.classList.toggle("on", REGIONS[i].id === r));
+  document.getElementById("regTitle").textContent = `${REGIONS.find(R => R.id === r).name} · Sélection du niveau`;
+  const slots = regSlots(r); rowsEl.innerHTML = "";
+  const rows = slots.map(lv => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "row" + (isOpen(lv) ? "" : " locked") + (lv.soon ? " soon" : "");
+    const hid = isHidden(lv), d = best(lv);
+    b.innerHTML = `<span class="th">${lv.soon ? "" : `<img src="${lv.img}" alt="">`}<b>${shownName(lv)}</b><i>Niveau ${lv.soon ? "?" : lvLabel(lv)}</i></span>
+      <span class="tx">${lv.soon ? "Ce niveau est en construction." : hid ? "Un lieu mystérieux… Seuls les Maîtres de la Ligue savent où il se cache." : isOpen(lv) ? lv.desc : `<b>Condition :</b> ${unlockText(lv)} pour débloquer ce niveau.`}
+        ${!lv.soon && isOpen(lv) ? `<small>⏱ ${lv.time} · ${lv.kind}</small>` : ""}</span>
+      <span class="side">${d ? `<span class="tro">🏆</span>Terminé` : isOpen(lv) ? `<span class="tro" style="opacity:.3">🏆</span>` : `<i class="lockIco" style="font-size:22px"></i>`}</span>`;
+    rowsEl.appendChild(b); return b;
+  });
+  const start = Math.max(0, slots.filter(isOpen).length - 1);
+  lvNav = listNav(rows, { start:r === "kanto" ? Math.min(WINS, 8) : 0, onFocus:i => renderCard(slots[i]),
+    onConfirm:i => isOpen(slots[i]) ? launch(slots[i]) : refuse(slots[i]), side:{ l:regionNav, r:() => {} }, onBack:regionNav });
+}
+function renderCard(lv) {
+  const open = isOpen(lv), hid = isHidden(lv), d = best(lv);
+  if (lv.soon) { cardEl.innerHTML = `<h3>Bientôt</h3><div class="need">Ce niveau de Johto n'existe pas encore.</div><button class="go" disabled>Commencer</button>`; return; }
+  cardEl.innerHTML = `
+    <div class="pic"><img src="${lv.img}" alt="" style="${open ? "" : "filter:grayscale(1) brightness(.3)"}">
+      ${lv.maps && open ? `<span class="ev">${lv.maps.map(m => `<img src="${m[1]}" title="${m[0]}" alt="">`).join("")}</span>` : ""}</div>
+    <h3>${shownName(lv)}</h3><div class="sub">${lv.region === "johto" ? "Johto" : "Kanto"} · Niveau ${lvLabel(lv)}${hid ? "" : " · " + lv.kind}</div>
+    <div class="stats"><span>⏱ Durée</span><b>${lv.time === "5 salles" ? "5 salles, sans chrono" : lv.time}</b>
+      <span>🏆 Terminé</span><b>${d ? "Oui" : "Pas encore"}</b>
+      <span>💥 Record K.O.</span><b>${d ? d.kos : "--"}</b><span>⭐ Meilleur niveau</span><b>${d ? "N." + d.lvl : "--"}</b></div>
+    ${open ? "" : `<div class="need"><i class="lockIco"></i> ${unlockText(lv)} pour débloquer ce niveau.</div>`}
+    ${hid ? "" : `<h4>Pokémon sauvages</h4><div class="mons" id="mons"></div><h4>${lv.boss.length > 3 ? "Conseil 4 et Champion" : "Boss"}</h4><div class="boss" id="boss"></div>`}
+    ${lv.event && open ? `<div class="event" id="ev"><span><b>Rare :</b> ${lv.event[2]}</span></div>` : ""}
+    <button class="go" type="button" ${open ? "" : "disabled"}>Commencer<small>avec Bulbizarre</small></button>`;
+  if (!hid) {
+    const mons = cardEl.querySelector("#mons"); lv.mons.forEach((n, i) => mons.appendChild(monIcon(n, isSeen(lv, i), 40)));
+    const boss = cardEl.querySelector("#boss"); lv.boss.forEach(([nm, n]) => { const s = document.createElement("span"); s.className = "b"; s.append(monIcon(n, isDone(lv), 40)); s.append(isDone(lv) ? nm : "???"); boss.appendChild(s); });
+  }
+  if (lv.event && open) cardEl.querySelector("#ev").prepend(monIcon(lv.event[1], isDone(lv), 36));
+  cardEl.querySelector(".go").addEventListener("click", () => launch(lv));
+}
+showRegion("kanto");
+document.querySelector(".back").addEventListener("click", () => toast("← Retour au choix du Pokémon"));
+</script>
+</body>
+</html>

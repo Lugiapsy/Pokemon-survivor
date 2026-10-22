@@ -29,7 +29,7 @@ function fpStatsRows(P) { // stats en cours de partie : mêmes formules que le j
 }
 function fpRender() {
   const P = S.P, L = LINES[P.line], pct = Math.max(0, P.hp / P.maxHp);
-  $("fpStage").textContent = `${$("hudLevel").textContent.split(" · ")[0]} · ${$("hudTime").textContent}`;
+  $("fpStage").textContent = `${LEVEL.maps ? LEVEL.mapName : $("hudLevel").textContent.split(" · ")[0]} · ${$("hudTime").textContent}`;
   $("fpStats").innerHTML = `<div class="fpHead"><div class="fpPf"><img src="${fhPortrait(P)}" alt=""></div><div><b>${pName()}</b><span>N.${P.lvl}</span>
       <div class="fpHp"><i style="--p:${Math.round(pct * 100)}%"></i><span>${Math.ceil(P.hp)} / ${P.maxHp}</span></div></div></div>
     <div class="fpSt">${fpStatsRows(P).map(g => `<div class="fpGrp">${g.map(([ic, n, v, plus]) => `<div class="fpLine${v === "–" ? " off" : plus || /[+−]/.test(String(v)) ? " up" : ""}">${ic ? `<img src="${pickIcon(ic)}" alt="">` : `<span class="em">🎲</span>`}<span>${n}</span><span class="v">${v}${plus ? `<small>(${plus})</small>` : ""}</span></div>`).join("")}</div>`).join("")}</div>`;

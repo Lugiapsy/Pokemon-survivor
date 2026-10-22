@@ -1,0 +1,88 @@
+/* ---------- Fork (Lugiapsy) : choix de la carte (régions à gauche, niveaux empilés au centre, fiche à droite) ---------- */
+#carte { --ctPanel:#262a52; --ctPanel2:#1c1f40; --ctGold:#d9b44a; --ctGoldDk:#8a6a1e; --ctRow:#30356a;
+  display:flex; flex-direction:column; place-items:initial; padding:0; overflow:hidden; font-variant-ligatures:none;
+  background:radial-gradient(ellipse at 50% 0%, #4a1620 0%, #1a0b12 55%, #0c0710 100%); }
+#carte[hidden] { display:none; }
+#carte canvas { image-rendering:pixelated; display:block; }
+#carte .ctTop, #carte .ctWrap { width:100%; max-width:1440px; margin:0 auto; } /* écran large (21/9) : contenu centré */
+#carte .ctTop { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:14px; padding:calc(12px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) 12px max(20px, env(safe-area-inset-left, 0px)); }
+#carte .ctTop .ctBtn { justify-self:start; }
+#carte .ctTop h1 { margin:0; font:700 clamp(22px, 2.6vw, 32px) var(--display); letter-spacing:.04em; color:var(--ink); text-shadow:0 3px 0 #000; }
+#carte .ctBtn { font:700 15px var(--display); color:var(--ink); border-radius:8px; padding:9px 18px; border:3px solid; box-shadow:inset 0 -4px 0 rgba(0,0,0,.25); cursor:pointer; }
+#carte .ctBtn.red { background:#c8402a; border-color:#ffb08a; }
+#carte .ctBtn:hover { filter:brightness(1.12); }
+#carte button:focus-visible { outline:3px solid var(--ink); outline-offset:2px; }
+#carte .ctWrap { flex:1; min-height:0; display:grid; grid-template-columns:190px minmax(0, 1fr) 430px; gap:16px; padding:0 max(20px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px)); }
+#carte .ctFrame { background:var(--ctPanel); border:3px solid var(--ctGold); border-radius:6px; box-shadow:inset 0 0 0 2px var(--ctGoldDk), 0 8px 30px rgba(0,0,0,.5); }
+/* Régions */
+#carte .ctRegs { display:flex; flex-direction:column; gap:14px; min-height:0; }
+#carte .ctReg { position:relative; flex:1; max-height:300px; min-height:150px; padding:0; border:3px solid var(--ctGoldDk); border-radius:8px; overflow:hidden; background:#000; cursor:pointer; transition:transform .15s; }
+#carte .ctReg > img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+#carte .ctReg::after { content:""; position:absolute; inset:0; background:linear-gradient(transparent 30%, rgba(0,0,0,.85)); }
+#carte .ctReg .ctMascot { position:absolute; left:50%; bottom:34px; transform:translateX(-50%); z-index:1; }
+#carte .ctReg .lbl { position:absolute; left:0; right:0; bottom:8px; z-index:2; text-align:center; }
+#carte .ctReg .lbl b { display:block; font:700 26px var(--display); color:var(--ink); text-shadow:0 2px 0 #000; }
+#carte .ctReg .lbl small { font:600 12px var(--display); color:var(--ink-dim); }
+#carte .ctReg .chap { position:absolute; top:8px; left:8px; z-index:2; font:9px var(--num); color:var(--ink); background:rgba(0,0,0,.7); padding:4px 6px; border-radius:4px; }
+#carte .ctReg.on { border-color:var(--ctGold); box-shadow:0 0 0 3px rgba(255,255,255,.2), 0 0 24px rgba(246,200,69,.4); }
+#carte .ctReg:focus-visible { transform:translateX(4px); }
+#carte .ctReg.locked > img { filter:grayscale(1) brightness(.35); }
+#carte .ctReg.locked .lbl small { color:#ffb4a8; }
+#carte .ctReg .lk { position:absolute; inset:0; display:grid; place-items:center; font-size:36px; z-index:2; padding-bottom:40px; }
+/* Liste des niveaux */
+#carte .ctList { display:flex; flex-direction:column; padding:14px; min-height:0; }
+#carte .ctList h2 { margin:0 0 12px; text-align:center; font:700 24px var(--display); color:var(--ink); text-shadow:none; }
+#carte .ctRows { flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding:2px 6px 2px 2px; scrollbar-color:var(--ctGold) transparent; }
+#carte .ctRow { display:grid; grid-template-columns:200px 1fr auto; gap:14px; align-items:stretch; flex-shrink:0; padding:6px; border:2px solid transparent; border-radius:6px; background:var(--ctRow); text-align:left; color:var(--ink); cursor:pointer; transition:background .12s; }
+#carte .ctRow .th { position:relative; height:108px; border:3px solid var(--ctGold); border-radius:4px; overflow:hidden; background:#000; }
+#carte .ctRow .th img { width:100%; height:100%; object-fit:cover; display:block; }
+#carte .ctRow .th b { position:absolute; top:4px; left:0; right:0; text-align:center; font:700 17px var(--display); color:#ffe27a; text-shadow:0 2px 0 #000, 0 0 6px #000; }
+#carte .ctRow .th i { position:absolute; right:6px; bottom:3px; font:700 18px var(--display); font-style:normal; color:#ffd23a; -webkit-text-stroke:1px #4a2a00; text-shadow:0 2px 0 #000; }
+#carte .ctRow .tx { font:500 15px/1.4 var(--display); color:#e8e8f4; padding:4px 0; }
+#carte .ctRow .tx small { display:block; margin-top:6px; font:700 13px var(--display); color:var(--accent); }
+#carte .ctRow .side { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; min-width:58px; font:600 12px var(--display); color:var(--ink-dim); }
+#carte .ctRow .tro { font-size:24px; } #carte .ctRow .tro.off { opacity:.25; filter:grayscale(1); }
+#carte .ctRow.sel { background:#4b5296; border-color:#ffe27a; }
+#carte .ctRow:not(.sel):not(.soon):hover { background:#3d4382; }
+#carte .ctRow.locked .th img { filter:grayscale(1) brightness(.3); }
+#carte .ctRow.locked .th b { color:#9a9aa8; }
+#carte .ctRow.locked .tx { color:#9ea0b8; }
+#carte .ctRow.locked .th::after { content:"🔒"; position:absolute; inset:0; display:grid; place-items:center; font-size:30px; }
+#carte .ctRow.soon { cursor:default; opacity:.6; } #carte .ctRow.soon .th { border-style:dashed; border-color:#666; } #carte .ctRow.soon .th b { color:#999; top:38%; }
+/* Fiche */
+#carte .ctCard { display:flex; flex-direction:column; padding:14px; gap:9px; min-height:0; overflow-y:auto; text-align:left; color:var(--ink); }
+#carte .ctCard .pic { position:relative; aspect-ratio:16/9; border:3px solid var(--ctGold); border-radius:4px; overflow:hidden; background:#000; flex-shrink:0; }
+#carte .ctCard .pic > img { width:100%; height:100%; object-fit:cover; display:block; } #carte .ctCard .pic > img.dim { filter:grayscale(1) brightness(.3); }
+#carte .ctCard .pic .maps { position:absolute; right:6px; bottom:6px; display:flex; gap:4px; }
+#carte .ctCard .pic .maps img { width:50px; height:28px; object-fit:cover; border:2px solid #fff; border-radius:3px; }
+#carte .ctCard h3 { margin:0; font:700 24px var(--display); color:#ffe27a; }
+#carte .ctCard .sub { font:600 14px var(--display); color:var(--accent); margin-top:-6px; }
+#carte .ctCard .stats { display:grid; grid-template-columns:auto 1fr auto 1fr; column-gap:10px; gap:3px 12px; background:var(--ctPanel2); border:2px solid #4a4f8a; border-radius:4px; padding:8px 10px; font:500 14px var(--display); }
+#carte .ctCard .stats span { color:var(--ink-dim); } #carte .ctCard .stats b { text-align:right; font:600 14px var(--display); white-space:nowrap; }
+#carte .ctCard h4 { margin:2px 0 0; font:700 14px var(--display); color:#cfd3ff; letter-spacing:.05em; text-transform:uppercase; }
+#carte .ctCard .mons { display:flex; flex-wrap:wrap; gap:2px; background:var(--ctPanel2); border-radius:4px; padding:4px; }
+#carte .ctMon { display:inline-block; } #carte .ctMon.unseen { opacity:.75; }
+#carte .ctCard .need { font:600 14px var(--display); color:#ffb4a8; background:#3a1a1a; border:1px solid #a04040; border-radius:4px; padding:8px; }
+#carte .ctCard .go { margin-top:auto; display:flex; align-items:stretch; gap:8px; flex-shrink:0; padding-top:6px; position:sticky; bottom:-14px; margin-bottom:-14px; padding-bottom:14px; background:var(--ctPanel); } /* toujours visible quand la fiche défile */
+#carte .ctBtn.go { flex:1; display:flex; align-items:center; justify-content:center; gap:12px; padding:10px 14px; border-color:#a6e08a; background:linear-gradient(#3e9a4a, #24702e); font-size:24px; letter-spacing:.06em; box-shadow:0 4px 0 #0f3a14; }
+#carte .ctBtn.go img { width:48px; height:48px; image-rendering:pixelated; border:2px solid #fff; border-radius:4px; background:#335; }
+#carte .ctBtn.go small { display:block; font:600 13px var(--display); letter-spacing:0; }
+#carte .ctBtn.go:disabled { filter:grayscale(1) brightness(.6); cursor:not-allowed; }
+#carte .ctNuz { align-self:stretch; border-radius:8px; max-width:96px; line-height:1.2; font:600 13px var(--display); color:var(--ink-dim); background:transparent; border:2px solid #555a80; border-radius:99px; padding:4px 12px; cursor:pointer; }
+#carte .ctNuz[aria-pressed="true"] { color:#ffd0d0; background:#5a1a24; border-color:#c04a5a; }
+@media (max-width: 1100px) { #carte .ctWrap { grid-template-columns:150px minmax(0, 1fr) 340px; } #carte .ctRow { grid-template-columns:150px 1fr; } #carte .ctRow .side { display:none; } #carte .ctRow .th { height:86px; } }
+@media (max-height: 560px) and (min-width: 640px) { /* téléphone en paysage : 3 colonnes compactes, chacune défile */
+  #carte .ctTop { padding-top:calc(6px + env(safe-area-inset-top, 0px)); padding-bottom:6px; } #carte .ctBtn { padding:6px 12px; font-size:13px; } #carte .ctTop h1 { font-size:20px; }
+  #carte .ctWrap { grid-template-columns:104px minmax(0, 1fr) 270px; gap:10px; padding-bottom:calc(8px + env(safe-area-inset-bottom, 0px)); }
+  #carte .ctReg { min-height:0; } #carte .ctReg .ctMascot { display:none; } #carte .ctReg .lbl b { font-size:18px; } #carte .ctReg .lbl small { font-size:10px; } #carte .ctReg .chap { font-size:7px; } #carte .ctReg .lk { font-size:24px; padding-bottom:24px; }
+  #carte .ctList { padding:8px; } #carte .ctList h2 { font-size:16px; margin-bottom:6px; } #carte .ctRows { gap:6px; }
+  #carte .ctRow { grid-template-columns:110px 1fr; gap:8px; padding:4px; } #carte .ctRow .side { display:none; } #carte .ctRow .th { height:62px; } #carte .ctRow .th b { font-size:12px; } #carte .ctRow .th i { font-size:12px; } #carte .ctRow .tx { font-size:12px; line-height:1.3; } #carte .ctRow .tx small { font-size:11px; margin-top:3px; }
+  #carte .ctCard { padding:8px; gap:6px; } #carte .ctCard .pic { display:none; } #carte .ctCard .go { bottom:-8px; margin-bottom:-8px; padding-bottom:8px; } #carte .ctCard h3 { font-size:18px; } #carte .ctCard .sub { font-size:12px; } #carte .ctCard .stats { font-size:12px; padding:5px 8px; } #carte .ctCard .stats b { font-size:12px; }
+  #carte .ctBtn.go { font-size:18px; padding:6px 10px; } #carte .ctBtn.go img { width:36px; height:36px; }
+}
+@media (max-width: 639px) {
+  #carte { overflow-y:auto; } #carte .ctWrap { grid-template-columns:1fr; flex:none; }
+  #carte .ctRegs { flex-direction:row; } #carte .ctReg { min-height:110px; height:110px; } #carte .ctReg .ctMascot { display:none; } #carte .ctReg .lk { padding-bottom:28px; font-size:26px; }
+  #carte .ctRows { overflow:visible; } #carte .ctRow { grid-template-columns:120px 1fr; } #carte .ctRow .th { height:72px; } #carte .ctRow .th b { font-size:13px; } #carte .ctRow .tx { font-size:13px; }
+  #carte .ctCard { overflow:visible; }
+}

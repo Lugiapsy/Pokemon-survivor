@@ -7,6 +7,34 @@ Fork de [neocrizis/Pokemon-survivor](https://github.com/neocrizis/Pokemon-surviv
 
 ---
 
+## MAJ-004 · Fork 04 (base : v174 de Neo)
+
+Pas de nouvelle version de Neo dans cette mise à jour.
+
+### Choix de la carte (Solo, thème menu Lugiapsy, style Vampire Survivors + Megabonk)
+- Sélection du Pokémon → Confirmer ouvre ce nouvel écran à la place de celui de Neo, puis « Commencer » lance la partie.
+- À gauche, les régions Kanto et Johto en rectangles verticaux (image, Mewtwo ou Celebi animé, niveaux terminés). Johto reste fermé tant que la Caverne Azurée n'est pas finie.
+- Au centre, les niveaux empilés : image du lieu (vraie capture du jeu), nom, description, durée, 🏆 si terminé. Un niveau fermé est assombri, avec un cadenas et sa condition. La Caverne Azurée s'affiche « ??? » tant qu'elle est secrète, les étapes de Johto pas encore faites s'affichent « Bientôt ».
+- À droite, la fiche : grande image, durée, parties jouées, K.O., Pokémon sauvages et boss animés (silhouette noire s'ils n'ont jamais été vus au Pokédex), bouton Commencer avec le portrait du Pokémon, bouton Nuzlocke.
+- Cliquer sur une carte la sélectionne seulement ; la partie démarre avec « Commencer ». Clavier, manette (LB/RB pour changer de région), version compacte sur téléphone en paysage, contenu centré sur écran large (21/9).
+- Après une partie, « Rejouer » revient sur cet écran.
+- Les Pokémon et boss sont lus dans les tables des niveaux de Neo : ses futurs niveaux apparaîtront tout seuls (il faudra seulement leur ajouter une image dans `fork-carte-assets.js`).
+
+### Oiseau Légendaire en trois niveaux optionnels
+- Dans le choix de la carte, le niveau 7 devient 7-1 Île Écume, 7-2 Centrale électrique et 7-3 Route Victoire, sans tirage au sort. Chacun a son image, sa description, ses Pokémon, ses boss et son oiseau.
+- Les trois s'ouvrent après le Manoir, un seul suffit pour ouvrir la Ligue. Les cartes terminées sont notées (`pokesurv-birds`). Le jeu de Neo n'est pas modifié : la carte choisie est imposée au lancement.
+- Le titre au-dessus du chrono et dans le menu pause affiche le nom de la carte.
+
+### Sélection du Pokémon
+- Vraies valeurs des statistiques (plus de « – ») : base du Pokémon + achats du Marchand, avec le gain total entre parenthèses (ex. Attaque 132 (+32 %)).
+- Filtre renommé « Filtre génération ». Nouveau panneau des niveaux Kanto / Johto avec un trophée par niveau terminé avec le Pokémon de la fiche.
+
+### Pour les futures versions de Neo
+- Nouveaux fichiers propres au fork : `42-fork-carte.js`, `fork-carte.css`, `fork-carte-assets.js` (images des lieux).
+- Prototypes et captures : `prototypes/carte/` (5 prototypes ; `capture.html` refait les images des lieux depuis le jeu).
+
+---
+
 ## MAJ-003 · Fork 03 (base : v174 de Neo)
 
 ### Mises à jour de Neo intégrées (v142 → v174)

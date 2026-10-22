@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C · Projecteur</title>
+<link rel="stylesheet" href="common.css">
+<style>
+/* C · Projecteur : une grande image à la fois avec flèches, fiche du Pokémon choisi en haut, façon Holocure */
+body { min-height:100vh; overflow:hidden; background:#06112e; font-family:var(--display); }
+.bg { position:fixed; inset:0; background:
+  repeating-conic-gradient(from 0deg at 50% 46%, rgba(120,180,255,.07) 0 6deg, transparent 6deg 18deg),
+  radial-gradient(ellipse at 50% 46%, #2e5fc0 0%, #12307a 35%, #06112e 75%); }
+.bg::before { content:""; position:absolute; left:-10%; right:-10%; top:44%; height:4px; background:linear-gradient(90deg, transparent, #9fd0ff, #fff, #9fd0ff, transparent); box-shadow:0 0 24px #7ab8ff; }
+.bg::after { content:""; position:absolute; inset:0; background-image:radial-gradient(2px 2px at 15% 25%, #fff, transparent), radial-gradient(1px 1px at 35% 60%, #fffa, transparent), radial-gradient(2px 2px at 65% 18%, #fffc, transparent), radial-gradient(1px 1px at 80% 70%, #fff9, transparent), radial-gradient(1px 1px at 55% 85%, #fff8, transparent); background-size:380px 260px; opacity:.7; }
+.side { position:fixed; bottom:0; z-index:0; opacity:.35; pointer-events:none; }
+.side.l { left:-30px; } .side.r { right:-30px; }
+/* Bandeau du Pokémon choisi */
+.band { position:relative; z-index:1; margin:16px auto 0; width:min(1180px, calc(100% - 32px)); display:grid; grid-template-columns:1.25fr 1fr 1fr; border:2px solid #fff; background:rgba(4,10,30,.6); }
+.band > div { border-right:2px solid #fff; } .band > div:last-child { border-right:0; }
+.band h3 { margin:0; padding:6px 12px; background:#fff; color:#111; font:500 22px var(--display); letter-spacing:.04em; display:flex; align-items:center; gap:8px; }
+.band .who { display:flex; gap:12px; padding:8px 12px; align-items:center; }
+.band .who img { width:76px; height:76px; image-rendering:pixelated; border:2px solid #fff; background:#335; }
+.band .bars { flex:1; display:grid; gap:4px; }
+.band .bar { display:grid; grid-template-columns:62px 1fr 34px; align-items:center; gap:6px; font:500 15px var(--display); }
+.band .bar i { height:9px; background:#0a1a3a; border-bottom:2px solid #fff; } .band .bar i b { display:block; height:100%; background:#3cc6ff; }
+.band p { margin:0; padding:8px 12px; font:500 17px/1.35 var(--display); }
+/* Centre */
+.stage { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; margin-top:min(5vh, 40px); }
+.stage h1 { margin:0; font:700 clamp(30px, 4.2vw, 56px) var(--display); letter-spacing:.06em; text-shadow:0 4px 0 #0008; }
+.head { width:min(1000px, calc(100% - 32px)); display:flex; align-items:baseline; gap:14px; margin:10px 0 8px; padding-left:min(120px, 8vw); font:500 24px var(--display); }
+.head small { font-size:16px; color:#9fd0ff; }
+.row { display:grid; grid-template-columns:auto minmax(0, 520px) auto minmax(0, 340px); align-items:center; gap:18px; width:min(1060px, calc(100% - 32px)); }
+.arrow { width:44px; height:90px; border:0; background:#fff; clip-path:polygon(100% 0, 0 50%, 100% 100%, 70% 50%); transition:transform .1s; }
+.arrow.r { clip-path:polygon(0 0, 100% 50%, 0 100%, 30% 50%); }
+.arrow:active { transform:scale(.9); } .arrow[disabled] { opacity:.2; cursor:default; }
+.pic { position:relative; aspect-ratio:16/9; border:3px solid #fff; background:#000; overflow:hidden; box-shadow:0 10px 40px #0008; }
+.pic img { width:100%; height:100%; object-fit:cover; display:block; transition:opacity .15s; }
+.pic.locked img { filter:grayscale(1) brightness(.3); }
+.pic .lk { position:absolute; inset:0; display:grid; place-items:center; font-size:64px; color:#ddd; }
+.pic .tag { position:absolute; left:8px; top:8px; font:500 15px var(--display); background:#000a; padding:3px 8px; }
+.pic .mascot { position:absolute; right:10px; bottom:0; }
+.facts { align-self:stretch; display:flex; flex-direction:column; gap:8px; font:500 19px var(--display); padding:6px 0; }
+.facts .l { display:flex; justify-content:space-between; gap:12px; border-bottom:1px dashed #fff5; padding-bottom:4px; }
+.facts .l span { color:#9fd0ff; }
+.facts .mons { display:flex; flex-wrap:wrap; margin-top:-4px; }
+.facts p { margin:0; font:500 18px/1.35 var(--display); color:#e6f0ff; }
+.status { margin-top:14px; display:flex; align-items:center; gap:12px; font:500 26px var(--display); min-height:36px; }
+.status.lock { color:#ffb4a8; font-size:21px; }
+.dots { display:flex; gap:8px; margin-top:10px; }
+.dots i { width:12px; height:12px; border:2px solid #fff; transform:rotate(45deg); }
+.dots i.on { background:#fff; } .dots i.done { border-color:#ffd23a; } .dots i.on.done { background:#ffd23a; } .dots i.lk { opacity:.35; }
+.foot { position:fixed; right:0; bottom:46px; z-index:1; background:#0009; padding:6px 18px; font:500 20px var(--display); letter-spacing:.04em; }
+@media (max-width: 900px) {
+  .band { grid-template-columns:1fr; } .band > div:not(:first-child) { display:none; } .band > div:first-child { border-right:0; }
+  .row { grid-template-columns:auto 1fr auto; } .facts { grid-column:1 / -1; } .head { padding-left:0; justify-content:center; }
+  body { overflow:auto; } .side { display:none; } .foot { display:none; } .stage { padding-bottom:80px; }
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<span class="side l" id="sideL"></span><span class="side r" id="sideR"></span>
+<div class="band">
+  <div><h3>BULBIZARRE</h3><div class="who"><img id="port" alt=""><div class="bars">
+    <div class="bar">PV <i><b style="width:68%"></b></i>48</div><div class="bar">Vitesse <i><b style="width:55%"></b></i>150</div>
+    <div class="bar">Soin <i><b style="width:40%"></b></i>0,4</div><div class="bar" style="color:#ffd23a">Type <span></span>Plante</div></div></div></div>
+  <div><h3>🍃 Tranch'Herbe</h3><p>Ses feuilles tournent autour de lui et fauchent tout ce qui s'approche.</p></div>
+  <div><h3>✚ Engrais</h3><p>Récupère 0,4 PV par seconde.</p></div>
+</div>
+<div class="stage">
+  <h1 id="title">CHOIX DE LA RÉGION</h1>
+  <div class="head" id="head"></div>
+  <div class="row">
+    <button class="arrow" id="prev" type="button" aria-label="Précédent"></button>
+    <div class="pic" id="pic"></div>
+    <button class="arrow r" id="next" type="button" aria-label="Suivant"></button>
+    <div class="facts" id="facts"></div>
+  </div>
+  <div class="status" id="status"></div>
+  <div class="dots" id="dots"></div>
+</div>
+<div class="foot">VALIDER : ESPACE/ENTRÉE &nbsp;|&nbsp; RETOUR : ÉCHAP</div>
+<script src="../../src/assets/sprites.js"></script>
+<script src="../../src/assets/fork-pick-assets.js"></script>
+<script src="common.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+$("port").src = window.FORK_PORTRAITS && FORK_PORTRAITS["0001"] || "";
+canvasFor($("sideL"), 340, 420, (g, t) => drawMon(g, "0003", 170, 410, 7, 2, t));
+canvasFor($("sideR"), 340, 420, (g, t) => drawMon(g, "0003", 170, 410, 7, 6, t + .4));
+let mode = "reg", REG = "kanto", items = [], cur = 0;
+function setMode(m, r) {
+  mode = m; if (r) REG = r;
+  items = m === "reg" ? REGIONS : regSlots(REG);
+  cur = m === "reg" ? REGIONS.findIndex(R => R.id === REG) : REG === "kanto" ? Math.min(WINS, 8) : 0;
+  $("title").textContent = m === "reg" ? "CHOIX DE LA RÉGION" : "CHOIX DE LA CARTE"; render();
+}
+function render() {
+  const it = items[cur]; $("prev").disabled = cur === 0; $("next").disabled = cur === items.length - 1;
+  $("dots").innerHTML = items.map((x, k) => `<i class="${k === cur ? "on" : ""}${mode === "lv" && isDone(x) ? " done" : ""}${(mode === "reg" ? regOpen(x.id) : isOpen(x)) ? "" : " lk"}"></i>`).join("");
+  if (mode === "reg") {
+    const open = regOpen(it.id), ls = regLevels(it.id), done = ls.filter(isDone).length;
+    $("head").innerHTML = `${it.chap.toUpperCase()} - ${it.name}`;
+    $("pic").className = "pic" + (open ? "" : " locked");
+    $("pic").innerHTML = `<img src="${it.img}" alt="">${open ? "" : `<span class="lk"><i class="lockIco"></i></span>`}<span class="mascot" id="masc"></span>`;
+    canvasFor($("masc"), 150, 150, (g, t) => drawMon(g, it.mascot, 75, 146, 3, 0, t, open, !open));
+    $("facts").innerHTML = `<p>${it.blurb}</p><div class="l"><span>Niveaux</span>${it.plan ? `${ls.length} / ${it.plan}` : ls.length}</div><div class="l"><span>Terminés</span>${done}</div>
+      <div class="l"><span>Starters</span><span class="mons" id="st"></span></div>`;
+    it.starters.forEach(n => $("st").appendChild(monIcon(n, open, 40)));
+    $("status").className = "status" + (open ? "" : " lock");
+    $("status").innerHTML = open ? (done === ls.length ? "🏆 RÉGION TERMINÉE !" : `▶ ${done} / ${it.plan || ls.length} TERMINÉS`) : `🔒 ${it.lock}`;
+    return;
+  }
+  const lv = it, open = isOpen(lv), hid = isHidden(lv), d = best(lv);
+  $("head").innerHTML = lv.soon ? "NIVEAU ? - Bientôt" : `NIVEAU ${lvLabel(lv)} - ${shownName(lv)} <small>${REGIONS.find(R => R.id === REG).name}</small>`;
+  $("pic").className = "pic" + (open ? "" : " locked");
+  $("pic").innerHTML = lv.soon ? `<span class="lk">?</span>` : `<img src="${lv.img}" alt="">${open ? "" : `<span class="lk"><i class="lockIco"></i></span>`}${open && lv.maps ? `<span class="tag">Carte tirée au sort</span>` : ""}`;
+  if (lv.maps && open) { let k = 0; clearInterval(window.mapT); window.mapT = setInterval(() => { const im = $("pic").querySelector("img"); if (!im || items[cur] !== lv) return clearInterval(window.mapT); k = (k + 1) % 3; im.src = lv.maps[k][1]; $("pic").querySelector(".tag").textContent = lv.maps[k][0]; }, 1600); }
+  $("facts").innerHTML = lv.soon ? `<p>Ce niveau de Johto n'existe pas encore.</p>` : hid ? `<p>Un lieu mystérieux… Seuls les Maîtres de la Ligue savent où il se cache.</p>` :
+    `<p>${lv.desc}</p><div class="l"><span>Durée</span>${lv.time === "5 salles" ? "5 salles" : lv.time}</div><div class="l"><span>Record</span>${d ? d.kos + " K.O." : "--"}</div>
+     <div class="l"><span>Pokémon</span></div><div class="mons" id="mons"></div><div class="l"><span>Boss</span><span class="mons" id="boss"></span></div>`;
+  if (!lv.soon && !hid) { lv.mons.slice(0, 12).forEach((n, i) => $("mons").appendChild(monIcon(n, isSeen(lv, i), 34))); lv.boss.forEach(([nm, n]) => $("boss").appendChild(monIcon(n, isDone(lv), 38))); }
+  $("status").className = "status" + (open || lv.soon ? "" : " lock");
+  $("status").innerHTML = lv.soon ? "" : d ? "🏆 TERMINÉ !" : open ? "&nbsp;" : `🔒 ${unlockText(lv)}`;
+}
+const step = d => { const n = Math.max(0, Math.min(items.length - 1, cur + d)); if (n !== cur) { cur = n; render(); } };
+const confirm = () => { const it = items[cur]; if (mode === "reg") return regOpen(it.id) ? setMode("lv", it.id) : toast(`🔒 ${it.lock}`); isOpen(it) ? launch(it) : refuse(it); };
+NAV = { move:d => (d === "l" || d === "u") ? step(-1) : step(1), confirm, back:() => mode === "lv" ? setMode("reg") : toast("← Retour au choix du Pokémon") };
+$("prev").addEventListener("click", () => step(-1)); $("next").addEventListener("click", () => step(1)); $("pic").addEventListener("click", confirm);
+let sx = null; $("pic").addEventListener("touchstart", e => sx = e.touches[0].clientX, { passive:true });
+$("pic").addEventListener("touchend", e => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 40) { e.preventDefault(); step(dx < 0 ? 1 : -1); } sx = null; });
+setMode("reg");
+</script>
+</body>
+</html>

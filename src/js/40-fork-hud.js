@@ -141,7 +141,7 @@ function fhRefresh() {
   const pf = fhPortrait(P); if ($("fhPf").getAttribute("src") !== pf) $("fhPf").src = pf;
   $("fhHpFill").style.width = (pct * 100) + "%"; $("fhHpFill").style.background = pct > .5 ? "var(--hp)" : pct > .2 ? "var(--hp-low)" : "var(--hp-crit)";
   $("fhHpText").textContent = `${Math.ceil(P.hp)} / ${P.maxHp}`;
-  $("fhTime").textContent = $("hudTime").textContent; $("fhStageName").textContent = $("hudLevel").textContent.split(" · ")[0];
+  $("fhTime").textContent = $("hudTime").textContent; $("fhStageName").textContent = LEVEL.maps ? LEVEL.mapName : $("hudLevel").textContent.split(" · ")[0]; // Oiseau Légendaire : le nom de la carte
   $("fhKills").textContent = S.kills;
   const mv = realMoves(P), it = Object.entries(P.items), key = mv.map(([id, m]) => id + m.lv).join() + "|" + it.map(([id, lv]) => id + lv).join();
   if (key !== fhKey) { fhKey = key;

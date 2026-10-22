@@ -16,6 +16,8 @@
 #pick .pkRow img, #pick .pkRow .em { width:22px; height:22px; image-rendering:pixelated; font-size:16px; text-align:center; }
 #pick .pkRow .v { white-space:nowrap; font:9px var(--num); color:#e8f0ff; text-shadow:0 1px 0 #1d2230, 1px 0 0 #1d2230, -1px 0 0 #1d2230, 0 -1px 0 #1d2230; }
 #pick .pkRow.up .v { color:#ffe066; }
+#pick .pkRow .v small { font:700 12px var(--display); color:#1f6a1f; margin-left:5px; text-shadow:none; vertical-align:1px; } /* gain total (base + Marchand) */
+#pick .pkRow:not(.up) .v { color:#c8ccd4; }
 #pick .pkRow .v em { font:700 11px var(--display); font-style:normal; color:#1d2230; background:#ffe066; border-radius:3px; padding:0 4px; margin-right:5px; text-shadow:none; vertical-align:2px; }
 #pick .pkFoot { margin-top:10px; padding-top:9px; border-top:2px solid #5e6470; font:700 15px var(--display); text-align:center; }
 #pick .pkCenter { padding:14px 16px 0; }
@@ -42,10 +44,17 @@
 #pick .pkSkins { display:flex; gap:5px; } #pick .pkSkins i { width:9px; height:9px; background:#c7ccd3; border:2px solid #5e6470; } #pick .pkSkins i.on { background:#ffe066; border-color:#1d2230; }
 #pick .pkSkinName { font:600 12px var(--display); color:#3d4352; }
 #pick .pkSide { display:flex; flex-direction:column; gap:16px; }
-#pick .pkFilter { background:#2448c8; border:3px solid #9fb8ff; border-radius:6px; text-align:center; font:700 17px var(--display); padding:8px; }
 #pick .pkRegions { padding:12px 14px; background:#9aa0a8; color:#1d2230; border-color:#5e6470; }
 #pick .pkRegions label { display:flex; align-items:center; gap:10px; font:700 17px var(--display); padding:5px 0; cursor:pointer; }
 #pick .pkRegions input { width:18px; height:18px; accent-color:#3a2840; }
+#pick .pkRegions h3 { margin:0 0 6px; font:700 17px var(--display); }
+#pick .pkMaps { padding:10px 12px; background:#9aa0a8; color:#1d2230; border-color:#5e6470; }
+#pick .pkTabs { display:flex; gap:6px; margin-bottom:8px; }
+#pick .pkTab { flex:1; font:700 15px var(--display); color:#1d2230; background:#c7ccd3; border:2px solid #5e6470; border-radius:5px; padding:5px 0; cursor:pointer; }
+#pick .pkTab.on { background:#ffe066; border-color:#1d2230; } #pick .pkTab:not(.on):hover { background:#dfe3e8; }
+#pick .pkMap { display:flex; align-items:center; justify-content:space-between; gap:6px; min-height:24px; font:600 14px var(--display); padding:1px 2px; border-bottom:1px solid #848a95; }
+#pick .pkMap b { width:20px; text-align:center; font-size:14px; } #pick .pkMap:not(.done) span { color:#3d4352; }
+#pick .pkMapTot, #pick .pkMapNone { margin-top:7px; font:700 13px var(--display); text-align:center; }
 #pick .pkGo { margin-top:auto; font-size:20px; padding:14px; letter-spacing:.08em; } /* « fi » de Confirmer bien séparés */
 @media (max-width:1250px) { #pick .pkLayout { grid-template-columns:1fr; max-width:760px; margin:0 auto; } #pick .pkStats { order:2; } #pick .pkSide { order:3; } #pick .pkGo { margin-top:0; } }
 @media (max-width:600px) { #pick .pkGrid { grid-template-columns:repeat(2, 1fr); } }

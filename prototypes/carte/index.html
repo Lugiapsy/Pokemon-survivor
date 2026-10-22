@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototypes · Choix de la carte</title>
+<link rel="stylesheet" href="common.css">
+<style>
+body { background:#16141f; padding:32px 16px; }
+main { max-width:900px; margin:0 auto; }
+h1 { font:700 34px var(--display); color:var(--accent); margin:0 0 6px; }
+p { color:var(--ink-dim); line-height:1.5; }
+.list { display:grid; gap:14px; margin-top:22px; }
+a.p { display:grid; grid-template-columns:150px 1fr; gap:16px; align-items:center; text-decoration:none; color:var(--ink); background:#221f30; border:2px solid #3d3854; border-radius:12px; padding:12px 18px 12px 12px; }
+a.p:hover { border-color:var(--accent); }
+a.p img { width:150px; aspect-ratio:16/9; object-fit:cover; border-radius:6px; }
+a.p b { font:700 22px var(--display); color:var(--accent); } a.p small { font:600 13px var(--body); color:#9a98b0; margin-left:6px; } a.p span { display:block; margin-top:4px; color:var(--ink-dim); line-height:1.45; }
+h2 { font:700 20px var(--display); margin:30px 0 4px; }
+code { background:#000; padding:1px 5px; border-radius:4px; }
+@media (max-width: 600px) { a.p { grid-template-columns:1fr; } a.p img { width:100%; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Choix de la carte · 5 prototypes</h1>
+  <p>Après « Confirmer » sur le Pokémon : d'abord la région (Kanto, Johto), puis le niveau. Les images des lieux sont de vraies captures du jeu.
+    Souris (clic pour choisir, re-clic pour lancer), clavier (flèches, Entrée, Échap) ou manette (croix, A, B).</p>
+  <p>Les boutons en bas à droite simulent la progression : <b>Début</b> (seule la Forêt de Jade est ouverte, Johto fermé), <b>4 niveaux finis</b>, <b>Tout fini</b> (Johto ouvert).
+    Les Pokémon jamais vus s'affichent en silhouette noire, les boss restent cachés tant que le niveau n'est pas terminé.</p>
+  <h2>Inspirés des jeux montrés</h2>
+  <div class="list">
+    <a class="p" href="a-liste.html"><img src="img/lv1.jpg" alt=""><div><b>A · Liste</b><small>Vampire Survivors + Megabonk</small><span>Les deux régions en rectangles verticaux à gauche, les niveaux empilés au centre (vignette + description, cadenas et condition s'ils sont fermés), fiche complète à droite avec le bouton Commencer.</span></div></a>
+    <a class="p" href="b-carrousel.html"><img src="img/lv4.jpg" alt=""><div><b>B · Carrousel</b><small>Temtem Swarm</small><span>Deux grandes cartes verticales pour les régions, puis un carrousel de cartes verticales : celle du milieu est agrandie, les niveaux fermés sont grisés avec un cadenas hexagonal. Nom sur un bandeau en haut, infos en bas.</span></div></a>
+    <a class="p" href="c-projecteur.html"><img src="img/lv8.jpg" alt=""><div><b>C · Projecteur</b><small>Holocure</small><span>Fond étoilé bleu, fiche du Pokémon choisi en haut, une grande image à la fois avec des flèches (ou en glissant le doigt), infos à droite, « 🏆 TERMINÉ ! » dessous. Même écran pour la région puis pour le niveau.</span></div></a>
+  </div>
+  <h2>Carte blanche</h2>
+  <div class="list">
+    <a class="p" href="d-cartouches.html"><img src="img/lv7-c.jpg" alt=""><div><b>D · Cartouches</b><small>Game Boy</small><span>Chaque région est une cartouche de Game Boy debout (rouge pour Kanto, or pour Johto) qu'on « insère ». Les niveaux sont des bandes empilées : celle choisie s'ouvre avec l'image, les Pokémon et le bouton Jouer.</span></div></a>
+    <a class="p" href="e-panneaux.html"><img src="img/lv10.jpg" alt=""><div><b>E · Panneaux</b><small>bandes verticales</small><span>L'écran est découpé en grandes bandes penchées : deux pour les régions, une par niveau ensuite. La bande choisie s'élargit et montre tout ; les autres gardent un aperçu de leur lieu avec le nom à la verticale.</span></div></a>
+  </div>
+  <p style="margin-top:28px">Les images ont été prises avec <code>capture.html</code> (une vraie partie par niveau, interface cachée).</p>
+</main>
+</body>
+</html>

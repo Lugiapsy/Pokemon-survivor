@@ -12,6 +12,7 @@
 <!-- @include css/fork-pick.css -->
 <!-- @include css/fork-hud.css -->
 <!-- @include css/fork-pause.css -->
+<!-- @include css/fork-carte.css -->
 </style>
 <div class="rotateMsg" id="rotateMsg"><div class="phone">📱</div><div>Tourne ton téléphone<br>pour jouer en paysage</div></div>
 
@@ -90,8 +91,8 @@
       <div class="pkDesc"><div id="pickPic"></div><div id="pickTxt"></div></div>
     </main>
     <aside class="pkSide">
-      <div class="pkFilter" id="pickFilter"></div>
-      <div class="pkPanel pkRegions" id="pickRegions"></div>
+      <div class="pkPanel pkRegions"><h3>Filtre génération</h3><div id="pickRegions"></div></div>
+      <div class="pkPanel pkMaps"><div class="pkTabs" id="pickMapTabs"></div><div id="pickMaps"></div></div>
       <button class="pkBtn gold pkGo" id="pickGo" type="button">Confirmer</button>
     </aside>
   </div>
@@ -237,6 +238,7 @@
 <!-- @include assets/sprites.js -->
 <!-- @include assets/fork-sprites.js -->
 <!-- @include assets/fork-pick-assets.js -->
+<!-- @include assets/fork-carte-assets.js -->
 </script>
 <script>
 (() => {
@@ -282,5 +284,6 @@
 <!-- @include js/39-fork-debug.js -->
 <!-- @include js/40-fork-hud.js -->
 <!-- @include js/41-fork-pause.js -->
+<!-- @include js/42-fork-carte.js -->
 })();
 </script>
