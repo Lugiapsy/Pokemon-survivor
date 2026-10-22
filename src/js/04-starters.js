@@ -7,7 +7,7 @@ const LINES = {
   eau:    { names:["Carapuce","Carabaffe","Tortank"], type:"eau", move:"pistolet", hp:44, speed:155, cd:.92,
             blurb:"Équilibré. Torrent : capacités rechargées 8 % plus vite. Son Pistolet à O tire droit devant et transperce plusieurs ennemis." },
   pika:   { names:["Pichu","Pikachu","Raichu"], type:"electrik", move:"tonnerre", hp:38, speed:168,
-            blurb:"Rapide et nerveux. Statik : un ennemi qui le touche est paralysé 1 s. Tonnerre saute d'ennemi en ennemi. Dans la forêt, Pichu, Pikachu et Raichu sauvages laissent place à Lixy, Luxio et Luxray." },
+            blurb:"Rapide et nerveux. Statik : un ennemi qui le touche est paralysé 1 s. Tonnerre saute d'ennemi en ennemi." },
   evoli:  { names:["Évoli","Évoli","Évoli"], type:"normal", move:"meteores", hp:42, speed:166, evo:"choisit son évolution au N.10, se renforce N.22",
             blurb:"Sauvé du Repaire Rocket. Adaptabilité : +10 % d'expérience. Polyvalent : Météores lance des étoiles qui ne ratent jamais leur cible. Au N.10, choisis : Pyroli, Aquali, Phyllali ou Voltali, et prends son type." },
   draco:  { names:["Minidraco","Draco","Dracolosse"], type:"dragon", move:"dracorage", hp:42, speed:160, evo:"évolue N.10 et N.22, Dracolosse vole",

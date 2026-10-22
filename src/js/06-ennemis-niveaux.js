@@ -11,11 +11,11 @@ const FOES = {
   roucarnage: { name:"Roucarnage", types:["normal","vol"],     hp:80,  speed:104, dmg:13, r:20, xp:7 },
   pichu:      { name:"Pichu",      types:["electrik"],         hp:12,  speed:98,  dmg:4,  r:11, xp:2, erratic:true },
   pikachu:    { name:"Pikachu",    types:["electrik"],         hp:22,  speed:82,  dmg:6,  r:13, xp:3, ranged:true },
-  lixy:       { name:"Lixy",       types:["electrik"],         hp:12,  speed:98,  dmg:4,  r:11, xp:2, erratic:true },
-  luxio:      { name:"Luxio",      types:["electrik"],         hp:22,  speed:82,  dmg:6,  r:13, xp:3, ranged:true },
+  lixy:       { name:"Lixy",       types:["electrik"],         hp:12,  speed:98,  dmg:4,  r:11, xp:2, erratic:true, hideDex:true }, // retiré du jeu : gardé seulement pour les Pokédollars déjà gagnés au Pokédex
+  luxio:      { name:"Luxio",      types:["electrik"],         hp:22,  speed:82,  dmg:6,  r:13, xp:3, ranged:true, hideDex:true }, // retiré du jeu : gardé seulement pour les Pokédollars déjà gagnés au Pokédex
   berrytree:  { name:"Arbre à baies", types:[], hp:1, speed:0, dmg:0, r:20, xp:0 },
   crackrock:  { name:"Rocher fissuré", types:[], hp:1, speed:0, dmg:0, r:18, xp:0 },
-  luxray:     { name:"Luxray",     types:["electrik"],         hp:70,  speed:76,  dmg:11, r:17, xp:6, ranged:true },
+  luxray:     { name:"Luxray",     types:["electrik"],         hp:70,  speed:76,  dmg:11, r:17, xp:6, ranged:true, hideDex:true }, // retiré du jeu : gardé seulement pour les Pokédollars déjà gagnés au Pokédex
   raichu:     { name:"Raichu",     types:["electrik"],         hp:70,  speed:76,  dmg:11, r:17, xp:6, ranged:true },
   bossDard:   { name:"Dardargnan géant", sprite:"dardargnan", types:["insecte","poison"], hp:1800, speed:62, dmg:20, r:40, xp:60, boss:true, dash:true, bigDash:true },
   bossRouc:   { name:"Roucarnage géant", sprite:"roucarnage", types:["normal","vol"],     hp:4800, speed:70, dmg:24, r:46, xp:100, boss:true, dash:true },
@@ -168,7 +168,7 @@ const LEVELS = [
               eau:["Neutre", "Attention aux Pikachu : leurs éclairs te font double dégâts."],
               plante:["Difficile", "La Plante est peu efficace sur les insectes et les oiseaux, mais Poudre Toxik (Poison) est super efficace sur les insectes."],
               miaouss:["Neutre", "Le Normal n'a ni avantage ni faiblesse ici. Ses coups critiques font la différence."],
-              pika:["Avantagé", "L'Électrik est super efficace sur les Roucool et les Papilusion, et les éclairs des Luxio te font peu de dégâts."],
+              pika:["Avantagé", "L'Électrik est super efficace sur les Roucool et les Papilusion, et les éclairs des Pikachu te font peu de dégâts."],
               evoli:["Variable", "Normal au départ (comme Miaouss), puis le type de l'évolution que tu choisis au N.10."],
               draco:["Neutre", "Le Dragon n'a pas d'avantage sur les insectes, mais tu résistes aux éclairs des Pikachu."] },
     rings:["chenipan", "aspicot", "roucool", "papilusion"],

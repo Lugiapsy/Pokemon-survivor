@@ -7,6 +7,30 @@ Fork de [neocrizis/Pokemon-survivor](https://github.com/neocrizis/Pokemon-surviv
 
 ---
 
+## MAJ-005 · Fork 05 (base : v174 de Neo)
+
+Pas de nouvelle version de Neo dans cette mise à jour.
+
+### Menu pause
+- Plus de bouton Statistiques : « Capacités » ouvre en même temps les statistiques (à gauche) et les capacités (à droite).
+- Les objets sont détaillés niveau par niveau sous les capacités (partie « OBJETS »), comme les attaques : niveaux obtenus en blanc, à venir en gris. Chaque ligne donne le total à ce niveau, avec les formules du jeu (ex. Carbone +12 %, +25 %, +40 %… car les bonus se multiplient).
+
+### Thème Lugiapsy sur les pages du menu
+- Accueil, Paramètres, Mentions légales, Magasin, Succès et Pokédex reprennent les fenêtres et boutons de la sélection du Pokémon : fond vert, cadre bleu nuit bordé d'or, cases grises, bouton d'action doré.
+- Un seul bouton de retour, rouge, en haut à gauche (le « Retour » du bas est caché).
+- Magasin : boutons d'achat dorés, grisés sans assez de Pokédollars. Succès : obtenus en clair à cadre doré, à faire en foncé. Pokédex : cases façon sélection du Pokémon, plus foncées pour les Pokémon pas encore vus.
+- Actif seulement avec Paramètres > Thème menu = Lugiapsy ; le thème Neocrizis et le Multijoueur gardent le style de Neo.
+
+### Gameplay : Pichu dans la Forêt de Jade (à valider par Neo)
+- Avec Pichu, les Pichu, Pikachu et Raichu sauvages ne sont plus remplacés par Lixy, Luxio et Luxray.
+- Lixy, Luxio et Luxray sont retirés : sprites (0403 à 0405), cases du Pokédex, crédits, phrase de la description de Pichu. L'astuce de la Forêt de Jade parle des éclairs des Pikachu.
+- Leurs trois fiches (`FOES.lixy`, `luxio`, `luxray`) restent, cachées (`hideDex`) : le jeu recalcule les Pokédollars du Pokédex à partir des fiches, les effacer ferait perdre cet argent aux joueurs qui en ont déjà mis K.O.
+
+### Pour les futures versions de Neo
+- Nouveau fichier propre au fork : `fork-theme.css` (classe `body.thLugia`, posée par `38-fork-pick.js` selon le thème menu).
+
+---
+
 ## MAJ-004 · Fork 04 (base : v174 de Neo)
 
 Pas de nouvelle version de Neo dans cette mise à jour.

@@ -18,9 +18,6 @@ Les sprites originaux sont de Spike Chunsoft (Pokémon Donjon Mystère). Retouch
 | 0035, 0036, 0041, 0042, 0046, 0047, 0074, 0169, 0173 | Mélofée, Mélodelfe, Nosferapti, Nosferalto, Paras, Parasect, Racaillou, Nostenfer, Mélo | CHUNSOFT |
 | 0052, 0053 | Miaouss, Persian | CHUNSOFT |
 | 0172, 0025, 0026 | Pichu, Pikachu, Raichu (joueur) | CHUNSOFT |
-| 0403 | Lixy | CHUNSOFT |
-| 0404 | Luxio | CHUNSOFT + contributeur SpriteCollab |
-| 0405 | Luxray | CHUNSOFT |
 | 0172 forme 0001 | Pichu Troizépi | contributeurs SpriteCollab |
 | versions shiny (0001-0009, 0025, 0026, 0052, 0053, 0172, Pichu Troizépi) | starters chromatiques | auteurs indiqués dans les credits.txt SpriteCollab de chaque dossier 0001 |
 | 0027 | Sabelette | CHUNSOFT + 2 contributeurs SpriteCollab |

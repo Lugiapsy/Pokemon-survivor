@@ -1,15 +1,15 @@
 
 /* ---------- Fork (Lugiapsy) : menu pause (thème menu « Lugiapsy », partie solo hors ligne) ----------
-   Fond de jeu flouté et assombri. Panneau PAUSE au centre : Reprendre, Capacités, Statistiques, Options, Quitter.
-   « Capacités » ouvre la zone de droite (chaque capacité niveau par niveau : acquis en blanc, à venir en gris, + objets),
-   « Statistiques » celle de gauche (portrait, PV, stats en cours de partie) ; le panneau glisse pour leur faire de la place.
+   Fond de jeu flouté et assombri. Panneau PAUSE au centre : Reprendre, Capacités, Options, Quitter.
+   « Capacités » ouvre les deux zones : à gauche les statistiques (portrait, PV, stats en cours de partie), à droite chaque
+   capacité puis chaque objet niveau par niveau (acquis en blanc, à venir en gris) ; le panneau glisse pour leur faire de la place.
    La pause de Neo (#pause) reste la référence : elle est seulement masquée et remplacée tant que ce menu est actif. */
 const FP = document.createElement("div"); FP.id = "fpause"; FP.className = "fpOverlay"; FP.hidden = true;
 FP.innerHTML = `<div class="fpRow">
   <section class="fpStats" id="fpStats" hidden></section>
   <div class="fpPanel" id="fpPanel"><h1>PAUSE</h1><div class="fpStage" id="fpStage"></div>
     <div class="fpBtns" id="fpBtns"><button class="fpBtn gold" id="fpResume" type="button">Reprendre</button><button class="fpBtn green" id="fpCapsBtn" type="button">Capacités</button>
-      <button class="fpBtn blue" id="fpStatsBtn" type="button">Statistiques</button><button class="fpBtn grey" id="fpOptBtn" type="button">Options</button><button class="fpBtn red" id="fpQuit" type="button">Quitter</button></div>
+      <button class="fpBtn grey" id="fpOptBtn" type="button">Options</button><button class="fpBtn red" id="fpQuit" type="button">Quitter</button></div>
     <div id="fpOptSlot"></div></div>
   <section class="fpCaps" id="fpCaps" hidden></section></div>`;
 $("pause").insertAdjacentElement("afterend", FP);
@@ -36,10 +36,23 @@ function fpRender() {
   const mv = realMoves(P).map(([id, m]) => { const M = MOVES[id], max = M.max || 5, lines = [];
     for (let k = 1; k <= max; k++) { let d = ""; try { d = typeof M.desc === "function" ? M.desc(k) : ""; } catch (e) {} lines.push(`<li class="${k <= m.lv ? "on" : ""}"><b>${k}</b><span>${d || ""}</span></li>`); }
     return `<div class="fpMv" style="--t:${FH_BG[M.type] || "#2f6a3a"}"><div class="ic"><img src="${fhMoveIcon(id)}" alt=""></div><div><h4>${M.name} <em>N.${m.lv}/${max}</em></h4><ol>${lines.join("")}</ol></div></div>`; }).join("");
-  const items = Object.entries(P.items).map(([id, lv]) => `<span class="fpIt"><img src="${fhItemIcon(id)}" alt="">${ITEMS[id] ? ITEMS[id].name : id} <em>${lv}/${(ITEMS[id] && ITEMS[id].max) || 5}</em></span>`).join("");
-  $("fpCaps").innerHTML = `<h3>CAPACITÉS</h3><div class="fpMoves">${mv}</div>${items ? `<div class="fpItems">${items}</div>` : ""}`;
+  const items = Object.entries(P.items).map(([id, lv]) => { const I = ITEMS[id] || { name:id, max:5 }, max = I.max || 5, lines = [];
+    for (let k = 1; k <= max; k++) lines.push(`<li class="${k <= lv ? "on" : ""}"><b>${k}</b><span>${FP_ITEM_LV[id] ? FP_ITEM_LV[id](k) : I.desc || ""}</span></li>`);
+    return `<div class="fpMv fpObj"><div class="ic"><img src="${fhItemIcon(id)}" alt=""></div><div><h4>${I.name} <em>N.${lv}/${max}</em></h4><ol>${lines.join("")}</ol></div></div>`; }).join("");
+  $("fpCaps").innerHTML = `<h3>CAPACITÉS</h3><div class="fpMoves">${mv}</div>${items ? `<h3 class="fpObjH">OBJETS</h3><div class="fpMoves">${items}</div>` : ""}`;
 }
-function fpZone(which, on) { const z = $(which === "caps" ? "fpCaps" : "fpStats"), b = $(which === "caps" ? "fpCapsBtn" : "fpStatsBtn"); z.hidden = !on; b.classList.toggle("on", on); }
+// Objets : total obtenu à chaque niveau (mêmes formules que grant, speed, AREA… : Carbone, Vive Griffe et Orbe Vie se multiplient)
+const fpN = v => String(Math.round(v * 10) / 10).replace(".", ","), fpMul = (f, k) => Math.round((Math.pow(f, k) - 1) * 100), fpDiv = (f, k) => Math.round((1 - Math.pow(f, k)) * 100);
+const FP_ITEM_LV = {
+  carbone:k => `Attaque +${fpMul(1.12, k)} %`, pvplus:k => `PV max +${20 * k} (et soigne 20 PV)`, aimant:k => `Attraction des Bonbons Exp. +${35 * k} %`,
+  vivegriffe:k => `Recharge −${fpDiv(.92, k)} %`, mouchoir:k => `Vitesse +${8 * k} %`, restes:k => `Régénération ${fpN(.4 * k)} PV/s`,
+  veste:k => `Dégâts subis −${k} par coup`, loupe:k => `Zone des capacités +${10 * k} %`, poudrevite:k => `Vitesse des projectiles +${12 * k} %`,
+  lumargile:k => `Durée des effets +${12 * k} %`, lentilscope:k => `Coup critique +${5 * k} % (dégâts ×2)`, depipe:k => `+${k} projectile${k > 1 ? "s" : ""}`,
+  multiexp:k => `Exp. gagnée +${8 * k} %`, rappel:k => `${k} Rappel${k > 1 ? "s" : ""} : ranime à 50 % des PV`,
+  orbevie:k => `Attaque +${fpMul(1.04, k)} %, zone, vit. projectiles et durée +${3 * k} %, recharge −${fpDiv(.98, k)} % · contrecoup ${fpN(.4 * k)} % des PV/s`,
+  miel:k => `Pokémon sauvages +${10 * k} % (vitesse, PV, nombre)`,
+};
+function fpZones(on) { $("fpCaps").hidden = $("fpStats").hidden = !on; $("fpCapsBtn").classList.toggle("on", on); } // Capacités : statistiques + capacités et objets
 function fpOptions(on) { // Options : le réglage de la pause de Neo (volume, auto-potion) est prêté au panneau le temps de l'affichage
   const opt = $("pauseOpt");
   if (on) { $("fpOptSlot").appendChild(opt); opt.hidden = false; $("fpBtns").hidden = true; $("pauseOptBack").focus({ preventScroll:true }); }
@@ -48,7 +61,7 @@ function fpOptions(on) { // Options : le réglage de la pause de Neo (volume, au
 let fpWas = false;
 function fpSync() { // la pause de Neo s'ouvre/se ferme (Échap, bouton, manette) : ce menu suit, ouvert par défaut sur le seul panneau PAUSE
   const show = state === "pause" && fpOn();
-  if (show && !fpWas) { fpZone("caps", false); fpZone("stats", false); fpRender(); if ($("fpOptSlot").contains($("pauseOpt"))) fpOptions(false); setTimeout(() => $("fpResume").focus({ preventScroll:true }), 0); }
+  if (show && !fpWas) { fpZones(false); fpRender(); if ($("fpOptSlot").contains($("pauseOpt"))) fpOptions(false); setTimeout(() => $("fpResume").focus({ preventScroll:true }), 0); }
   if (!show && fpWas && $("fpOptSlot").contains($("pauseOpt"))) fpOptions(false);
   if (show && !$("pause").hidden) $("pause").hidden = true; // seulement s'il est visible (sinon l'observateur de fork-menu referme les Options)
   FP.hidden = !show; fpWas = show;
@@ -57,8 +70,7 @@ function fpSync() { // la pause de Neo s'ouvre/se ferme (Échap, bouton, manette
 const fpTogglePause = togglePause;
 togglePause = () => { fpTogglePause(); fpSync(); };
 $("fpResume").addEventListener("click", () => { if (state === "pause") togglePause(); });
-$("fpCapsBtn").addEventListener("click", () => fpZone("caps", $("fpCaps").hidden));
-$("fpStatsBtn").addEventListener("click", () => fpZone("stats", $("fpStats").hidden));
+$("fpCapsBtn").addEventListener("click", () => fpZones($("fpCaps").hidden));
 $("fpOptBtn").addEventListener("click", () => fpOptions(true));
 $("pauseOptBack").addEventListener("click", () => { if ($("fpOptSlot").contains($("pauseOpt"))) fpOptions(false); });
 $("fpQuit").addEventListener("click", () => $("quitBtn").click());

@@ -3,7 +3,7 @@
    Menu → Solo → cet écran → Confirmer → choix de la carte (42-fork-carte.js), avec ce starter déjà choisi.
    Stats : départ du Pokémon + vrais achats du Marchand (objet shop). Données lues dans LINES, MOVES, TALENTS. */
 // Version du fork, à côté de celle du jeu (Neo l'a retirée de son jeu ; elle reste ici, dans un fichier propre au fork)
-const FORK_VER = "04"; // +1 à chaque envoi sur GitHub (MAJ-NNN)
+const FORK_VER = "05"; // +1 à chaque envoi sur GitHub (MAJ-NNN)
 $("verTag").textContent = "Version " + NET_VER.slice(1) + " · Fork " + FORK_VER;
 // Mentions légales : crédit du fork ajouté à la ligne « Jeu original » de Neo (ou en fin de page si elle change)
 { const box = document.querySelector("#legal .legalText"), orig = box && [...box.querySelectorAll("p")].find(p => /Jeu original/.test(p.textContent));
@@ -144,7 +144,14 @@ $("homeSolo").replaceWith($("homeSolo").cloneNode(true)); // Solo ouvre maintena
 // Thème menu (Paramètres) : « Lugiapsy » = cette sélection, « Neocrizis » = Solo ouvre directement l'écran de Neo
 let menuTheme = "lugiapsy"; try { menuTheme = localStorage.getItem("pokesurv-menutheme") || "lugiapsy"; } catch (e) {}
 $("menuTheme").value = menuTheme;
-$("menuTheme").addEventListener("change", e => { menuTheme = e.target.value; try { localStorage.setItem("pokesurv-menutheme", menuTheme); } catch (er) {} });
+const thApply = () => document.body.classList.toggle("thLugia", menuTheme === "lugiapsy"); // style des pages du menu (fork-theme.css)
+thApply();
+$("menuTheme").addEventListener("change", e => { menuTheme = e.target.value; thApply(); try { localStorage.setItem("pokesurv-menutheme", menuTheme); } catch (er) {} });
+// Thème Lugiapsy : Magasin, Succès et Pokédex n'ont plus que le retour en haut à gauche (le « Retour » du bas est caché) : il prend le focus
+for (const [btn, back] of [["shopBtn", "shopBack"], ["achBtn", "achBack"], ["dexBtn", "dexBack"]]) $(btn).addEventListener("click", () => {
+  if (btn === "dexBtn") for (const c of $("dexGrid").querySelectorAll(".dexCard")) c.classList.toggle("unseen", c.querySelector("b").textContent === "???"); // pas encore vu : case foncée
+  if (menuTheme === "lugiapsy") $(back).focus({ preventScroll:true });
+});
 $("homeSolo").addEventListener("click", () => { if (menuTheme === "lugiapsy") pickOpen(); else { setPickFlow(false); goPlay(false); } });
 $("pickBack").addEventListener("click", goHome);
 // Depuis l'écran de Neo ouvert par Solo : « ← Menu » et Échap reviennent à la sélection du Pokémon

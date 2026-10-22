@@ -1,6 +1,5 @@
 /* ---------- Spawns ---------- */
 function spawnFoe(kind, x, y) {
-  if (S.players.some(p => p.line === "pika") && LEVEL.num === 1) kind = { pichu:"lixy", pikachu:"luxio", raichu:"luxray" }[kind] || kind; // pas de Pichu/Pikachu/Raichu sauvage quand on joue Pichu
   let tS = LEVEL.league ? Math.min(S.t, 600) : S.t, d = FOES[kind], scale = (d.boss ? 1 : d.event || d.mini || d.mother ? 1 + tS / 400 : 1 + tS / 150) * CURSE() * (d.boss || d.event || d.mini || d.mother ? 1 + .6 * (S.players.length - 1) : 1); // boss : +60 % de PV par joueur en plus
   if (x === undefined) {
     const a = Math.random() * Math.PI * 2, dist = Math.hypot(W, H) / ZOOM / 2 + 60;

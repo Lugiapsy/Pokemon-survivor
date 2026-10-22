@@ -43,6 +43,8 @@
 #fpause .fpMv ol { margin:0; padding:0; list-style:none; font:500 12.5px/1.35 var(--body); }
 #fpause .fpMv li { display:grid; grid-template-columns:30px 1fr; color:#6f7a70; } #fpause .fpMv li b { font:8px/16px var(--num); color:#6f7a70; }
 #fpause .fpMv li.on { color:#fff; } #fpause .fpMv li.on b { color:var(--accent); }
+#fpause .fpObjH { margin:18px 0 12px; padding-top:12px; border-top:2px solid rgba(191,230,255,.35); }
+#fpause .fpObj .ic { --t:#4a5468; }
 #fpause .fpItems { display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:14px; padding-top:10px; border-top:2px solid rgba(191,230,255,.35); }
 #fpause .fpIt { display:flex; align-items:center; gap:7px; font:500 13px var(--body); } #fpause .fpIt img { width:28px; height:28px; image-rendering:pixelated; } #fpause .fpIt em { font:8px var(--num); color:var(--accent); font-style:normal; }
 /* écrans étroits : les zones passent sous le panneau, défilement vertical */

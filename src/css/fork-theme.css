@@ -1,0 +1,76 @@
+/* ---------- Fork (Lugiapsy) : thème « Lugiapsy » sur les pages du menu (accueil, paramètres, mentions légales, Magasin, Succès, Pokédex) ----------
+   Mêmes fenêtres et boutons que la sélection du Pokémon (fork-pick.css) : fond vert, cadre bleu nuit bordé d'or, cases grises,
+   boutons rouge (retour) et or (action). Actif seulement avec Paramètres > Thème menu = Lugiapsy (classe body.thLugia, 38-fork-pick.js).
+   Le Multijoueur (#start) et le thème Neocrizis gardent le style de Neo. */
+body.thLugia :is(#home, #settings, #legal, #shop, #ach, #dex) {
+  background:radial-gradient(ellipse at 50% 0%, #2c4a36 0%, #13221a 55%, #0a120d 100%); font-variant-ligatures:none; }
+body.thLugia :is(#settings, #legal, #shop, #ach, #dex) { padding-top:calc(76px + env(safe-area-inset-top, 0px)); }
+
+/* Fenêtre : cadre bleu nuit bordé d'or */
+body.thLugia :is(#settings, #legal, #shop, #ach, #dex) > .sheet, body.thLugia .homeMenu {
+  background:#25344a; border:3px solid #c9a24a; border-radius:6px; box-shadow:inset 0 0 0 2px #10182a, 0 8px 0 rgba(0,0,0,.35); }
+body.thLugia :is(#settings, #legal, #shop, #ach) > .sheet { width:min(620px, 100%); padding:16px 22px 22px; gap:14px; }
+body.thLugia #dex > .sheet { width:min(1180px, 100%); padding:16px 22px 22px; gap:12px; }
+body.thLugia :is(#settings, #legal, #shop, #ach, #dex) h2 { margin:0; font:700 clamp(26px, 3vw, 38px) var(--display); letter-spacing:.02em; color:var(--ink); text-shadow:none; }
+body.thLugia :is(#settings, #legal, #shop, #ach, #dex) .lede { color:#c8ccd4; font-size:15px; }
+
+/* Boutons : rouge en haut à gauche pour revenir, or pour agir */
+body.thLugia :is(#shopBack, #achBack, #dexBack, #settingsClose, #legalClose), body.thLugia :is(#shop, #ach, #dex) .btn,
+body.thLugia :is(#fsBtn, #cloudBtn), body.thLugia .homeMenu .homeBtn {
+  font:700 15px var(--display); border-radius:8px; border:3px solid; box-shadow:inset 0 -4px 0 rgba(0,0,0,.25); cursor:pointer; transform:none; }
+body.thLugia :is(#shopBack, #achBack, #dexBack, #settingsClose, #legalClose) {
+  position:absolute; top:calc(14px + env(safe-area-inset-top, 0px)); left:max(24px, env(safe-area-inset-left, 0px));
+  padding:9px 22px; color:var(--ink); background:#c8402a; border-color:#ffb08a; }
+body.thLugia :is(#settingsClose, #legalClose)::before { content:"← "; }
+body.thLugia :is(#shopClose, #achClose, #dexClose) { display:none; } /* un seul retour, en haut à gauche, comme la sélection du Pokémon */
+body.thLugia :is(#shop, #ach, #dex) .btn, body.thLugia :is(#fsBtn, #cloudBtn) { color:#1a1a1a; background:var(--accent); border-color:#fff1b8; padding:7px 16px; }
+body.thLugia :is(#shop, #ach, #dex, #settings, #legal) button:hover:not(:disabled), body.thLugia .homeMenu .homeBtn:hover { filter:brightness(1.12); }
+body.thLugia :is(#shop, #ach, #dex) .btn:disabled { opacity:1; filter:grayscale(.6) brightness(.85); cursor:default; }
+body.thLugia :is(#shop, #ach, #dex, #settings, #legal) button:focus-visible, body.thLugia :is(#shop, #ach, #dex, #settings, #legal) button.padfocus { outline:3px solid var(--ink); outline-offset:2px; }
+
+/* Accueil : les boutons dans une fenêtre, Solo en or, les autres en cases grises */
+body.thLugia .homeMenu { padding:16px; gap:10px; width:min(340px, 100%); }
+body.thLugia .homeMenu .homeBtn { transition:none; }
+body.thLugia .homeMenu .homeBtn { justify-content:flex-start; padding:10px 16px; font-size:18px; color:#1d2230; background:#9aa0a8; border-color:#5e6470; }
+body.thLugia .homeMenu .homeBtn:hover { border-color:#e8d08a; background:#a3a9b3; filter:none; }
+body.thLugia .homeMenu .homeBtn.main { color:#1a1a1a; background:var(--accent); border-color:#fff1b8; }
+body.thLugia .homeMenu .homeBtn.main:hover { background:#ffd65c; }
+body.thLugia .homeMenu .homeBtn:focus-visible, body.thLugia .homeMenu .homeBtn.padfocus { outline:3px solid var(--ink); outline-offset:2px; }
+body.thLugia .homeMenu .homeMoney { margin-left:auto; font:700 13px var(--display); color:#1d2230; background:#ffe066; border-radius:3px; padding:1px 6px; }
+body.thLugia .homeMenu .homeBtn.small { justify-content:center; font:600 13px var(--body); color:#c8ccd4; background:none; border-color:transparent; box-shadow:none; padding:4px; margin-top:2px; }
+body.thLugia .homeMenu .homeBtn.small:hover { color:var(--ink); text-decoration:underline; background:none; }
+
+/* Cases grises (lignes des Paramètres, du Magasin et des Succès) */
+body.thLugia .setRow, body.thLugia :is(#shop, #ach) .shopRow, body.thLugia #settings .help {
+  background:#9aa0a8; color:#1d2230; border:3px solid #5e6470; border-radius:6px; }
+body.thLugia .setList, body.thLugia :is(#shop, #ach) .shopList { width:100%; gap:8px; }
+body.thLugia .setRow { font:700 16px var(--display); }
+body.thLugia .setRow input[type="checkbox"] { accent-color:#3a2840; }
+body.thLugia .setSelect { font:700 14px var(--display); color:#1d2230; background:#c7ccd3; border-color:#5e6470; border-radius:5px; }
+body.thLugia #settings .volPct { color:#1d2230; font-size:9px; }
+body.thLugia #settings .volMute { color:#1d2230; background:#c7ccd3; border:2px solid #5e6470; border-radius:5px; }
+body.thLugia #settings .volRange { background:linear-gradient(90deg, #c9a24a var(--p, 100%), #5e6470 var(--p, 100%)); border-color:#1d2230; }
+body.thLugia #settings .setH { color:var(--ink); font:700 20px var(--display); }
+body.thLugia #settings .help { padding:10px 14px; font:600 13px var(--display); color:#1d2230; width:100%; box-sizing:border-box; }
+body.thLugia #settings .help kbd { color:#1d2230; background:#c7ccd3; border-color:#5e6470; }
+body.thLugia #legal .legalText { color:#c8ccd4; font-size:14px; }
+
+/* Magasin et Succès */
+body.thLugia #shop .tag.money { font:700 16px var(--display); color:#1d2230; background:#ffe066; border:2px solid #1d2230; border-radius:5px; padding:4px 14px; letter-spacing:.02em; text-transform:none; }
+body.thLugia :is(#shop, #ach) .shopRow { padding:9px 12px; }
+body.thLugia :is(#shop, #ach) .shopRow b { font:700 16px var(--display); }
+body.thLugia :is(#shop, #ach) .shopRow small { color:#3d4352; font:500 13px var(--display); }
+body.thLugia #shop .shopRow .pips { color:#7a1f10; }
+body.thLugia #ach .shopRow.done { background:#a3a9b3; border-color:#c9a24a; }
+body.thLugia #ach .shopRow.todo { opacity:1; background:#7c828d; } body.thLugia #ach .shopRow.todo b { color:#353a48; }
+body.thLugia #ach .shopRow .reward { font:700 13px var(--display); color:#1d2230; background:#ffe066; border-radius:3px; padding:1px 6px; }
+body.thLugia #ach .shopRow.todo .reward { background:#c7ccd3; }
+
+/* Pokédex : cases comme celles de la sélection du Pokémon */
+body.thLugia #dex .dexSection { color:var(--ink); border-bottom-color:#c9a24a; }
+body.thLugia #dex .dexSection small { color:#c8ccd4; }
+body.thLugia #dex .dexCard { background:#8a909b; border:3px solid #c9a24a; border-radius:4px; color:#1d2230; font:600 13px var(--display); }
+body.thLugia #dex .dexCard b { font:700 15px var(--display); }
+body.thLugia #dex .dexCard.unseen { background:#5b6170; } body.thLugia #dex .dexCard.unseen b { color:#353a48; }
+body.thLugia #dex .dexCard .pips { color:#7a1f10; }
+body.thLugia #dex .dexCard .next { color:#3d4352; }
